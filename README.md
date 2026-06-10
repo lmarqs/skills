@@ -1,5 +1,7 @@
 # lmarqs/skills
 
+[![skills.sh](https://skills.sh/b/lmarqs/skills)](https://skills.sh/lmarqs/skills)
+
 A small, sharable collection of agent skills.
 
 ## Install
