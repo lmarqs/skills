@@ -12,7 +12,7 @@ npx skills@latest add lmarqs/skills
 
 | Skill | What it does | Triggers when… |
 |-------|--------------|----------------|
-| [`hexagonal-layout`](skills/hexagonal-layout/SKILL.md) | Keeps a system's business decisions independent of its technology by reasoning about which way dependencies point across a hexagonal / ports-and-adapters boundary (core · adapters · run). Language- and framework-agnostic. | You add a feature, an external integration, or an entrypoint — or a dependency points the wrong way and you're unsure where a responsibility belongs ("where should this go", "wire it up", "which layer owns this"). |
+| [`hexagonal-layout`](skills/hexagonal-layout/SKILL.md) | Keeps a system's business logic independent of its technology by reasoning about which way dependencies point. Three kinds of code — the reason it exists, its connections to the outside, and how it's run (core · adapters · run). Language- and framework-agnostic. | You add a feature, an external integration, or an entrypoint — or a dependency points the wrong way and you're unsure where a responsibility belongs ("where should this go", "wire it up", "which layer owns this"). |
 
 ## Adding a skill
 
