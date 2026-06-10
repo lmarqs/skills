@@ -4,14 +4,14 @@ description: >-
   Keep a system's business logic independent of the technology it talks to, by reasoning about which
   way dependencies point across a hexagonal / ports-and-adapters / clean-architecture boundary. A
   system holds three kinds of code — its reason to exist (the business logic), its connections to the
-  outside world, and how it's run (the wiring and entrypoint) — so when adding code the question is
-  not "which folder" but "is this the reason, a connection, or how it's run, and what may it depend
-  on?" Use whenever adding a feature, a new integration with an external system, or a new entrypoint,
-  or whenever a dependency points the wrong way or you're unsure where a responsibility belongs.
-  Language- and framework-agnostic: the kinds map onto whatever names a project uses (app/infra/run,
-  domain/adapters/cmd, core/infrastructure/main). Reach for it even when the user never says
-  "hexagonal": "where should this go", "add the repository", "wire it up", "which layer owns this"
-  are all signals.
+  outside world, and how it's run (the wiring and entrypoint) — so the question is never "which
+  folder" but "is this the reason, a connection, or how it's run, and what may it depend on?" Use it
+  to scaffold a new system, place a feature, integration, or entrypoint, review how it's shaped, or
+  write an ADR about the layout — and whenever a dependency points the wrong way or you're unsure where
+  something belongs. Language-/framework-agnostic: the kinds map onto whatever names a project uses
+  (app/infra/run, domain/adapters/cmd). Reach for it even when the user never says
+  "hexagonal": "where should this go", "scaffold it ports-and-adapters", "review against hexagonal
+  principles", "which layer owns this" are all signals.
 ---
 
 # Hexagonal layout: keep a system's reason independent of its technology
@@ -30,6 +30,10 @@ A system holds **three kinds of code**, told apart by why each exists:
 Names vary — `core`/`adapters`/`run`, `app`/`infra`/`run`, `domain`/`adapters`/`cmd` are all the same three
 kinds. Detect what a project uses and follow it (and any ADR that fixes the layout); the kinds are what matter,
 not the labels.
+
+You'll reach for this lens in a few situations — **scaffolding** a new system, **placing** a change in an
+existing one, **reviewing** how one is shaped, or writing down the layout decision in an **ADR**. The same
+question drives them all: is this piece the reason, a connection, or how it's run — and what may it depend on?
 
 ## Which way dependencies point
 
@@ -97,9 +101,13 @@ an arrow pointing the wrong way.
 
 ## Workflow
 
-1. **Detect the layout** — identify which bucket holds each kind; use the project's vocabulary and any ADR,
-   don't rename.
-2. **Classify the change** — the reason, a connection, or how it's run? If it spans kinds, split it along the
+The situation sets where you start; the through-line is the same — name each kind and check its arrows.
+
+1. **Detect or establish the layout** — in an existing system, identify which bucket holds each kind, using the
+   project's vocabulary and any ADR; don't rename. Scaffolding a new one, establish the three kinds and name the
+   buckets for the domain (see *Naming*).
+2. **Classify** — is this the reason, a connection, or how it's run? If a change spans kinds, split it along the
    seam.
 3. **Place it and check the arrow** points toward the reason.
 4. **Flag the smells** that cost a payoff this project cares about; leave the trade-offs it made deliberately.
+   Reviewing a whole system is mostly this step, walked across the codebase.
