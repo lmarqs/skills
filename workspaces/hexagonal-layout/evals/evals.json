@@ -1,0 +1,44 @@
+{
+  "skill_name": "hexagonal-layout",
+  "evals": [
+    {
+      "id": 0,
+      "name": "new-integration-email",
+      "prompt": "I'm working in the repo under inputs/eval-0-new-integration-email/ (Python, organized as app/ infra/ run/). When a user signs up we now need to send them a welcome email through SendGrid. Where should the email-sending code go, and how do I wire it in? Walk me through the placement before writing any code.",
+      "files": ["inputs/eval-0-new-integration-email/"],
+      "assertions": [
+        {"text": "Declares an email/notifier interface (port) in the reason — app/ — owned where it's needed"},
+        {"text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/"},
+        {"text": "Keeps the SendGrid SDK import out of app/ — the reason takes on no outward runtime dependency on SendGrid"},
+        {"text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)"},
+        {"text": "Has the signup use-case invoke the email step through the interface — the decision to send the welcome email lives in the reason"}
+      ]
+    },
+    {
+      "id": 1,
+      "name": "wrong-way-dependency",
+      "prompt": "Code review on inputs/eval-1-wrong-way-dependency/internal/order/order.go (Go, layout is internal/ + cmd/). Something feels off about the Order type depending on the database directly. Is this structured right? If not, what would you change?",
+      "files": ["inputs/eval-1-wrong-way-dependency/"],
+      "assertions": [
+        {"text": "Identifies that database/sql I/O inside the domain Order type is a smell — the reason points outward at a concrete"},
+        {"text": "Recommends a repository-style interface (port) owned by the domain/reason"},
+        {"text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql"},
+        {"text": "Keeps the order-total business rule in the domain, not pushed into the adapter"},
+        {"text": "Notes the construction/wiring belongs in cmd (how it's run)"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "new-entrypoint-cli",
+      "prompt": "In inputs/eval-2-new-entrypoint-cli/ (TypeScript, src/core src/adapters src/run). We trigger a catalog reindex from an HTTP endpoint today. I want to also run the same reindex from a cron job as a CLI command, without duplicating the reindex logic. How should I add that?",
+      "files": ["inputs/eval-2-new-entrypoint-cli/"],
+      "assertions": [
+        {"text": "Reuses the existing reindexCatalog use-case in core rather than duplicating its logic"},
+        {"text": "Adds the new CLI as an entrypoint under run/ (how it's run)"},
+        {"text": "Wires the same adapters (ProductStore, SearchIndex) into the CLI entrypoint"},
+        {"text": "Keeps the CLI entrypoint thin — no business logic added to run/"},
+        {"text": "Does not introduce a new outward dependency from core to make this work"}
+      ]
+    }
+  ]
+}

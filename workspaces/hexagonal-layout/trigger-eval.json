@@ -1,0 +1,25 @@
+[
+  {"query": "we're adding stripe billing to our checkout service — where do i actually put the stripe client? laid out as domain/ infra/ cmd/ and i don't want to pollute the domain", "should_trigger": true},
+  {"query": "smell check: my internal/user package imports our redis wrapper directly inside the User aggregate. is that ok or should i restructure?", "should_trigger": true},
+  {"query": "need to add a CLI to our worker app so ops can trigger a reconciliation run manually — we already do it from an SQS consumer. where should the cli live so i'm not copy-pasting the reconcile logic?", "should_trigger": true},
+  {"query": "i wrote a function that calls the SendGrid API but also decides which users are eligible for the promo email. feels like it's in the wrong spot — where should this go?", "should_trigger": true},
+  {"query": "arch q for our go service (cmd/ + internal/): the domain layer imports the aws sdk to read from s3. feels backwards to me but my teammate says it's fine. thoughts?", "should_trigger": true},
+  {"query": "which layer owns retry/backoff? we call a flaky external pricing API and i'm not sure if it belongs in the use case or the http client", "should_trigger": true},
+  {"query": "I'm building a new payments-reconciliation service in Go and need a scaffold using hexagonal architecture — set up the folders and the seams so the core stays clean.", "should_trigger": true},
+  {"query": "starting greenfield, want it ports-and-adapters so the core doesn't depend on the framework — what directories and what goes where?", "should_trigger": true},
+  {"query": "starting a new python service from scratch. i want the business rules to not depend on fastapi or the db driver. how should i lay out the folders?", "should_trigger": true},
+  {"query": "Review this app using hexagonal principles — point out where infrastructure has leaked into the domain. repo's at ./services/orders", "should_trigger": true},
+  {"query": "can you audit our service against ports-and-adapters? i think we've got business logic scattered across the http handlers", "should_trigger": true},
+  {"query": "help me write an ADR documenting our decision to adopt hexagonal architecture and spell out what each layer is allowed to depend on", "should_trigger": true},
+
+  {"query": "our hexagonal CSS grid is breaking on mobile — the hexagon tiles overlap below 600px, can you fix the media query", "should_trigger": false},
+  {"query": "explain what dependency inversion means, just conceptually — i'm studying for a system design interview", "should_trigger": false},
+  {"query": "refactor this 300-line OrderService class into smaller private methods, it's doing way too much and it's hard to read", "should_trigger": false},
+  {"query": "the DI container throws 'cannot resolve UserRepository' at startup — can you debug why the binding isn't registered in our nestjs module?", "should_trigger": false},
+  {"query": "wire up the onClick handler so clicking the Subscribe button opens the pricing modal", "should_trigger": false},
+  {"query": "our clean-architecture diagram in the README is stale — update the mermaid chart to add the new analytics service box", "should_trigger": false},
+  {"query": "migrate our repo from npm to pnpm workspaces — set up the workspace layout in the root package.json and pnpm-workspace.yaml", "should_trigger": false},
+  {"query": "add a database index on orders.created_at to speed up the slow dashboard query", "should_trigger": false},
+  {"query": "should i use a hexagon or square grid for my board game's tile-map data structure? trying to figure out neighbor lookups", "should_trigger": false},
+  {"query": "what's the difference between USB-C ports and thunderbolt adapters? trying to figure out which dock to buy", "should_trigger": false}
+]
