@@ -1,7 +1,8 @@
-# Anti-patterns and the cross-ecosystem naming table
+# Smells to be aware of, and the cross-ecosystem naming table
 
-Every smell below is a violation of the one rule — *dependencies point inward, the core is pure*. The fix
-always restores it.
+Each pattern below dulls one of the two payoffs — a core you can test, a core you can reuse — usually by
+letting a dependency point the wrong way. None of it is a mandate: notice them, and fix the ones that cost a
+payoff this project actually cares about.
 
 ## Smells and fixes
 
