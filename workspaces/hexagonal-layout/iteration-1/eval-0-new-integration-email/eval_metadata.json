@@ -1,0 +1,12 @@
+{
+  "eval_id": 0,
+  "eval_name": "new-integration-email",
+  "prompt": "I'm working in the repo under inputs/eval-0-new-integration-email/ (Python, organized as app/ infra/ run/). When a user signs up we now need to send them a welcome email through SendGrid. Where should the email-sending code go, and how do I wire it in? Walk me through the placement before writing any code.",
+  "assertions": [
+    {"text": "Declares an email/notifier interface (port) in the reason — app/ — owned where it's needed"},
+    {"text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/"},
+    {"text": "Keeps the SendGrid SDK import out of app/ — the reason takes on no outward runtime dependency on SendGrid"},
+    {"text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)"},
+    {"text": "Has the signup use-case invoke the email step through the interface — the decision to send the welcome email lives in the reason"}
+  ]
+}

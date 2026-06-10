@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Declares an email/notifier interface (port) in the reason \u2014 app/ \u2014 owned where it's needed",
+      "passed": true,
+      "evidence": "New app/users/notifications.py declaring WelcomeNotifier Protocol, mirroring repository.py"
+    },
+    {
+      "text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/",
+      "passed": true,
+      "evidence": "infra/sendgrid/welcome_notifier.py holds SendGridWelcomeNotifier"
+    },
+    {
+      "text": "Keeps the SendGrid SDK import out of app/ \u2014 the reason takes on no outward runtime dependency on SendGrid",
+      "passed": true,
+      "evidence": "Explicit: 'No SendGrid types, no API keys, no import sendgrid anywhere in app/'"
+    },
+    {
+      "text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)",
+      "passed": true,
+      "evidence": "build_signup() constructs notifier from env and injects into SignUp"
+    },
+    {
+      "text": "Has the signup use-case invoke the email step through the interface \u2014 the decision to send the welcome email lives in the reason",
+      "passed": true,
+      "evidence": "SignUp.__call__ calls self._notifier.send_welcome(user) after save; 'welcome on signup is a business rule'"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "wrong-way-dependency",
+  "prompt": "Code review on inputs/eval-1-wrong-way-dependency/internal/order/order.go (Go, layout is internal/ + cmd/). Something feels off about the Order type depending on the database directly. Is this structured right? If not, what would you change?",
+  "assertions": [
+    {"text": "Identifies that database/sql I/O inside the domain Order type is a smell — the reason points outward at a concrete"},
+    {"text": "Recommends a repository-style interface (port) owned by the domain/reason"},
+    {"text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql"},
+    {"text": "Keeps the order-total business rule in the domain, not pushed into the adapter"},
+    {"text": "Notes the construction/wiring belongs in cmd (how it's run)"}
+  ]
+}

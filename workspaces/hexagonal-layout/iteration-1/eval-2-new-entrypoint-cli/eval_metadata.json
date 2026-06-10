@@ -1,0 +1,12 @@
+{
+  "eval_id": 2,
+  "eval_name": "new-entrypoint-cli",
+  "prompt": "In inputs/eval-2-new-entrypoint-cli/ (TypeScript, src/core src/adapters src/run). We trigger a catalog reindex from an HTTP endpoint today. I want to also run the same reindex from a cron job as a CLI command, without duplicating the reindex logic. How should I add that?",
+  "assertions": [
+    {"text": "Reuses the existing reindexCatalog use-case in core rather than duplicating its logic"},
+    {"text": "Adds the new CLI as an entrypoint under run/ (how it's run)"},
+    {"text": "Wires the same adapters (ProductStore, SearchIndex) into the CLI entrypoint"},
+    {"text": "Keeps the CLI entrypoint thin — no business logic added to run/"},
+    {"text": "Does not introduce a new outward dependency from core to make this work"}
+  ]
+}

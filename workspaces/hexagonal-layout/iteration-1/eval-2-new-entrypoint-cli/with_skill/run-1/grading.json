@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Reuses the existing reindexCatalog use-case in core rather than duplicating its logic",
+      "passed": true,
+      "evidence": "'imports the same reindexCatalog'; 'the reindex logic itself does not move'"
+    },
+    {
+      "text": "Adds the new CLI as an entrypoint under run/ (how it's run)",
+      "passed": true,
+      "evidence": "New src/run/reindexCli.ts alongside server.ts"
+    },
+    {
+      "text": "Wires the same adapters (ProductStore, SearchIndex) into the CLI entrypoint",
+      "passed": true,
+      "evidence": "Constructs PostgresProductStore + ElasticSearchIndex, same as server"
+    },
+    {
+      "text": "Keeps the CLI entrypoint thin \u2014 no business logic added to run/",
+      "passed": true,
+      "evidence": "'Don't put reindex logic in reindexCli.ts; only construct, call, and report'"
+    },
+    {
+      "text": "Does not introduce a new outward dependency from core to make this work",
+      "passed": true,
+      "evidence": "'core gains a second driver without learning anything about HTTP or cron'; core untouched"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

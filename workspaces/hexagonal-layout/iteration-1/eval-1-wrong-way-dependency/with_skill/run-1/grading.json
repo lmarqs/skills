@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies that database/sql I/O inside the domain Order type is a smell \u2014 the reason points outward at a concrete",
+      "passed": true,
+      "evidence": "'I/O and an outside concrete living in the reason'; 'dependency arrow points the wrong way'"
+    },
+    {
+      "text": "Recommends a repository-style interface (port) owned by the domain/reason",
+      "passed": true,
+      "evidence": "Repository interface declared in internal/order, 'the reason owns this interface'"
+    },
+    {
+      "text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql",
+      "passed": true,
+      "evidence": "internal/order/postgres/repository.go holds the INSERT; drop database/sql from order.go"
+    },
+    {
+      "text": "Keeps the order-total business rule in the domain, not pushed into the adapter",
+      "passed": true,
+      "evidence": "Place() retains the total computation and empty-order check, no I/O"
+    },
+    {
+      "text": "Notes the construction/wiring belongs in cmd (how it's run)",
+      "passed": true,
+      "evidence": "cmd/server/main.go opens DB, builds postgres repo, wires service"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

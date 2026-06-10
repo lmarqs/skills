@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies that database/sql I/O inside the domain Order type is a smell \u2014 the reason points outward at a concrete",
+      "passed": true,
+      "evidence": "'dependency-direction inversion'; 'business core depends on infrastructure'"
+    },
+    {
+      "text": "Recommends a repository-style interface (port) owned by the domain/reason",
+      "passed": true,
+      "evidence": "Repository interface in internal/order/repository.go (the port)"
+    },
+    {
+      "text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql",
+      "passed": true,
+      "evidence": "internal/order/postgres/repository.go with compile-time var _ order.Repository check"
+    },
+    {
+      "text": "Keeps the order-total business rule in the domain, not pushed into the adapter",
+      "passed": true,
+      "evidence": "Place() stays pure: validate, sum Total, set Status"
+    },
+    {
+      "text": "Notes the construction/wiring belongs in cmd (how it's run)",
+      "passed": true,
+      "evidence": "main is the composition root: opens db, wires repo -> service"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

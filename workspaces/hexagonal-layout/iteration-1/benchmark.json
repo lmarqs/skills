@@ -1,0 +1,323 @@
+{
+  "metadata": {
+    "skill_name": "hexagonal-layout",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-10T16:43:51Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 59.9,
+        "tokens": 20624,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Declares an email/notifier interface (port) in the reason \u2014 app/ \u2014 owned where it's needed",
+          "passed": true,
+          "evidence": "New app/users/notifications.py declaring WelcomeNotifier Protocol, mirroring repository.py"
+        },
+        {
+          "text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/",
+          "passed": true,
+          "evidence": "infra/sendgrid/welcome_notifier.py holds SendGridWelcomeNotifier"
+        },
+        {
+          "text": "Keeps the SendGrid SDK import out of app/ \u2014 the reason takes on no outward runtime dependency on SendGrid",
+          "passed": true,
+          "evidence": "Explicit: 'No SendGrid types, no API keys, no import sendgrid anywhere in app/'"
+        },
+        {
+          "text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)",
+          "passed": true,
+          "evidence": "build_signup() constructs notifier from env and injects into SignUp"
+        },
+        {
+          "text": "Has the signup use-case invoke the email step through the interface \u2014 the decision to send the welcome email lives in the reason",
+          "passed": true,
+          "evidence": "SignUp.__call__ calls self._notifier.send_welcome(user) after save; 'welcome on signup is a business rule'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 59.8,
+        "tokens": 20095,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies that database/sql I/O inside the domain Order type is a smell \u2014 the reason points outward at a concrete",
+          "passed": true,
+          "evidence": "'I/O and an outside concrete living in the reason'; 'dependency arrow points the wrong way'"
+        },
+        {
+          "text": "Recommends a repository-style interface (port) owned by the domain/reason",
+          "passed": true,
+          "evidence": "Repository interface declared in internal/order, 'the reason owns this interface'"
+        },
+        {
+          "text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql",
+          "passed": true,
+          "evidence": "internal/order/postgres/repository.go holds the INSERT; drop database/sql from order.go"
+        },
+        {
+          "text": "Keeps the order-total business rule in the domain, not pushed into the adapter",
+          "passed": true,
+          "evidence": "Place() retains the total computation and empty-order check, no I/O"
+        },
+        {
+          "text": "Notes the construction/wiring belongs in cmd (how it's run)",
+          "passed": true,
+          "evidence": "cmd/server/main.go opens DB, builds postgres repo, wires service"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 60.6,
+        "tokens": 20897,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reuses the existing reindexCatalog use-case in core rather than duplicating its logic",
+          "passed": true,
+          "evidence": "'imports the same reindexCatalog'; 'the reindex logic itself does not move'"
+        },
+        {
+          "text": "Adds the new CLI as an entrypoint under run/ (how it's run)",
+          "passed": true,
+          "evidence": "New src/run/reindexCli.ts alongside server.ts"
+        },
+        {
+          "text": "Wires the same adapters (ProductStore, SearchIndex) into the CLI entrypoint",
+          "passed": true,
+          "evidence": "Constructs PostgresProductStore + ElasticSearchIndex, same as server"
+        },
+        {
+          "text": "Keeps the CLI entrypoint thin \u2014 no business logic added to run/",
+          "passed": true,
+          "evidence": "'Don't put reindex logic in reindexCli.ts; only construct, call, and report'"
+        },
+        {
+          "text": "Does not introduce a new outward dependency from core to make this work",
+          "passed": true,
+          "evidence": "'core gains a second driver without learning anything about HTTP or cron'; core untouched"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 67.2,
+        "tokens": 18973,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Declares an email/notifier interface (port) in the reason \u2014 app/ \u2014 owned where it's needed",
+          "passed": true,
+          "evidence": "New app/users/notifications.py with WelcomeMailer Protocol, by analogy with repository.py"
+        },
+        {
+          "text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/",
+          "passed": true,
+          "evidence": "infra/sendgrid/welcome_mailer.py SendGridWelcomeMailer"
+        },
+        {
+          "text": "Keeps the SendGrid SDK import out of app/ \u2014 the reason takes on no outward runtime dependency on SendGrid",
+          "passed": true,
+          "evidence": "'If you ever find yourself writing import sendgrid inside app/, the email code has landed in the wrong layer'"
+        },
+        {
+          "text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)",
+          "passed": true,
+          "evidence": "build_signup() builds SendGridAPIClient from env and injects mailer"
+        },
+        {
+          "text": "Has the signup use-case invoke the email step through the interface \u2014 the decision to send the welcome email lives in the reason",
+          "passed": true,
+          "evidence": "SignUp calls self._mailer.send_welcome(user); 'policy decision lives in the use-case'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 52.9,
+        "tokens": 17288,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies that database/sql I/O inside the domain Order type is a smell \u2014 the reason points outward at a concrete",
+          "passed": true,
+          "evidence": "'dependency-direction inversion'; 'business core depends on infrastructure'"
+        },
+        {
+          "text": "Recommends a repository-style interface (port) owned by the domain/reason",
+          "passed": true,
+          "evidence": "Repository interface in internal/order/repository.go (the port)"
+        },
+        {
+          "text": "Moves the SQL into an adapter/connection (e.g. internal/postgres), leaving the domain free of database/sql",
+          "passed": true,
+          "evidence": "internal/order/postgres/repository.go with compile-time var _ order.Repository check"
+        },
+        {
+          "text": "Keeps the order-total business rule in the domain, not pushed into the adapter",
+          "passed": true,
+          "evidence": "Place() stays pure: validate, sum Total, set Status"
+        },
+        {
+          "text": "Notes the construction/wiring belongs in cmd (how it's run)",
+          "passed": true,
+          "evidence": "main is the composition root: opens db, wires repo -> service"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 63.0,
+        "tokens": 18855,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reuses the existing reindexCatalog use-case in core rather than duplicating its logic",
+          "passed": true,
+          "evidence": "'Both entrypoints call it. The logic lives in one place and is invoked twice'"
+        },
+        {
+          "text": "Adds the new CLI as an entrypoint under run/ (how it's run)",
+          "passed": true,
+          "evidence": "New src/run/reindex-cli.ts next to server.ts"
+        },
+        {
+          "text": "Wires the same adapters (ProductStore, SearchIndex) into the CLI entrypoint",
+          "passed": true,
+          "evidence": "Reuses ElasticSearchIndex + PostgresProductStore + pool verbatim"
+        },
+        {
+          "text": "Keeps the CLI entrypoint thin \u2014 no business logic added to run/",
+          "passed": true,
+          "evidence": "'no new logic'; only main(), log line, exit code added"
+        },
+        {
+          "text": "Does not introduce a new outward dependency from core to make this work",
+          "passed": true,
+          "evidence": "core/ports.ts and reindexCatalog.ts untouched; 'No new port is needed'"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 60.1,
+        "stddev": 0.4359,
+        "min": 59.8,
+        "max": 60.6
+      },
+      "tokens": {
+        "mean": 20538.6667,
+        "stddev": 407.7528,
+        "min": 20095,
+        "max": 20897
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 61.0333,
+        "stddev": 7.3501,
+        "min": 52.9,
+        "max": 67.2
+      },
+      "tokens": {
+        "mean": 18372.0,
+        "stddev": 940.6237,
+        "min": 17288,
+        "max": 18973
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.00",
+      "time_seconds": "-0.9",
+      "tokens": "+2167"
+    }
+  },
+  "notes": []
+}

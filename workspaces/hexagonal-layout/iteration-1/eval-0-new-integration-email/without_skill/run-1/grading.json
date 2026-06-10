@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Declares an email/notifier interface (port) in the reason \u2014 app/ \u2014 owned where it's needed",
+      "passed": true,
+      "evidence": "New app/users/notifications.py with WelcomeMailer Protocol, by analogy with repository.py"
+    },
+    {
+      "text": "Places the SendGrid SDK implementation in the connections (infra/), not in app/",
+      "passed": true,
+      "evidence": "infra/sendgrid/welcome_mailer.py SendGridWelcomeMailer"
+    },
+    {
+      "text": "Keeps the SendGrid SDK import out of app/ \u2014 the reason takes on no outward runtime dependency on SendGrid",
+      "passed": true,
+      "evidence": "'If you ever find yourself writing import sendgrid inside app/, the email code has landed in the wrong layer'"
+    },
+    {
+      "text": "Wires the concrete SendGrid implementation in run/main.py (how it's run)",
+      "passed": true,
+      "evidence": "build_signup() builds SendGridAPIClient from env and injects mailer"
+    },
+    {
+      "text": "Has the signup use-case invoke the email step through the interface \u2014 the decision to send the welcome email lives in the reason",
+      "passed": true,
+      "evidence": "SignUp calls self._mailer.send_welcome(user); 'policy decision lives in the use-case'"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}
