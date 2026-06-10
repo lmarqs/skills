@@ -24,7 +24,8 @@ A system holds **three kinds of code**, told apart by why each exists:
 - **The connections** — *how it reaches the outside world.* The implementations of those interfaces against
   external systems. Where all the I/O lives.
 - **How it's run** — *which connections to use, and how the program starts.* Picks the concrete
-  implementations, wires them into the reason, and is the entrypoint. The only part that knows both sides.
+  implementations, wires them into the reason, and is the entrypoint. It's where the connections and the reason
+  meet.
 
 Names vary — `core`/`adapters`/`run`, `app`/`infra`/`run`, `domain`/`adapters`/`cmd` are all the same three
 kinds. Detect what a project uses and follow it (and any ADR that fixes the layout); the kinds are what matter,
@@ -32,20 +33,18 @@ not the labels.
 
 ## Which way dependencies point
 
-**Every dependency points toward the reason:** the connections depend on it, the run code depends on both, and
-the reason depends on neither. The reason declares the interfaces; the connections implement them; run wires
-them. The reason never reaches out for a collaborator — it is handed one. (In the usual bucket names:
-`run → core ← adapters`.)
+**Dependencies point toward the reason:** the connections depend on it, the run code on both, and the reason on
+neither. The reason declares the interfaces; the connections implement them; run wires them. The reason doesn't
+reach out for a collaborator — it's handed one. (In the usual bucket names: `run → core ← adapters`.)
 
-The arrow comes in two kinds, and the kind changes what an outward dependency costs:
+An outward arrow from the reason is worth a second look, and its kind tells you how much it weighs:
 
-- A **runtime dependency** is loaded and executed when the program runs — it pulls in behaviour.
-- A **build-time dependency** exists only while compiling or type-checking and is erased before the program
-  runs — it carries no behaviour, only shapes and contracts: interfaces, constants, enums.
+- A **runtime dependency** is loaded and run with the program — it pulls in behaviour and ties the reason to a
+  concrete.
+- A **build-time dependency** is about shape, not behaviour — a type, interface, constant, or enum referred to
+  while compiling or type-checking — so it weighs less.
 
-A build-time arrow out of the reason is lower-severity than a runtime one, not automatically fine: a strict
-project can forbid *any* arrow out of the reason and check it statically — a check that fails even on an
-unexecuted import.
+How much weight to give either is the project's call.
 
 ## What this buys
 
@@ -55,7 +54,7 @@ Keeping the reason independent of its connections pays off three ways:
 - **Testable** — exercise the logic with stand-ins, no external system in the loop.
 - **Reusable** — the same logic driven by more than one way of running it.
 
-Hold this as loosely or strictly as the project decides; real codebases sit all along that spectrum. Read it as
+Hold this as loosely or firmly as the project decides; real codebases sit all along that spectrum. Read it as
 *"be aware of how the system is shaped,"* not *"obey these rules."*
 
 ## Reason, connection, or how it's run?
@@ -93,8 +92,8 @@ this project actually wants:
 - **An anemic reason with the logic in run** — bound to one way of running. Push use-cases into the reason;
   keep run thin.
 
-How strict to hold the line is the project's call; enforce it with a check that fails when an arrow points the
-wrong way.
+How firmly to hold the line is the project's call — some teams stay aware of it, others add a check that flags
+an arrow pointing the wrong way.
 
 ## Workflow
 
