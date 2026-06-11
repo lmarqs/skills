@@ -1,5 +1,5 @@
 ---
-name: architecture-decision-doc
+name: architecture-design
 description: >-
   Write a structured architecture decision document — an RFC / design doc / technical doc that
   records *why* a non-trivial technical choice was made, not just what was built. Follows a six-part
