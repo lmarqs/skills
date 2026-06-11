@@ -37,6 +37,41 @@ Second, we tend to make things more complicated than they need to be — anyone 
 simplify, and simplifying is the real work. So: tie every choice back to a stated requirement, and
 cut anything that isn't pulling its weight.
 
+## Sharpen the axe first
+
+> *"If I had eight hours to chop down a tree, I'd spend six sharpening the axe."* — attributed to
+> Abraham Lincoln.
+
+Architecture is the highest-leverage, hardest-to-reverse work in software. Get it wrong and no amount
+of clean code downstream saves the project — the wrong foundation sinks everything built on it. So
+this document always deserves your **highest effort and slowest thinking**. There is no "quick mode"
+here, and a fast, thin pass is itself a failure. **Thinking time is not the bottleneck** — a rushed
+plausible answer that's subtly wrong costs far more than the hours spent getting it right.
+
+Spend the bulk of your effort *before* the conclusion — sharpening: genuinely understanding the
+context, pinning down the requirements that actually constrain the choice, and exploring the
+alternatives in earnest. The written document is the chips that fly; the real work is the cut you make
+in your head first. Concretely:
+
+- **Don't commit to the first design that seems to work.** Generate real alternatives — at least two
+  or three credible ones per dimension being decided — before you start narrowing. If you can only
+  think of one option, you haven't looked hard enough yet.
+- **Grill your own recommendation.** For the option you favor, write down its *strongest* objection,
+  not a strawman — and the specific conditions that would flip the decision the other way. A tradeoff
+  table where every cell favors your pick is a warning sign, not a victory: you've stopped looking.
+- **Steelman what you reject.** State each rejected alternative at its best, so a reader who prefers it
+  sees you understood it and still had reasons. That's what makes the decision trustworthy.
+- **Be precise; ambiguity is where bad decisions hide.** Concrete numbers (load, latency budgets,
+  cost), named components, grounded claims with a link or a measurement. "Should be fast" hides a
+  decision; "≤ 300ms at p95 under 2× peak, validated by load test" makes one.
+- **Surface uncertainty honestly.** Where you're guessing, say so, and say what evidence (a spike, a
+  POC, a benchmark) would resolve it — then recommend running it. A POC to de-risk an irreversible
+  choice is the axe-sharpening, not a delay.
+
+The sections below are *what to think about*, not a checklist to fill quickly. Slow down on the parts
+that carry the most risk — usually the requirements and the tradeoff analysis.
+
+
 **Write in the language of the request and its source material.** If the task, the codebase, and the
 existing docs are in Portuguese, the document is in Portuguese; if English, English. Match what the
 reader of *this* document will expect.
@@ -101,10 +136,11 @@ takes refinement and keeps everyone aligned on the direction being taken; it's n
 
 ### 4 — Tradeoff analysis
 
-This is where the document earns its keep. There is no silver bullet and no one-size-fits-all — every
-alternative has upsides, downsides, and risks, and all of them get analyzed and recorded with real
-depth. Surfacing a downside isn't weakening your case; it's what makes the eventual decision
-trustworthy.
+This is where the document earns its keep, and where the bulk of your effort belongs (see *Sharpen
+the axe first*). There is no silver bullet and no one-size-fits-all — every alternative has upsides,
+downsides, and risks, and all of them get analyzed and recorded with real depth. Surfacing a downside
+isn't weakening your case; it's what makes the eventual decision trustworthy. Push past the first pass:
+if the analysis came easily, you probably haven't found the alternative's real failure modes yet.
 
 For **each alternative**, capture:
 
