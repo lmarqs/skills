@@ -101,6 +101,24 @@ add what the decision needs.
 
 ## The method
 
+**Work the steps in order, and finish each before starting the next — don't jump the gun.** The
+sequence is the whole point, not ceremony. The single most common way these efforts fail is **rushing
+to a solution before the problem is understood** — a team arguing Lambda vs. Kubernetes before anyone
+has written down what the system must actually do. When you feel the pull to name a technology, a
+component, or an alternative while you're still in Context or Requirements, *that pull is the warning
+sign*: note the idea so you don't lose it, then get back to the problem. A design built on a shaky
+requirement is wasted work, and a tradeoff table over options nobody tied to a requirement is just
+opinion dressed up as analysis.
+
+So the earlier steps **gate** the later ones: don't open the Design until Context and Requirements are
+genuinely settled, and don't run the Tradeoff analysis until the Design is on the table. Hold the
+problem in focus until it's truly understood; the solution discussion has to wait its turn.
+
+The one moment to step back and read the **whole document end to end** is *after the Alternatives
+analysis reaches its conclusion* — check that the requirements still hold, that every component traces
+to one, and that the decision follows from the analysis. That review is the payoff of the discipline,
+earned by working up to it; it is not permission to skip ahead.
+
 ### 1 — Contextualize
 
 Start from the problem, not the document. The point of this section is to make a reader *understand the
@@ -186,8 +204,12 @@ that wins on elegance but misses a hard requirement doesn't win.
 
 ### 5 — The decision itself
 
-In the end a decision has to be made and stated plainly — which alternative, and the reasoning that
-carried it. Name the decision style so the basis is on the record:
+This is the moment the discipline has earned: **now read the whole document end to end** (see *Work the
+steps in order*) — requirements still right, every component tracing to one, the analysis genuinely
+supporting where it points — and revise what that pass exposes before you commit.
+
+Then a decision has to be made and stated plainly — which alternative, and the reasoning that carried
+it. Name the decision style so the basis is on the record:
 
 - **Autocratic** — if it's your call to make, make it; consult others, but you own the outcome.
 - **Democratic** — one vote each, the majority decides. Not always applicable, but a fair tiebreaker
