@@ -1,0 +1,56 @@
+{
+  "skill_name": "architecture-design",
+  "evals": [
+    {
+      "id": 0,
+      "name": "rfc-rate-limiting",
+      "prompt": "We need to decide how to implement rate limiting on our public API (public-search-api), which today has no controls at all and has already given us a few abuse scares. It's between using AWS API Gateway's native throttling or standing up our own middleware with Redis on our Kubernetes cluster. Write an RFC so we can settle it at the next architecture meeting.",
+      "expected_output": "A forward-looking RFC in English following the 6-part method: context (current state, pains), functional and non-functional requirements, design with diagrams (static + dynamic, or described placeholders), a tradeoff table comparing API Gateway throttling vs Redis middleware with pros/cons/risks (each risk with impact, probability, mitigation, contingency), an explicit decision with decision style, and a conclusion/communication (launch strategy / roadmap). Written entirely in English.",
+      "files": [],
+      "assertions": [
+        "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+        "Requirements are present and explicitly split into functional and non-functional",
+        "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+        "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+        "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+        "States an explicit decision (which alternative was chosen) rather than leaving it open",
+        "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+        "Written entirely in English (matching the request language)"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "rfc-message-queue",
+      "prompt": "We're building an order-processing pipeline and need to pick a message queue. It's between AWS SQS (managed, dead simple) and self-hosting RabbitMQ on our existing cluster (more control, supports complex routing we might need later). Orders are business-critical and we can't lose messages. Write up an RFC so the team can decide.",
+      "expected_output": "A forward-looking RFC in English following the 6-part method: context, architecturally-relevant requirements (incl. non-functional like durability/no message loss), design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing SQS vs RabbitMQ with pros/cons/risks where each risk has impact, probability, mitigation, and contingency, an explicit decision with decision style, and a conclusion (rollout/roadmap). Written entirely in English (matching the request language).",
+      "files": [],
+      "assertions": [
+        "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+        "Requirements are present and explicitly split into functional and non-functional",
+        "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+        "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+        "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+        "States an explicit decision (which alternative was chosen) rather than leaving it open",
+        "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+        "Written entirely in English (matching the request language)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tech-doc-retrospective",
+      "prompt": "We just finished migrating our notifications service: it went from a monolithic cron running in a pod to an event-driven flow with EventBridge triggering Lambdas per notification type (email, push, sms). It's already in production. I need to document technically how it turned out so new folks on the team can understand the architecture and maintain it.",
+      "expected_output": "A retrospective technical documentation in English using the retrospective shape: Context (prior situation -> motivations -> scope), Architecture (components with responsibilities + numbered step-by-step flow(s), accompanying a dynamic diagram or placeholder), Risks and mitigations, Lessons learned, Improvement point(s), and a Version history table. Written entirely in English, documenting what was built (not deciding).",
+      "files": [],
+      "assertions": [
+        "Context section covers the situation before, the motivations for the change, and the scope",
+        "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+        "Includes at least one step-by-step numbered flow of the event-driven process",
+        "Has a risks-and-mitigations section",
+        "Has a lessons-learned section",
+        "Includes a version-history table (version, date, author, description)",
+        "Written entirely in English",
+        "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives"
+      ]
+    }
+  ]
+}
