@@ -18,8 +18,14 @@ in English, but the same structure applies in any language.)
 
 ## Context
 
-The goal of Phase III is to implement the full purchase flow (search, cart, checkout). This document
-describes what changes in the system to reach that goal.
+> Told as a story that lands on a problem, not as "this document describes…".
+
+Search today is served two different ways — straight from the transactional database and from
+Elasticsearch — stitched together across two APIs. That shape grew organically as features were added,
+and it now costs us in latency, in money (running Elasticsearch), and in maintenance bugs from keeping
+two sources in sync. Phase III layers the full purchase flow (search → cart → checkout) on top of that
+search. **The problem to solve:** that fragmented shape can't carry the new flow without regressing
+today's behavior or its ranking — so we need to decide how search should be served going forward.
 
 ### Out of scope
 

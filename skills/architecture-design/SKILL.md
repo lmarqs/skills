@@ -17,10 +17,13 @@ description: >-
 
 # Architecture decision document
 
-The job is to **record a decision and the reasoning behind it** so the next person — a new hire, a
-reviewer, your future self — can understand not just *what* was chosen but *why*, and could have
-reached the same conclusion from the same evidence. Code shows what was built; this document shows
-why it was built that way and what was rejected.
+The real work is **structured thinking about a technical decision** — framing the problem, weighing the
+options against what actually matters, and committing with reasons. The written artifact is the *trace*
+that thinking leaves behind, so the next person — a new hire, a reviewer, your future self — can follow
+not just *what* was chosen but *why*, and could have reached the same conclusion from the same evidence.
+Keep that order of priority: a document that reads well but skips the thinking is worthless; treat the
+artifact as a consequence of the reasoning, never as the goal, or it curdles into bureaucracy. Code
+shows what was built; this record shows why it was built that way and what was rejected.
 
 This is deliberately a **pragmatic framework, not a fixed format.** It blends the two industry
 documents people usually keep apart: an **RFC** (a proposal floated *before* building, to weigh
@@ -101,18 +104,32 @@ add what the decision needs.
 
 ### 1 — Contextualize
 
-Explain the context this decision lives in, written for someone who is *just starting to learn about
-the project*. No ambiguity, and nothing is "obvious" — the obvious is exactly what a newcomer is
-missing, so say it. Cover what exists today, why this is being looked at now, and what is explicitly
-**out of scope** (naming non-goals prevents the document from sprawling). A reader should finish this
-section knowing enough to follow the rest without prior knowledge of the system.
+Start from the problem, not the document. The point of this section is to make a reader *understand the
+situation*, so frame it around what's happening in the world — not around "this document describes…".
+
+Tell the story so a newcomer follows it without prior knowledge: **things were this way → then this
+happened → and because of that, we now need to decide X.** Nothing is "obvious" — the obvious is
+exactly what a newcomer is missing, so say it. By the end the reader should be able to answer the two
+questions that matter most: **what problem are we solving, and why does it matter now?** Then state what
+is explicitly **out of scope** — naming non-goals keeps the work from sprawling.
 
 ### 2 — Requirements
 
-Requirements are what is **non-negotiable**. Focus on the *architecturally-relevant* ones: high
-complexity or business-critical, the decisions taken early that are expensive or irreversible to undo.
-Don't pad the list with everything imaginable — these are the constraints the design and the tradeoff
-analysis will be judged against, so each one has to earn its place.
+Requirements are what is **non-negotiable**. The hard part — and where most efforts lose focus — is
+separating the *architecturally-relevant* requirements from the long tail of feature details that don't
+shape the structure. Be explicit about the cut, because everything downstream is judged against this
+list. A requirement is **architecturally relevant** when it meets at least one of these tests:
+
+- **Hard to reverse** — getting it wrong is expensive or near-impossible to undo later (data model,
+  consistency model, a public contract, a security boundary).
+- **Shapes the structure** — it forces a component, a boundary, or an integration to exist; drop it and
+  the design would look genuinely different.
+- **Business-critical** — the system fails its purpose if this isn't met ("we cannot lose an order").
+- **Cross-cutting quality** — a system-wide "-ility" with a real target: latency, throughput,
+  availability, durability, security, cost, operability.
+
+If a requirement passes none of these, it's a feature detail — capture it elsewhere; it doesn't belong
+in the analysis that drives the architecture. Keep the list short: each entry has to earn its place.
 
 Split them into **functional** (what the system must do) and **non-functional** (how well — latency
 budgets, observability, test coverage, security, standardization). State them concretely enough to be
@@ -120,10 +137,18 @@ checkable: "search response ≤ 3000ms at p95, validated under load" beats "sear
 
 ### 3 — Design
 
-Now solve the requirements with technology. Specify the **components** and show **how each requirement
-is met** within the design. The test of a good design is simple: *does it meet the requirements?* So
-don't get lost solving dilemmas nobody asked for — if it's not tied to a requirement, it's scope
-creep.
+Now solve the requirements with technology — and hold onto that word, *solve*. **Good architecture is
+the architecture that meets the requirements**, nothing more mystical than that; elegance that doesn't
+serve a requirement isn't good design, it's decoration. This is the exact point where many lose the
+thread, so make the link explicit and keep **traceability in both directions**:
+
+- **Every component exists because it addresses a requirement.** If you can't name the requirement a
+  component serves, it's scope creep — cut it or justify it.
+- **Every requirement is met by something in the design.** If a requirement maps to no component, the
+  design is incomplete; that gap is the first thing to fix.
+
+So specify the **components** and, for each, name the requirement(s) it answers. The test of a good
+design stays simple: *does it meet the requirements?* Don't get lost solving dilemmas nobody asked for.
 
 Include at minimum:
 

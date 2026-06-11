@@ -5,13 +5,14 @@
   Treat sections as a checklist, not a cage: drop what doesn't apply, add what the decision needs.
 -->
 
-# RFC — <decision title>
+# <Title>
 
 **Status:** <draft | in review | approved>
+**Current working focus:** <context | requirements | design | tradeoff | decision | concluded>
 
 ## Related documents
 
-- <diagrams, spreadsheets, specs, dashboards this document references>
+- <diagrams, spreadsheets, specs, dashboards referenced below>
 
 ## Context
 
