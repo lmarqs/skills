@@ -1,0 +1,153 @@
+---
+name: architecture-decision-doc
+description: >-
+  Write a structured architecture decision document — an RFC / design doc / technical doc that
+  records *why* a non-trivial technical choice was made, not just what was built. Follows a six-part
+  method: contextualize for a newcomer, state the architecturally-relevant requirements, design
+  components against them with static + dynamic diagrams, weigh every alternative by pros / cons /
+  risks (each risk with impact, probability, mitigation, contingency), record the decision and how it
+  was made, then conclude and communicate. Writes in the
+  same language as the request and its source material (Portuguese, English, …). Reach for it whenever
+  someone is choosing between technical options or documenting one — "write an RFC", "design doc",
+  "documento de arquitetura", "decisão arquitetural", "ADR", "tradeoff analysis", "documentação
+  técnica da implementação" — even if they never say "RFC". Also
+  fits the retrospective variant: documenting an implementation after the fact (lessons learned,
+  version history).
+---
+
+# Architecture decision document
+
+The job is to **record a decision and the reasoning behind it** so the next person — a new hire, a
+reviewer, your future self — can understand not just *what* was chosen but *why*, and could have
+reached the same conclusion from the same evidence. Code shows what was built; this document shows
+why it was built that way and what was rejected.
+
+Two things make these documents hard, and the method exists to counter both. First, it's tempting to
+follow hype or personal taste; decisions made without objective criteria cost the whole team later.
+Second, we tend to make things more complicated than they need to be — anyone can complicate, few can
+simplify, and simplifying is the real work. So: tie every choice back to a stated requirement, and
+cut anything that isn't pulling its weight.
+
+**Write in the language of the request and its source material.** If the task, the codebase, and the
+existing docs are in Portuguese, the document is in Portuguese; if English, English. Match what the
+reader of *this* document will expect.
+
+## Two shapes, one method
+
+- **Forward-looking (RFC / design doc)** — you're choosing *before* building. This is the full method
+  below: the heart is the tradeoff analysis and the recorded decision. See
+  `references/exemplo-rfc.md`.
+- **Retrospective (technical documentation)** — you're documenting something already built. Same
+  spirit, reshaped: Context (situation before → motivations → scope), Architecture (components +
+  step-by-step flows), Risks & mitigations, **Lessons learned**, improvement points, and a version
+  history table. See `references/exemplo-documentacao-tecnica.md`.
+
+Pick the shape from what the user is doing — deciding, or documenting a decision already made. When
+unsure, ask. The sections below describe the forward-looking method; the retrospective variant reuses
+the same building blocks (context, design/architecture, risks) with a backward-looking framing.
+
+A fill-in template for the forward-looking shape lives in `assets/template.md` — start from it rather
+than inventing structure, but treat its sections as a checklist, not a cage: drop what doesn't apply,
+add what the decision needs.
+
+## The method
+
+### 1 — Contextualize
+
+Explain the context this decision lives in, written for someone who is *just starting to learn about
+the project*. No ambiguity, and nothing is "obvious" — the obvious is exactly what a newcomer is
+missing, so say it. Cover what exists today, why this is being looked at now, and what is explicitly
+**out of scope** (naming non-goals prevents the document from sprawling). A reader should finish this
+section knowing enough to follow the rest without prior knowledge of the system.
+
+### 2 — Requirements
+
+Requirements are what is **non-negotiable**. Focus on the *architecturally-relevant* ones: high
+complexity or business-critical, the decisions taken early that are expensive or irreversible to undo.
+Don't pad the list with everything imaginable — these are the constraints the design and the tradeoff
+analysis will be judged against, so each one has to earn its place.
+
+Split them into **functional** (what the system must do) and **non-functional** (how well — latency
+budgets, observability, test coverage, security, standardization). State them concretely enough to be
+checkable: "search response ≤ 3000ms at p95, validated under load" beats "search should be fast."
+
+### 3 — Design
+
+Now solve the requirements with technology. Specify the **components** and show **how each requirement
+is met** within the design. The test of a good design is simple: *does it meet the requirements?* So
+don't get lost solving dilemmas nobody asked for — if it's not tied to a requirement, it's scope
+creep.
+
+Include at minimum:
+
+- **one static diagram** — the components and how they fit together;
+- **one dynamic diagram** — a flow or sequence showing how they interact over time.
+
+If you can't render diagrams, describe them precisely (a numbered step-by-step flow, a component list
+with responsibilities and arrows) and leave a clear placeholder for the real diagram. This section
+takes refinement and keeps everyone aligned on the direction being taken; it's normal to iterate here.
+
+### 4 — Tradeoff analysis
+
+This is where the document earns its keep. There is no silver bullet and no one-size-fits-all — every
+alternative has upsides, downsides, and risks, and all of them get analyzed and recorded with real
+depth. Surfacing a downside isn't weakening your case; it's what makes the eventual decision
+trustworthy.
+
+For **each alternative**, capture:
+
+- **Pros** — what the approach genuinely brings in its favor.
+- **Cons** — what it genuinely brings against it.
+- **Risks** — negative impacts that *might* happen and must be managed. Managing means dealing with
+  uncertainty, so each risk gets four attributes:
+  - **Impact** if it occurs — low / medium / high
+  - **Probability** of occurring — low / medium / high
+  - **Mitigation** — actions to *stop the risk from happening*
+  - **Contingency** — how you'd *act if it happens anyway*
+
+A table keeps this scannable and forces the discipline of filling every cell. Group alternatives by
+the dimension being decided (data store, provisioning, language, …) so related options sit
+side by side. The exact column layout is shown in `references/exemplo-rfc.md` — reuse it.
+
+Crucially, **weigh each alternative against the requirements from section 2**, one by one. An option
+that wins on elegance but misses a hard requirement doesn't win.
+
+### 5 — The decision itself
+
+In the end a decision has to be made and stated plainly — which alternative, and the reasoning that
+carried it. Name the decision style so the basis is on the record:
+
+- **Autocratic** — if it's your call to make, make it; consult others, but you own the outcome.
+- **Democratic** — one vote each, the majority decides. Not always applicable, but a fair tiebreaker
+  when alternatives come out genuinely close.
+
+Don't leave this implicit. A document that analyzes options but never commits leaves the reader
+exactly where they started.
+
+### 6 — Conclude and communicate
+
+Record the most relevant points of the decided architecture, and — just as importantly — make sure
+every stakeholder ends up on the same page about the decision and its impacts. A decision nobody hears
+about isn't really made. For forward-looking docs this is often a rollout/launch strategy and a task
+roadmap; for retrospective docs it's the lessons learned, open improvement points, and a **version
+history** table (version, date, author, change) so the document stays a living record.
+
+## Writing principles
+
+- **Newcomer-readable.** Assume the reader is meeting the project for the first time. Spell out the
+  obvious; define the acronyms.
+- **Every claim tied to a requirement or to evidence.** Link to the dashboard, the benchmark, the
+  PostHog report, the schema. Decisions backed by data outlive opinions.
+- **Simplify ruthlessly.** If a section, alternative, or requirement isn't earning its place, cut it.
+- **Be honest about downsides and risks.** The credibility of the decision rests on having genuinely
+  considered what could go wrong.
+- **Match the source's language, structure, and formatting.** Mirror the headings, numbered flows, and
+  table styles the examples use, in the reader's language.
+
+## References
+
+- `references/exemplo-rfc.md` — a worked forward-looking RFC (search-service decision): full structure
+  end to end, and the canonical tradeoff-table layout.
+- `references/exemplo-documentacao-tecnica.md` — a worked retrospective technical doc (social-auth
+  implementation): context → architecture → flows → risks → lessons learned → version history.
+- `assets/template.md` — fill-in skeleton for the forward-looking shape.

@@ -1,0 +1,26 @@
+{
+  "skill_name": "architecture-decision-doc",
+  "evals": [
+    {
+      "id": 0,
+      "name": "rfc-pt-rate-limiting",
+      "prompt": "A gente precisa decidir como implementar rate limiting na nossa API pública (public-search-api), que hoje não tem nenhum controle e já levou uns sustos de abuso. Tá entre usar o throttling nativo do API Gateway da AWS ou subir um middleware próprio com Redis no nosso cluster Kubernetes. Escreve uma RFC pra gente conseguir bater o martelo na próxima reunião de arquitetura.",
+      "expected_output": "A forward-looking RFC in Brazilian Portuguese following the 6-part method: contextualizacao (estado atual, dores), requisitos funcionais e nao-funcionais, design com diagramas (estatico + dinamico ou placeholders descritos), analise de tradeoff em tabela comparando API Gateway throttling vs Redis middleware com pros/contras/riscos (cada risco com impacto, probabilidade, mitigacao, contingencia), decisao explicita com estilo, e conclusao/comunicacao (estrategia de lancamento / roadmap). Written entirely in Portuguese.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "rfc-en-message-queue",
+      "prompt": "We're building an order-processing pipeline and need to pick a message queue. It's between AWS SQS (managed, dead simple) and self-hosting RabbitMQ on our existing cluster (more control, supports complex routing we might need later). Orders are business-critical and we can't lose messages. Write up an RFC so the team can decide.",
+      "expected_output": "A forward-looking RFC in English following the 6-part method: context, architecturally-relevant requirements (incl. non-functional like durability/no message loss), design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing SQS vs RabbitMQ with pros/cons/risks where each risk has impact, probability, mitigation, and contingency, an explicit decision with decision style, and a conclusion (rollout/roadmap). Written entirely in English (matching the request language).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "doc-tecnica-pt-retrospectiva",
+      "prompt": "Acabamos de terminar a migracao do nosso servico de notificacoes: saiu de um cron monolitico que rodava num pod e virou um fluxo event-driven com EventBridge disparando Lambdas por tipo de notificacao (email, push, sms). Ja esta em producao. Preciso documentar tecnicamente como ficou pra galera nova do time conseguir entender a arquitetura e dar manutencao.",
+      "expected_output": "A retrospective technical documentation in Portuguese using the retrospective shape: Contexto (situacao anterior -> motivacoes -> escopo), Arquitetura (componentes com responsabilidades + fluxo(s) passo a passo numerados, acompanhando diagrama dinamico ou placeholder), Riscos e mitigacoes, Licoes aprendidas, Ponto(s) de melhoria, e Historico de versoes em tabela. Written entirely in Portuguese, documenting what was built (not deciding).",
+      "files": []
+    }
+  ]
+}
