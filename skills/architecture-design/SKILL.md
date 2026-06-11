@@ -121,7 +121,7 @@ earned by working up to it; it is not permission to skip ahead.
 
 ### 1 — Contextualize
 
-Start from the problem, not the document. The point of this section is to make a reader *understand the
+Focus on the problem, not the document. The point of this section is to make a reader *understand the
 situation*, so frame it around what's happening in the world — not around "this document describes…".
 
 Tell the story so a newcomer follows it without prior knowledge: **things were this way → then this
