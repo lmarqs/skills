@@ -83,11 +83,11 @@ emphasis shift with *when* you're writing.
 
 - **Forward-looking (RFC / design doc)** — you're choosing *before* building, to weigh options and
   invite comment. This is the full method below; the heart is the tradeoff analysis and the recorded
-  decision. See `references/exemplo-rfc.md`.
+  decision. See `references/example-rfc.md`.
 - **Retrospective (ADR / technical documentation)** — you're recording something already decided or
   built. Same spirit, reshaped: Context (situation before → motivations → scope), Architecture
   (components + step-by-step flows), Risks & mitigations, **Lessons learned**, improvement points, and
-  a version history table. See `references/exemplo-documentacao-tecnica.md`.
+  a version history table. See `references/example-technical-doc.md`.
 
 Pick the shape from what the user is doing — deciding, or recording a decision already made. When
 unsure, ask. The sections below describe the forward-looking method; the retrospective variant reuses
@@ -155,7 +155,7 @@ For **each alternative**, capture:
 
 A table keeps this scannable and forces the discipline of filling every cell. Group alternatives by
 the dimension being decided (data store, provisioning, language, …) so related options sit
-side by side. The exact column layout is shown in `references/exemplo-rfc.md` — reuse it.
+side by side. The exact column layout is shown in `references/example-rfc.md` — reuse it.
 
 Crucially, **weigh each alternative against the requirements from section 2**, one by one. An option
 that wins on elegance but misses a hard requirement doesn't win.
@@ -194,8 +194,8 @@ history** table (version, date, author, change) so the document stays a living r
 
 ## References
 
-- `references/exemplo-rfc.md` — a worked forward-looking RFC (search-service decision): full structure
+- `references/example-rfc.md` — a worked forward-looking RFC (search-service decision): full structure
   end to end, and the canonical tradeoff-table layout.
-- `references/exemplo-documentacao-tecnica.md` — a worked retrospective technical doc (social-auth
+- `references/example-technical-doc.md` — a worked retrospective technical doc (social-auth
   implementation): context → architecture → flows → risks → lessons learned → version history.
 - `assets/template.md` — fill-in skeleton for the forward-looking shape.

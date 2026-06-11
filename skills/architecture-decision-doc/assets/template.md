@@ -1,75 +1,75 @@
 <!--
   Skeleton for a forward-looking architecture decision document (RFC / design doc).
-  Translate the headings into the document's language (match the request and source material).
+  Write the document in the language of the request and source material — translate these headings
+  into that language if it isn't English.
   Treat sections as a checklist, not a cage: drop what doesn't apply, add what the decision needs.
-  Headings below are in Portuguese, mirroring the worked example; swap to English etc. as needed.
 -->
 
-# RFC — <título da decisão>
+# RFC — <decision title>
 
-**Status:** <rascunho | em revisão | aprovado>
+**Status:** <draft | in review | approved>
 
-## Documentos relacionados
+## Related documents
 
-- <diagramas, planilhas, specs, dashboards que este documento referencia>
+- <diagrams, spreadsheets, specs, dashboards this document references>
 
-## Contextualização
+## Context
 
-<Escrito para quem está conhecendo o projeto agora. O que existe hoje, por que estamos olhando para
-isso, sem ambiguidade — diga o óbvio.>
+<Written for someone meeting the project now. What exists today, why we're looking at this, with no
+ambiguity — state the obvious.>
 
-### O que não será abordado
+### Out of scope
 
-- <não-objetivos: o que fica explicitamente fora de escopo, e por quê>
+- <non-goals: what is explicitly excluded, and why>
 
-## Requisitos
+## Requirements
 
-<Apenas os arquiteturalmente relevantes: críticos para o negócio ou caros/irreversíveis de desfazer.>
+<Only the architecturally-relevant ones: business-critical, or expensive/irreversible to undo.>
 
-### Funcionais
+### Functional
 
-- <o que o sistema deve fazer — concreto e verificável>
+- <what the system must do — concrete and verifiable>
 
-### Não funcionais
+### Non-functional
 
-- <quão bem: latência (ex.: p95 ≤ Xms validado em carga), observabilidade, cobertura de testes,
-  segurança, padronização>
+- <how well: latency (e.g. p95 ≤ Xms validated under load), observability, test coverage, security,
+  standardization>
 
 ## Design
 
-<Resolva os requisitos com tecnologia. Componentes e como cada requisito é atendido. Decida dimensão
-por dimensão, sempre amarrando ao requisito que resolve.>
+<Solve the requirements with technology. Components and how each requirement is met. Decide dimension
+by dimension, always tying back to the requirement it solves.>
 
-- **Diagrama estático:** <componentes e como se encaixam — ou link/placeholder>
-- **Diagrama dinâmico:** <fluxo/sequência ao longo do tempo — ou link/placeholder>
+- **Static diagram:** <components and how they fit together — or link/placeholder>
+- **Dynamic diagram:** <flow/sequence over time — or link/placeholder>
 
-## Análise das alternativas (Tradeoff)
+## Alternatives analysis (Tradeoff)
 
-<Para cada alternativa: Positivo, Negativo, Risco. Cada risco com Impacto, Probabilidade, Mitigação e
-Contingência. Agrupe por dimensão decidida. Bata cada alternativa contra os requisitos.>
+<For each alternative: Pros, Cons, Risk. Each risk with Impact, Probability, Mitigation, and
+Contingency. Group by the dimension being decided. Check each alternative against the requirements.>
 
-| Alternativa | Positivo | Negativo | Risco (descrição) | Impacto | Probabilidade | Mitigação | Contingência |
+| Alternative | Pros | Cons | Risk (description) | Impact | Probability | Mitigation | Contingency |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| <opção A> | <prós> | <contras> | <risco> | baixo/médio/alto | baixa/média/alta | <evitar o risco> | <agir se ocorrer> |
-| <opção B> | | | | | | | |
+| <option A> | <pros> | <cons> | <risk> | low/med/high | low/med/high | <stop it happening> | <act if it happens> |
+| <option B> | | | | | | | |
 
-## Processo de decisão
+## The decision
 
-<Qual alternativa foi escolhida e por quê. Estilo da decisão: autocrático (sua a decisão final) ou
-democrático (maioria). Comprometa-se — não fique no "depende".>
+<Which alternative was chosen and why. Decision style: autocratic (yours to make the final call) or
+democratic (majority). Commit — don't stop at "it depends".>
 
-## Estratégia de lançamento
+## Launch strategy
 
-<Como entregar em fases, sem migração eterna. O que entra agora, o que fica para depois.>
+<How to deliver in phases, without an eternal migration. What ships now, what comes later.>
 
-## Tasks e roadmap
+## Tasks and roadmap
 
-| Task | Descrição | Estimativa |
+| Task | Description | Estimate |
 | --- | --- | --- |
-| <tarefa> | <descrição> | <Xd> |
+| <task> | <description> | <Xd> |
 
-## Histórico de versões
+## Version history
 
-| Versão | Data | Autor | Descrição |
+| Version | Date | Author | Description |
 | --- | --- | --- | --- |
-| 1.0 | <dd/mm/aaaa> | <autor> | Criação do documento. |
+| 1.0 | <yyyy-mm-dd> | <author> | Document created. |
