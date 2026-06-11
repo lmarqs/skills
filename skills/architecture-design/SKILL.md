@@ -6,13 +6,12 @@ description: >-
   method: contextualize for a newcomer, state the architecturally-relevant requirements, design
   components against them with static + dynamic diagrams, weigh every alternative by pros / cons /
   risks (each risk with impact, probability, mitigation, contingency), record the decision and how it
-  was made, then conclude and communicate. Writes in the
-  same language as the request and its source material (Portuguese, English, …). Reach for it whenever
-  someone is choosing between technical options or documenting one — "write an RFC", "design doc",
-  "documento de arquitetura", "decisão arquitetural", "ADR", "tradeoff analysis", "documentação
-  técnica da implementação" — even if they never say "RFC". Also
-  fits the retrospective variant: documenting an implementation after the fact (lessons learned,
-  version history).
+  was made, then conclude and communicate. Writes in the language of the request. Reach for it
+  whenever someone is choosing between technical options or documenting one — "write an RFC", "design
+  doc", "architecture decision", "ADR", "tradeoff analysis", "technical documentation of an
+  implementation", "help me decide between X and Y" — even if they never say "RFC". Also fits the
+  retrospective variant: documenting an implementation after the fact (lessons learned, version
+  history).
 ---
 
 # Architecture decision document
@@ -75,9 +74,9 @@ The sections below are *what to think about*, not a checklist to fill quickly. S
 that carry the most risk — usually the requirements and the tradeoff analysis.
 
 
-**Write in the language of the request and its source material.** If the task, the codebase, and the
-existing docs are in Portuguese, the document is in Portuguese; if English, English. Match what the
-reader of *this* document will expect.
+**Write in the language of the request and its source material.** Whatever language the task, the
+codebase, and the existing docs are in, write the document in that same language — match what its
+readers will expect.
 
 ## Two shapes, one method
 

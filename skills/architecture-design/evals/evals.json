@@ -3,24 +3,24 @@
   "evals": [
     {
       "id": 0,
-      "name": "rfc-pt-rate-limiting",
-      "prompt": "A gente precisa decidir como implementar rate limiting na nossa API pública (public-search-api), que hoje não tem nenhum controle e já levou uns sustos de abuso. Tá entre usar o throttling nativo do API Gateway da AWS ou subir um middleware próprio com Redis no nosso cluster Kubernetes. Escreve uma RFC pra gente conseguir bater o martelo na próxima reunião de arquitetura.",
-      "expected_output": "A forward-looking RFC in Brazilian Portuguese following the 6-part method: contextualizacao (estado atual, dores), requisitos funcionais e nao-funcionais, design com diagramas (estatico + dinamico ou placeholders descritos), analise de tradeoff em tabela comparando API Gateway throttling vs Redis middleware com pros/contras/riscos (cada risco com impacto, probabilidade, mitigacao, contingencia), decisao explicita com estilo, e conclusao/comunicacao (estrategia de lancamento / roadmap). Written entirely in Portuguese.",
+      "name": "rfc-rate-limiting",
+      "prompt": "We need to decide how to implement rate limiting on our public API (public-search-api), which today has no controls at all and has already given us a few abuse scares. It's between using AWS API Gateway's native throttling or standing up our own middleware with Redis on our Kubernetes cluster. Write an RFC so we can settle it at the next architecture meeting.",
+      "expected_output": "A forward-looking RFC in English following the 6-part method: context (current state, pains), functional and non-functional requirements, design with diagrams (static + dynamic, or described placeholders), a tradeoff table comparing API Gateway throttling vs Redis middleware with pros/cons/risks (each risk with impact, probability, mitigation, contingency), an explicit decision with decision style, and a conclusion/communication (launch strategy / roadmap). Written entirely in English.",
       "files": [],
       "assertions": [
         "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
         "Requirements are present and explicitly split into functional and non-functional",
         "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
-        "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware no Kubernetes) with pros and cons",
+        "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
         "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
         "States an explicit decision (which alternative was chosen) rather than leaving it open",
         "Includes a conclusion with a rollout/launch strategy or a task roadmap",
-        "Written entirely in Brazilian Portuguese (matching the request language)"
+        "Written entirely in English (matching the request language)"
       ]
     },
     {
       "id": 1,
-      "name": "rfc-en-message-queue",
+      "name": "rfc-message-queue",
       "prompt": "We're building an order-processing pipeline and need to pick a message queue. It's between AWS SQS (managed, dead simple) and self-hosting RabbitMQ on our existing cluster (more control, supports complex routing we might need later). Orders are business-critical and we can't lose messages. Write up an RFC so the team can decide.",
       "expected_output": "A forward-looking RFC in English following the 6-part method: context, architecturally-relevant requirements (incl. non-functional like durability/no message loss), design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing SQS vs RabbitMQ with pros/cons/risks where each risk has impact, probability, mitigation, and contingency, an explicit decision with decision style, and a conclusion (rollout/roadmap). Written entirely in English (matching the request language).",
       "files": [],
@@ -37,9 +37,9 @@
     },
     {
       "id": 2,
-      "name": "doc-tecnica-pt-retrospectiva",
-      "prompt": "Acabamos de terminar a migracao do nosso servico de notificacoes: saiu de um cron monolitico que rodava num pod e virou um fluxo event-driven com EventBridge disparando Lambdas por tipo de notificacao (email, push, sms). Ja esta em producao. Preciso documentar tecnicamente como ficou pra galera nova do time conseguir entender a arquitetura e dar manutencao.",
-      "expected_output": "A retrospective technical documentation in Portuguese using the retrospective shape: Contexto (situacao anterior -> motivacoes -> escopo), Arquitetura (componentes com responsabilidades + fluxo(s) passo a passo numerados, acompanhando diagrama dinamico ou placeholder), Riscos e mitigacoes, Licoes aprendidas, Ponto(s) de melhoria, e Historico de versoes em tabela. Written entirely in Portuguese, documenting what was built (not deciding).",
+      "name": "tech-doc-retrospective",
+      "prompt": "We just finished migrating our notifications service: it went from a monolithic cron running in a pod to an event-driven flow with EventBridge triggering Lambdas per notification type (email, push, sms). It's already in production. I need to document technically how it turned out so new folks on the team can understand the architecture and maintain it.",
+      "expected_output": "A retrospective technical documentation in English using the retrospective shape: Context (prior situation -> motivations -> scope), Architecture (components with responsibilities + numbered step-by-step flow(s), accompanying a dynamic diagram or placeholder), Risks and mitigations, Lessons learned, Improvement point(s), and a Version history table. Written entirely in English, documenting what was built (not deciding).",
       "files": [],
       "assertions": [
         "Context section covers the situation before, the motivations for the change, and the scope",
@@ -48,7 +48,7 @@
         "Has a risks-and-mitigations section",
         "Has a lessons-learned section",
         "Includes a version-history table (version, date, author, description)",
-        "Written entirely in Brazilian Portuguese",
+        "Written entirely in English",
         "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives"
       ]
     }
