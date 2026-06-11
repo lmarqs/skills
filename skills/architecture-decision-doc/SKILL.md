@@ -22,6 +22,15 @@ reviewer, your future self — can understand not just *what* was chosen but *wh
 reached the same conclusion from the same evidence. Code shows what was built; this document shows
 why it was built that way and what was rejected.
 
+This is deliberately a **pragmatic framework, not a fixed format.** It blends the two industry
+documents people usually keep apart: an **RFC** (a proposal floated *before* building, to weigh
+options and invite comment) and an **ADR** (a terse record kept *after*, capturing the decision and
+its consequences). Treat the distinction as a spectrum, not a fork — most real documents sit
+somewhere in between: a proposal that, once accepted, *becomes* the record. So don't agonize over
+"is this an RFC or an ADR?" Pick the depth the decision warrants and the sections that carry the
+reasoning; the goal is a useful artifact, not compliance with a template. Lean on the method below
+for *what to think about*, and let the situation set how heavy each part should be.
+
 Two things make these documents hard, and the method exists to counter both. First, it's tempting to
 follow hype or personal taste; decisions made without objective criteria cost the whole team later.
 Second, we tend to make things more complicated than they need to be — anyone can complicate, few can
@@ -34,15 +43,18 @@ reader of *this* document will expect.
 
 ## Two shapes, one method
 
-- **Forward-looking (RFC / design doc)** — you're choosing *before* building. This is the full method
-  below: the heart is the tradeoff analysis and the recorded decision. See
-  `references/exemplo-rfc.md`.
-- **Retrospective (technical documentation)** — you're documenting something already built. Same
-  spirit, reshaped: Context (situation before → motivations → scope), Architecture (components +
-  step-by-step flows), Risks & mitigations, **Lessons learned**, improvement points, and a version
-  history table. See `references/exemplo-documentacao-tecnica.md`.
+The RFC↔ADR spectrum shows up as two practical shapes. Same method underneath; the framing and the
+emphasis shift with *when* you're writing.
 
-Pick the shape from what the user is doing — deciding, or documenting a decision already made. When
+- **Forward-looking (RFC / design doc)** — you're choosing *before* building, to weigh options and
+  invite comment. This is the full method below; the heart is the tradeoff analysis and the recorded
+  decision. See `references/exemplo-rfc.md`.
+- **Retrospective (ADR / technical documentation)** — you're recording something already decided or
+  built. Same spirit, reshaped: Context (situation before → motivations → scope), Architecture
+  (components + step-by-step flows), Risks & mitigations, **Lessons learned**, improvement points, and
+  a version history table. See `references/exemplo-documentacao-tecnica.md`.
+
+Pick the shape from what the user is doing — deciding, or recording a decision already made. When
 unsure, ask. The sections below describe the forward-looking method; the retrospective variant reuses
 the same building blocks (context, design/architecture, risks) with a backward-looking framing.
 
