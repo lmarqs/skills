@@ -17,3 +17,6 @@ __pycache__/
 
 # skill-creator eval scratch (transient; would otherwise ship under skills/**)
 skills/*-workspace/
+
+# generated eval-viewer artifact (transient; regenerated from benchmark + outputs)
+workspaces/**/review.html
