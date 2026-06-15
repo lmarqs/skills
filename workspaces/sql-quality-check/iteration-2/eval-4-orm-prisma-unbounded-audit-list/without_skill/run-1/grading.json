@@ -1,0 +1,42 @@
+{
+  "expectations": [
+    {
+      "text": "Recognizes auditEvent as a transactional / continuously-growing table",
+      "passed": true,
+      "evidence": "'table of tens of millions of rows that grows daily'"
+    },
+    {
+      "text": "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column",
+      "passed": false,
+      "evidence": "Flags unbounded result + likely-missing (type,createdAt) index, but never recommends bounding the query by a date/time window; the smell-#4 framing is absent"
+    },
+    {
+      "text": "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)",
+      "passed": true,
+      "evidence": "Blocking issue 1: no take; mandatory capped cursor pagination"
+    },
+    {
+      "text": "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields",
+      "passed": true,
+      "evidence": "Issue 3: include leaks full user record; use select + DTO"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)",
+      "passed": false,
+      "evidence": "Security/DoS-oriented checklist of fixes; does not articulate the cost/downside of any recommendation (no index write-cost, no default-window behavior-change tradeoff)"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 4,
+  "total": 6,
+  "summary": {
+    "pass_rate": 0.6667,
+    "passed": 4,
+    "failed": 2,
+    "total": 6
+  }
+}

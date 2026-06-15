@@ -57,6 +57,50 @@
         "Does NOT treat SELECT * or a missing date filter as a real performance problem here, acknowledging the table is small/static (context overrides the rule)",
         "Written in English"
       ]
+    },
+    {
+      "id": 4,
+      "name": "orm-prisma-unbounded-audit-list",
+      "prompt": "Reviewing this PR before I approve it — it adds an audit-log listing endpoint. Anything concerning?\n\n```diff\n+// src/routes/audit.ts\n+router.get('/audit', async (req, res) => {\n+  const events = await prisma.auditEvent.findMany({\n+    where: { type: req.query.type as string },\n+    include: { user: true, metadata: true },\n+    orderBy: { createdAt: 'desc' },\n+  });\n+  return res.json(events);\n+});\n```\n\nContext: `auditEvent` is written by every service and already has tens of millions of rows, growing daily.",
+      "expected_output": "A PR review (in English) recognizing auditEvent is a transactional/continuously-growing table, so the query needs a bounded time window on an indexed createdAt (#4) — none is present. Flags the absence of any take/limit so the endpoint can try to return the whole (growing) result set (#10), recommends pagination (cursor/keyset on createdAt). Flags include: { user, metadata } over-fetching full relations when the list likely needs few fields (#5), and notes orderBy createdAt needs a supporting index. Each with impact + corrected version + tradeoff. Bonus if it notes Prisma issues separate queries per include (so not a cartesian join) yet still over-fetches.",
+      "files": [],
+      "assertions": [
+        "Recognizes auditEvent as a transactional / continuously-growing table",
+        "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column",
+        "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)",
+        "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields",
+        "States a tradeoff for at least one recommendation (not just the fix)",
+        "Written in English"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "orm-sqlalchemy-function-on-column",
+      "prompt": "Quick review of this SQLAlchemy change for our user lookup?\n\n```diff\n+# app/repositories/user.py\n+def find_by_email(session, email: str):\n+    return (\n+        session.query(User)\n+        .filter(func.lower(User.email) == email.lower())\n+        .one_or_none()\n+    )\n```\n\nThe `users` table has ~12M rows and there's already a unique B-tree index on `email`.",
+      "expected_output": "A review (in English) that flags func.lower(User.email) as a function applied to the column inside the filter (#2): the existing B-tree index is on the raw email value, so wrapping it in lower() makes that index unusable and forces a sequential scan of ~12M rows. Recommends one of: a functional/expression index on lower(email) (CREATE INDEX ... ON users (lower(email))), normalizing email to lowercase on write and comparing the raw column, or citext — with the tradeoff (functional index costs writes/space; normalization is a data migration). Should NOT claim the existing email index already covers this query.",
+      "files": [],
+      "assertions": [
+        "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)",
+        "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)",
+        "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext",
+        "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)",
+        "Written in English"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "orm-activerecord-count-reuse-and-join-explosion",
+      "prompt": "PR review — this is our orders listing plus the total count for the pager. A reviewer said it's slow and the counts look off on big accounts. What's wrong?\n\n```diff\n+# app/controllers/orders_controller.rb\n+def index\n+  scope = Order.where(account_id: current_account.id)\n+               .joins(:line_items)\n+               .order(created_at: :desc)\n+  @orders = scope.limit(20).offset(params[:offset].to_i)\n+  @total  = scope.count\n+end\n```\n\n`orders` and `line_items` are both large and grow daily; an order has many `line_items`.",
+      "expected_output": "A review (in English) that catches: (1) joins(:line_items) is a 1:N join, so the listing row-explodes — each order is duplicated once per line item, meaning `limit(20)` returns 20 exploded rows, not 20 distinct orders (#1); (2) @total = scope.count reuses the full joined+ordered scope just to count, which both inflates the count (it counts join rows, not orders) and is expensive, re-running all the join work per page (#7) — fix is to count distinct orders on a lean scope without the join/order; (3) offset pagination on a growing table degrades on deep pages (#8), suggest keyset. Should recommend dropping the join from the listing (preload/includes or a separate child query) and counting on a lean query. Each with impact + correction + tradeoff.",
+      "files": [],
+      "assertions": [
+        "Identifies that joins(:line_items) is 1:N and row-explodes the listing, so limit(20) returns 20 joined rows rather than 20 distinct orders",
+        "Flags that scope.count reuses the joined/ordered listing scope, making the count both wrong (counts join rows) and expensive",
+        "Recommends counting distinct orders on a lean scope without the 1:N join (and without the ORDER BY)",
+        "Flags offset-based pagination degrading on deep pages and/or recommends keyset pagination",
+        "States a tradeoff for at least one recommendation",
+        "Written in English"
+      ]
     }
   ]
 }

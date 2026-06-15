@@ -1,0 +1,25 @@
+{
+  "eval_id": 4,
+  "eval_name": "orm-prisma-unbounded-audit-list",
+  "prompt": "Reviewing this PR before I approve it — it adds an audit-log listing endpoint. Anything concerning?\n\n```diff\n+// src/routes/audit.ts\n+router.get('/audit', async (req, res) => {\n+  const events = await prisma.auditEvent.findMany({\n+    where: { type: req.query.type as string },\n+    include: { user: true, metadata: true },\n+    orderBy: { createdAt: 'desc' },\n+  });\n+  return res.json(events);\n+});\n```\n\nContext: `auditEvent` is written by every service and already has tens of millions of rows, growing daily.",
+  "assertions": [
+    {
+      "text": "Recognizes auditEvent as a transactional / continuously-growing table"
+    },
+    {
+      "text": "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column"
+    },
+    {
+      "text": "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)"
+    },
+    {
+      "text": "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}

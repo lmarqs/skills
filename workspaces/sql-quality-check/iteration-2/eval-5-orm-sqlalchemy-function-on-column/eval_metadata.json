@@ -1,0 +1,22 @@
+{
+  "eval_id": 5,
+  "eval_name": "orm-sqlalchemy-function-on-column",
+  "prompt": "Quick review of this SQLAlchemy change for our user lookup?\n\n```diff\n+# app/repositories/user.py\n+def find_by_email(session, email: str):\n+    return (\n+        session.query(User)\n+        .filter(func.lower(User.email) == email.lower())\n+        .one_or_none()\n+    )\n```\n\nThe `users` table has ~12M rows and there's already a unique B-tree index on `email`.",
+  "assertions": [
+    {
+      "text": "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)"
+    },
+    {
+      "text": "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)"
+    },
+    {
+      "text": "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext"
+    },
+    {
+      "text": "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "metadata": {
+    "skill_name": "sql-quality-check",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-15T16:56:42Z",
+    "evals_run": [
+      4,
+      5,
+      6
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 57.5,
+        "tokens": 25632,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recognizes auditEvent as a transactional / continuously-growing table",
+          "passed": true,
+          "evidence": "'auditEvent is the textbook transactional table: append-only, timestamped, written by every service, unbounded growth'"
+        },
+        {
+          "text": "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column",
+          "passed": true,
+          "evidence": "Finding 2: no time window; add from/to default 7 days + index (type, createdAt DESC)"
+        },
+        {
+          "text": "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)",
+          "passed": true,
+          "evidence": "Finding 1: no take returns every row; keyset cursor + capped take"
+        },
+        {
+          "text": "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields",
+          "passed": true,
+          "evidence": "Finding 4: include pulls full user+metadata; use select, move metadata to detail endpoint"
+        },
+        {
+          "text": "States a tradeoff for at least one recommendation (not just the fix)",
+          "passed": true,
+          "evidence": "Tradeoffs on keyset (no page jumps), default window (behavior change), composite index (write cost)"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 41.2,
+        "tokens": 23358,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)",
+          "passed": true,
+          "evidence": "Finding 1: lower() on column disables unique index -> seq scan of 12M rows (smell #2)"
+        },
+        {
+          "text": "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)",
+          "passed": true,
+          "evidence": "'unique index is built over the stored value of email; comparing lower(users.email) can't probe by value'"
+        },
+        {
+          "text": "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext",
+          "passed": true,
+          "evidence": "Option to drop lower() if normalized; CREATE UNIQUE INDEX ... (lower(email)); or citext"
+        },
+        {
+          "text": "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)",
+          "passed": true,
+          "evidence": "Tradeoff: raw-compare only correct if write path guarantees lowercase; functional index = extra write/disk; citext = column migration; use CONCURRENTLY"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 58.6,
+        "tokens": 24471,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies that joins(:line_items) is 1:N and row-explodes the listing, so limit(20) returns 20 joined rows rather than 20 distinct orders",
+          "passed": true,
+          "evidence": "Finding 1: INNER JOIN one row per line item; @orders shows duplicates, AR won't dedup without .distinct"
+        },
+        {
+          "text": "Flags that scope.count reuses the joined/ordered listing scope, making the count both wrong (counts join rows) and expensive",
+          "passed": true,
+          "evidence": "Finding 1+2: count counts line items not orders -> inflated on big accounts; reuses join+order"
+        },
+        {
+          "text": "Recommends counting distinct orders on a lean scope without the 1:N join (and without the ORDER BY)",
+          "passed": true,
+          "evidence": "Lean base scope: @total = scope.count = COUNT(*) FROM orders WHERE account_id; EXISTS if filter needed"
+        },
+        {
+          "text": "Flags offset-based pagination degrading on deep pages and/or recommends keyset pagination",
+          "passed": true,
+          "evidence": "Finding 3: OFFSET reads+discards; keyset cursor on created_at"
+        },
+        {
+          "text": "States a tradeoff for at least one recommendation",
+          "passed": true,
+          "evidence": "Tradeoffs: keyset can't jump pages/needs tiebreaker; exact COUNT still scans -> approximate option"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6667,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 39.4,
+        "tokens": 15336,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recognizes auditEvent as a transactional / continuously-growing table",
+          "passed": true,
+          "evidence": "'table of tens of millions of rows that grows daily'"
+        },
+        {
+          "text": "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column",
+          "passed": false,
+          "evidence": "Flags unbounded result + likely-missing (type,createdAt) index, but never recommends bounding the query by a date/time window; the smell-#4 framing is absent"
+        },
+        {
+          "text": "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)",
+          "passed": true,
+          "evidence": "Blocking issue 1: no take; mandatory capped cursor pagination"
+        },
+        {
+          "text": "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields",
+          "passed": true,
+          "evidence": "Issue 3: include leaks full user record; use select + DTO"
+        },
+        {
+          "text": "States a tradeoff for at least one recommendation (not just the fix)",
+          "passed": false,
+          "evidence": "Security/DoS-oriented checklist of fixes; does not articulate the cost/downside of any recommendation (no index write-cost, no default-window behavior-change tradeoff)"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 24.2,
+        "tokens": 14293,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)",
+          "passed": true,
+          "evidence": "'non-sargable predicate'; wrapped column -> sequential scan evaluating lower() on 12M rows"
+        },
+        {
+          "text": "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)",
+          "passed": true,
+          "evidence": "'expression in the index (email) and in WHERE (lower(email)) do not match'"
+        },
+        {
+          "text": "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext",
+          "passed": true,
+          "evidence": "Option A functional index / citext; Option B normalize on write and drop lower()"
+        },
+        {
+          "text": "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)",
+          "passed": true,
+          "evidence": "CONCURRENTLY to avoid lock; confirm no case-collisions; Option B requires normalize-on-write"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 40.5,
+        "tokens": 15301,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies that joins(:line_items) is 1:N and row-explodes the listing, so limit(20) returns 20 joined rows rather than 20 distinct orders",
+          "passed": true,
+          "evidence": "'the list itself returns duplicates'; limit(20) selects from joined result, fewer than 20 distinct orders"
+        },
+        {
+          "text": "Flags that scope.count reuses the joined/ordered listing scope, making the count both wrong (counts join rows) and expensive",
+          "passed": true,
+          "evidence": "Issue 1: COUNT(*) over join counts line items not orders; Issue 2 reuse + ORDER BY"
+        },
+        {
+          "text": "Recommends counting distinct orders on a lean scope without the 1:N join (and without the ORDER BY)",
+          "passed": true,
+          "evidence": "base = Order.where(account_id); @total = base.count; or .distinct.count(:id) / EXISTS"
+        },
+        {
+          "text": "Flags offset-based pagination degrading on deep pages and/or recommends keyset pagination",
+          "passed": true,
+          "evidence": "'Pagination at scale': keyset/cursor instead of OFFSET which scans and discards skipped rows"
+        },
+        {
+          "text": "States a tradeoff for at least one recommendation",
+          "passed": true,
+          "evidence": "'If an exact total isn't essential, cache it / approximate / reltuples' \u2014 acknowledges cost of exact count"
+        },
+        {
+          "text": "Written in English",
+          "passed": true,
+          "evidence": "Entire review in English"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 52.4333,
+        "stddev": 9.7439,
+        "min": 41.2,
+        "max": 58.6
+      },
+      "tokens": {
+        "mean": 24487.0,
+        "stddev": 1137.0844,
+        "min": 23358,
+        "max": 25632
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8889,
+        "stddev": 0.1924,
+        "min": 0.6667,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 34.7,
+        "stddev": 9.1099,
+        "min": 24.2,
+        "max": 40.5
+      },
+      "tokens": {
+        "mean": 14976.6667,
+        "stddev": 592.3313,
+        "min": 14293,
+        "max": 15336
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.11",
+      "time_seconds": "+17.7",
+      "tokens": "+9510"
+    }
+  },
+  "notes": []
+}
