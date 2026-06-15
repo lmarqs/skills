@@ -1,0 +1,22 @@
+{
+  "eval_id": 1,
+  "eval_name": "orm-n-plus-one-why-slow",
+  "prompt": "This endpoint takes ~8s to render a page of 200 invoices and the DB dashboard shows thousands of tiny queries. What's wrong and how do I fix it? (TypeORM)\n\n```ts\nconst invoices = await invoiceRepo.find({ where: { status: 'open' }, take: 200 });\nfor (const inv of invoices) {\n  inv.customer = await customerRepo.findOne({ where: { id: inv.customerId } });\n  inv.lines = await lineRepo.find({ where: { invoiceId: inv.id } });\n}\nreturn invoices;\n```",
+  "assertions": [
+    {
+      "text": "Explicitly identifies the N+1 problem as the cause"
+    },
+    {
+      "text": "Explains that the loop produces roughly one query per item (order of N+1 round trips)"
+    },
+    {
+      "text": "Recommends loading related rows in a single/batched query (IN / ANY / eager load) instead of per-item"
+    },
+    {
+      "text": "States a tradeoff or caveat for the recommended fix"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}
