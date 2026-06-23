@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Explicitly identifies the N+1 problem as the cause",
+      "passed": true,
+      "evidence": "Verdict: 'textbook N+1 query problem' (smell #3)"
+    },
+    {
+      "text": "Explains that the loop produces roughly one query per item (order of N+1 round trips)",
+      "passed": true,
+      "evidence": "1 + 200 + 200 = 401 round trips for a page of 200"
+    },
+    {
+      "text": "Recommends loading related rows in a single/batched query (IN / ANY / eager load) instead of per-item",
+      "passed": true,
+      "evidence": "Option A: In(ids) batched + stitch -> 3 queries; Option B relations"
+    },
+    {
+      "text": "States a tradeoff or caveat for the recommended fix",
+      "passed": true,
+      "evidence": "Tradeoff: app-side stitching maps; Option B trusts ORM strategy, must verify SQL"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire analysis in English"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

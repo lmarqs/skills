@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies the cartesian/row-explosion risk from the 1:N joins (order_item and payment) and suggests separate queries or aggregation",
+      "passed": true,
+      "evidence": "Section 3: NxM Cartesian fan-out; Option A paginate orders then fetch children by IN, Option B pre-aggregate"
+    },
+    {
+      "text": "Flags DATE(o.created_at) as a function/cast on the column that disables the index, and rewrites it as a range on the raw column",
+      "passed": true,
+      "evidence": "Section 2: non-sargable DATE(); rewrite to half-open range on bare column"
+    },
+    {
+      "text": "Flags SELECT * and recommends selecting only the needed columns",
+      "passed": true,
+      "evidence": "Section 4: SELECT * across four tables; select only rendered columns"
+    },
+    {
+      "text": "Flags the high OFFSET (80000) and recommends keyset/cursor pagination",
+      "passed": true,
+      "evidence": "Section 1: deep OFFSET discards 80k rows; keyset (seek) pagination"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)",
+      "passed": true,
+      "evidence": "Keyset caveat: can't do arbitrary page jumps; confirm UI needs only next/prev"
+    },
+    {
+      "text": "Provides at least one corrected SQL example",
+      "passed": true,
+      "evidence": "Full Option-A rewrite with keyset + child fetches"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 7,
+  "total": 7,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

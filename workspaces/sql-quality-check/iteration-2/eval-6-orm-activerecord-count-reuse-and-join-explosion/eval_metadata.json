@@ -1,0 +1,25 @@
+{
+  "eval_id": 6,
+  "eval_name": "orm-activerecord-count-reuse-and-join-explosion",
+  "prompt": "PR review — this is our orders listing plus the total count for the pager. A reviewer said it's slow and the counts look off on big accounts. What's wrong?\n\n```diff\n+# app/controllers/orders_controller.rb\n+def index\n+  scope = Order.where(account_id: current_account.id)\n+               .joins(:line_items)\n+               .order(created_at: :desc)\n+  @orders = scope.limit(20).offset(params[:offset].to_i)\n+  @total  = scope.count\n+end\n```\n\n`orders` and `line_items` are both large and grow daily; an order has many `line_items`.",
+  "assertions": [
+    {
+      "text": "Identifies that joins(:line_items) is 1:N and row-explodes the listing, so limit(20) returns 20 joined rows rather than 20 distinct orders"
+    },
+    {
+      "text": "Flags that scope.count reuses the joined/ordered listing scope, making the count both wrong (counts join rows) and expensive"
+    },
+    {
+      "text": "Recommends counting distinct orders on a lean scope without the 1:N join (and without the ORDER BY)"
+    },
+    {
+      "text": "Flags offset-based pagination degrading on deep pages and/or recommends keyset pagination"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}

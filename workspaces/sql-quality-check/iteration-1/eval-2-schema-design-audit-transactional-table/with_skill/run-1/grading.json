@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Recognizes audit_event as a transactional / continuously-growing table",
+      "passed": true,
+      "evidence": "'This is a transactional table... append-only history that grows without bound'"
+    },
+    {
+      "text": "Recommends an indexed date filter / bounded time window for queries on it",
+      "passed": true,
+      "evidence": "Articulates smell #4: 'a query on this table without a time window will read history that only grows; the time filter keeps work proportional'; pattern (b) keeps created_at bound on indexed col"
+    },
+    {
+      "text": "Proposes composite indexes for the stated access patterns and addresses column order (e.g. (user_id, created_at), (type, created_at))",
+      "passed": true,
+      "evidence": "(user_id, created_at DESC) and (type, created_at DESC) with explicit equality-leads-range column-order reasoning"
+    },
+    {
+      "text": "Mentions the write/storage cost of indexes or warns against over-indexing (a tradeoff)",
+      "passed": true,
+      "evidence": "'Index restraint... every index taxes the write path, and this is a write-heavy table'"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

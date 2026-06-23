@@ -1,0 +1,42 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies that joins(:line_items) is 1:N and row-explodes the listing, so limit(20) returns 20 joined rows rather than 20 distinct orders",
+      "passed": true,
+      "evidence": "Finding 1: INNER JOIN one row per line item; @orders shows duplicates, AR won't dedup without .distinct"
+    },
+    {
+      "text": "Flags that scope.count reuses the joined/ordered listing scope, making the count both wrong (counts join rows) and expensive",
+      "passed": true,
+      "evidence": "Finding 1+2: count counts line items not orders -> inflated on big accounts; reuses join+order"
+    },
+    {
+      "text": "Recommends counting distinct orders on a lean scope without the 1:N join (and without the ORDER BY)",
+      "passed": true,
+      "evidence": "Lean base scope: @total = scope.count = COUNT(*) FROM orders WHERE account_id; EXISTS if filter needed"
+    },
+    {
+      "text": "Flags offset-based pagination degrading on deep pages and/or recommends keyset pagination",
+      "passed": true,
+      "evidence": "Finding 3: OFFSET reads+discards; keyset cursor on created_at"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation",
+      "passed": true,
+      "evidence": "Tradeoffs: keyset can't jump pages/needs tiebreaker; exact COUNT still scans -> approximate option"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 6,
+  "total": 6,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

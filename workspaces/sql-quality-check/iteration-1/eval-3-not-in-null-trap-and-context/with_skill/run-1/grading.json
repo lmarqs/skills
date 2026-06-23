@@ -1,0 +1,32 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies the NOT IN + NULL trap (empty result if subquery yields a NULL)",
+      "passed": true,
+      "evidence": "Section 1: explains three-valued logic, 'returns empty result set, no error'"
+    },
+    {
+      "text": "Recommends NOT EXISTS (or an equivalent NULL-safe construct)",
+      "passed": true,
+      "evidence": "Provides NOT EXISTS rewrite; notes alternative NOT NULL guarantee"
+    },
+    {
+      "text": "Does NOT treat SELECT * or a missing date filter as a real performance problem here, acknowledging the table is small/static (context overrides the rule)",
+      "passed": true,
+      "evidence": "'performance angle is a non-issue at ~80 static rows'; SELECT * called a 'maintainability nit, not performance'"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 4,
+  "total": 4,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 4,
+    "failed": 0,
+    "total": 4
+  }
+}

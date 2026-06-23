@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies the cartesian/row-explosion risk from the 1:N joins (order_item and payment) and suggests separate queries or aggregation",
+      "passed": true,
+      "evidence": "Finding 2: 8x2=16 near-identical rows; fix = page orders then batch-load children via ANY($1), or aggregate with LATERAL"
+    },
+    {
+      "text": "Flags DATE(o.created_at) as a function/cast on the column that disables the index, and rewrites it as a range on the raw column",
+      "passed": true,
+      "evidence": "Finding 1: DATE() forces per-row compute, index unusable; rewrite created_at >= '2025-01-01 00:00:00'"
+    },
+    {
+      "text": "Flags SELECT * and recommends selecting only the needed columns",
+      "passed": true,
+      "evidence": "Finding 5: SELECT * across four tables, blocks index-only scan; use explicit column list"
+    },
+    {
+      "text": "Flags the high OFFSET (80000) and recommends keyset/cursor pagination",
+      "passed": true,
+      "evidence": "Finding 3: OFFSET 80000 reads+discards 80k rows; keyset on (created_at,id)"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)",
+      "passed": true,
+      "evidence": "Every finding has explicit Tradeoff; e.g. keyset can't jump to arbitrary page; index taxes writes"
+    },
+    {
+      "text": "Provides at least one corrected SQL example",
+      "passed": true,
+      "evidence": "Multiple corrected SQL blocks (range filter, batched children, keyset, index)"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 7,
+  "total": 7,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

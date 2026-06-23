@@ -1,0 +1,22 @@
+{
+  "eval_id": 2,
+  "eval_name": "schema-design-audit-transactional-table",
+  "prompt": "We're creating an `audit_event` table that EVERY service writes to (login, profile change, etc). It will grow a lot. The most common access patterns are: (a) the latest events for a user, (b) search by event type within a time period. Can you review the modeling and indexing of this migration?\n\n```sql\nCREATE TABLE audit_event (\n  id bigserial PRIMARY KEY,\n  user_id bigint NOT NULL,\n  type varchar(50) NOT NULL,\n  payload jsonb,\n  created_at timestamptz NOT NULL DEFAULT now()\n);\n```",
+  "assertions": [
+    {
+      "text": "Recognizes audit_event as a transactional / continuously-growing table"
+    },
+    {
+      "text": "Recommends an indexed date filter / bounded time window for queries on it"
+    },
+    {
+      "text": "Proposes composite indexes for the stated access patterns and addresses column order (e.g. (user_id, created_at), (type, created_at))"
+    },
+    {
+      "text": "Mentions the write/storage cost of indexes or warns against over-indexing (a tradeoff)"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}

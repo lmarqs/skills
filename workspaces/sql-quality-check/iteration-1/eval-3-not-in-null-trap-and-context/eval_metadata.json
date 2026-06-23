@@ -1,0 +1,19 @@
+{
+  "eval_id": 3,
+  "eval_name": "not-in-null-trap-and-context",
+  "prompt": "Quick one — is there anything wrong with this? It's supposed to return active feature flags that aren't deprecated. The `feature_flag` table is a small config table (~80 rows, basically static).\n\n```sql\nSELECT * FROM feature_flag\nWHERE id NOT IN (SELECT flag_id FROM deprecated_flag);\n```",
+  "assertions": [
+    {
+      "text": "Identifies the NOT IN + NULL correctness trap (empty result if subquery yields a NULL)"
+    },
+    {
+      "text": "Recommends NOT EXISTS (or an equivalent NULL-safe construct)"
+    },
+    {
+      "text": "Does NOT treat SELECT * or a missing date filter as a real performance problem here, acknowledging the table is small/static (context overrides the rule)"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "expectations": [
+    {
+      "text": "Recognizes auditEvent as a transactional / continuously-growing table",
+      "passed": true,
+      "evidence": "'auditEvent is the textbook transactional table: append-only, timestamped, written by every service, unbounded growth'"
+    },
+    {
+      "text": "Flags the missing time/date window (no bound on createdAt) and recommends one on an indexed column",
+      "passed": true,
+      "evidence": "Finding 2: no time window; add from/to default 7 days + index (type, createdAt DESC)"
+    },
+    {
+      "text": "Flags the absence of a take/limit (unbounded result set) and recommends pagination (cursor/keyset or take)",
+      "passed": true,
+      "evidence": "Finding 1: no take returns every row; keyset cursor + capped take"
+    },
+    {
+      "text": "Flags over-fetching via include (user + metadata) and recommends selecting only needed fields",
+      "passed": true,
+      "evidence": "Finding 4: include pulls full user+metadata; use select, move metadata to detail endpoint"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)",
+      "passed": true,
+      "evidence": "Tradeoffs on keyset (no page jumps), default window (behavior change), composite index (write cost)"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 6,
+  "total": 6,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 6,
+    "failed": 0,
+    "total": 6
+  }
+}

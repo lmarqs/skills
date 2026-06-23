@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)",
+      "passed": true,
+      "evidence": "'non-sargable predicate'; wrapped column -> sequential scan evaluating lower() on 12M rows"
+    },
+    {
+      "text": "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)",
+      "passed": true,
+      "evidence": "'expression in the index (email) and in WHERE (lower(email)) do not match'"
+    },
+    {
+      "text": "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext",
+      "passed": true,
+      "evidence": "Option A functional index / citext; Option B normalize on write and drop lower()"
+    },
+    {
+      "text": "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)",
+      "passed": true,
+      "evidence": "CONCURRENTLY to avoid lock; confirm no case-collisions; Option B requires normalize-on-write"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

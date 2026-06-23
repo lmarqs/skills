@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies func.lower(User.email) as a function on the column that prevents using the existing email index (forces a sequential scan)",
+      "passed": true,
+      "evidence": "Finding 1: lower() on column disables unique index -> seq scan of 12M rows (smell #2)"
+    },
+    {
+      "text": "Explains the existing B-tree index is on the raw email value, so it cannot serve lower(email)",
+      "passed": true,
+      "evidence": "'unique index is built over the stored value of email; comparing lower(users.email) can't probe by value'"
+    },
+    {
+      "text": "Recommends a concrete fix: a functional/expression index on lower(email), normalizing email on write, or citext",
+      "passed": true,
+      "evidence": "Option to drop lower() if normalized; CREATE UNIQUE INDEX ... (lower(email)); or citext"
+    },
+    {
+      "text": "States the tradeoff of the recommended fix (e.g. functional index taxes writes, or normalization needs a migration)",
+      "passed": true,
+      "evidence": "Tradeoff: raw-compare only correct if write path guarantees lowercase; functional index = extra write/disk; citext = column migration; use CONCURRENTLY"
+    },
+    {
+      "text": "Written in English",
+      "passed": true,
+      "evidence": "Entire review in English"
+    }
+  ],
+  "pass_count": 5,
+  "total": 5,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 5,
+    "failed": 0,
+    "total": 5
+  }
+}

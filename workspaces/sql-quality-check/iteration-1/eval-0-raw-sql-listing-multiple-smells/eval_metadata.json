@@ -1,0 +1,28 @@
+{
+  "eval_id": 0,
+  "eval_name": "raw-sql-listing-multiple-smells",
+  "prompt": "This query behind our orders listing endpoint takes ~6s and gets worse every week. Can you review it?\n\n```sql\nSELECT *\nFROM orders o\nLEFT JOIN order_item i ON i.order_id = o.id\nLEFT JOIN payment pg ON pg.order_id = o.id\nLEFT JOIN customer c ON c.id = o.customer_id\nWHERE DATE(o.created_at) >= '2025-01-01'\nORDER BY o.created_at DESC\nLIMIT 20 OFFSET 80000;\n```\n\nThe `orders` table already has ~40 million rows and grows every day. `order_item` and `payment` are 1:N per order.",
+  "assertions": [
+    {
+      "text": "Identifies the cartesian/row-explosion risk from the 1:N joins (order_item and payment) and suggests separate queries or aggregation"
+    },
+    {
+      "text": "Flags DATE(o.created_at) as a function/cast on the column that disables the index, and rewrites it as a range on the raw column"
+    },
+    {
+      "text": "Flags SELECT * and recommends selecting only the needed columns"
+    },
+    {
+      "text": "Flags the high OFFSET (80000) and recommends keyset/cursor pagination"
+    },
+    {
+      "text": "States a tradeoff for at least one recommendation (not just the fix)"
+    },
+    {
+      "text": "Provides at least one corrected SQL example"
+    },
+    {
+      "text": "Written in English"
+    }
+  ]
+}
