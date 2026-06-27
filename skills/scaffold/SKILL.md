@@ -1,15 +1,14 @@
 ---
 name: scaffold
+disable-model-invocation: true
 description: >-
-  Scaffold or audit a project's mise setup the house-standard way — a lean mise.toml, directory-namespaced
-  .mise/tasks/* scripts (tf:apply, node:setup, pio:upload), a project "mise" house-rules skill, and
-  command-skills for the few destructive/multi-step tasks. Works greenfield (generate from the chosen
-  toolchains) or brownfield (detect what's already there, report drift from the standard, fix on approval).
-  It is advisory: it recommends the standard and explains the tradeoffs and risks, then lets you decide.
-  Reach for this whenever someone sets up a new project or repo, adds or standardizes a task runner, wants
-  build/test/lint/dev/deploy commands made consistent, says "add mise" or "set it up like our other repos",
-  or bootstraps tooling for terraform, python, node, go, localstack, docker-compose, aws (with aws-auth),
-  or arduino/platformio — even when they never say the words "mise" or "scaffold".
+  Scaffold or audit a project's mise task-runner setup the house-standard way — generates a lean
+  mise.toml, directory-namespaced .mise/tasks/* scripts (tf:apply, node:setup), a project "mise"
+  house-rules skill, and command-skills for destructive tasks; greenfield or brownfield (detect what's
+  there, report drift, fix on approval). Advisory: recommends the standard, explains the tradeoffs, and
+  lets you decide. A deliberate, roughly once-per-project setup action — invoke it explicitly with
+  /scaffold when starting or standardizing a repo (terraform, python, node, go, localstack,
+  docker-compose, aws, arduino/platformio). Not for everyday build/test/lint runs.
 ---
 
 # Scaffold a mise project
