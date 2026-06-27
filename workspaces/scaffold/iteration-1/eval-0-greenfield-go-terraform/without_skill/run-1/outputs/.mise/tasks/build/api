@@ -1,0 +1,7 @@
+#!/bin/bash
+#MISE description="Build the HTTP API server binary"
+
+set -e
+
+mkdir -p dist
+go build -o dist/api ./cmd/api/

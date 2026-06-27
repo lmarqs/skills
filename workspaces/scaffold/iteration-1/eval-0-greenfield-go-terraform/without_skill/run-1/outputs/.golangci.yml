@@ -1,0 +1,96 @@
+version: "2"
+
+linters:
+  enable:
+    - errname
+    - gocritic
+    - godoclint
+    - godox
+    - gosec
+    - govet
+    - lll
+    - nolintlint
+    - revive
+    - staticcheck
+
+  settings:
+    godoclint:
+      default: none
+      enable:
+        - deprecated
+        - max-len
+        - no-unused-link
+
+      options:
+        max-len:
+          length: 120
+
+    lll:
+      line-length: 120
+
+    nolintlint:
+      require-explanation: true
+
+    revive:
+      severity: error
+      enable-default-rules: true
+      rules:
+        - name: package-comments
+          severity: warning
+          disabled: true
+        - name: blank-imports
+          severity: warning
+          disabled: true
+        - name: exported
+          severity: warning
+          arguments:
+            - "say-repetitive-instead-of-stutters"
+            - "disable-checks-on-constants"
+            - "disable-checks-on-functions"
+            - "disable-checks-on-methods"
+            - "disable-checks-on-types"
+            - "disable-checks-on-variables"
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - golines
+
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - dot
+        - localmodule
+
+    gofmt:
+      rewrite-rules:
+        - pattern: "interface{}"
+          replacement: "any"
+
+    golines:
+      max-len: 120
+      tab-len: 2
+
+output:
+  formats:
+    text:
+      print-issued-lines: true
+      colors: true
+
+  sort-order:
+    - severity
+    - linter
+    - file
+
+run:
+  timeout: 3m
+  issues-exit-code: 1
+  tests: true
+  allow-parallel-runners: true
+  allow-serial-runners: true
+
+severity:
+  default: error

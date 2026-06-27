@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#MISE description="Install Node/pnpm workspace dependencies (frontend)"
+set -e
+
+# Private npm deps are served from AWS CodeArtifact. When CODEARTIFACT_DOMAIN is set
+# (in .env.yaml), authenticate to it before installing; otherwise use the public registry.
+if [ -n "${CODEARTIFACT_DOMAIN:-}" ]; then
+  source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+  corepack enable
+  export CODEARTIFACT_AUTH_TOKEN="$(get_codeartifact_authorization_token)"
+  npm config set "//${NPM_REGISTRY_HOST}/:_authToken" "$CODEARTIFACT_AUTH_TOKEN"
+fi
+
+# Install the whole workspace from the existing frozen lockfile.
+pnpm install --frozen-lockfile

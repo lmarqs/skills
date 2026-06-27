@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Compile the sketch, then upload it to the board"
+#MISE depends=["arduino:compile", "arduino:upload"]
+set -e
+
+# Single entry point for the common loop: `mise run arduino:run`.
+# The actual work happens in the dependencies (compile, then upload), so this body
+# stays empty and never duplicates their logic.

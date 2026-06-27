@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "brownfield-nextjs-retrofit",
+  "prompt": "We've got an existing Next.js app (it has a package.json with build/dev/test/lint scripts and a pnpm-lock.yaml, but no mise). Add our standard mise setup and tasks to it. Don't break anything that's already there.",
+  "assertions": [
+    "existing package.json left byte-for-byte unchanged",
+    "existing pnpm-lock.yaml left unchanged",
+    "mise.toml created, pins node and pnpm, no inline [tasks]",
+    "node tasks setup/lint/test/build/dev exist as files",
+    "every task file follows the contract",
+    "project 'mise' house-rules skill generated",
+    "NO command-skills (node-only, non-destructive)"
+  ]
+}

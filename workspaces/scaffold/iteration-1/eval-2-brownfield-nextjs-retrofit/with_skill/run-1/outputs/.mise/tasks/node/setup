@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Install Node dependencies"
+set -e
+if [ -n "${CODEARTIFACT_DOMAIN:-}" ]; then
+  source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+  corepack enable
+  export CODEARTIFACT_AUTH_TOKEN="$(get_codeartifact_authorization_token)"
+  npm config set "//${NPM_REGISTRY_HOST}/:_authToken" "$CODEARTIFACT_AUTH_TOKEN"
+fi
+pnpm install --frozen-lockfile

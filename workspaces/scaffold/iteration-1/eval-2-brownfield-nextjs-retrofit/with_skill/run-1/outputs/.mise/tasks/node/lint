@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Lint the codebase"
+set -e
+pnpm run lint

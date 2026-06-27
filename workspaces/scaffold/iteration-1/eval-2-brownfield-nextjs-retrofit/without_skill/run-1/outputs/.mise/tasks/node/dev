@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start the dev server"
+set -e
+pnpm run dev

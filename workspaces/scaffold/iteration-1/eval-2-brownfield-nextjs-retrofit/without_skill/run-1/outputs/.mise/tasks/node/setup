@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Install Node dependencies"
+set -e
+pnpm install --frozen-lockfile

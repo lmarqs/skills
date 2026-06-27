@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Format Terraform configuration (infra/)"
+
+set -ex
+
+cd "${MISE_PROJECT_ROOT}/infra"
+
+terraform fmt -recursive

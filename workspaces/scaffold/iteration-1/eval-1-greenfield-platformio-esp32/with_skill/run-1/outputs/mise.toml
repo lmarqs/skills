@@ -1,0 +1,9 @@
+[settings]
+experimental = true
+
+[tools]
+# Pinned major.minor, resolved at scaffold time. PlatformIO Core drives build/flash/monitor.
+platformio = "6.1"
+
+[env]
+_.file = ".env.yaml"

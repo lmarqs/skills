@@ -1,0 +1,11 @@
+# Build output
+/dist/
+/site/
+
+# Go
+*.test
+*.out
+coverage.*
+
+# Editors / OS
+.DS_Store

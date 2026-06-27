@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Build firmware"
+#USAGE arg "[env]" help="platformio.ini environment (board); defaults to default_envs"
+set -e
+pio run ${usage_env:+-e "$usage_env"}

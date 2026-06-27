@@ -1,0 +1,9 @@
+# mise local env (holds CodeArtifact/AWS values) — never commit
+.env.yaml
+
+# Python virtualenv created by mise (_.python.venv)
+.venv/
+
+# Node
+node_modules/
+packages/frontend/.next/

@@ -1,0 +1,61 @@
+# mise configuration for the Cloudflare Workers project.
+# Tools are pinned here; tasks are run with `mise run <task>`.
+
+[tools]
+node = "22"
+
+[env]
+# AWS region used when reading the build config value from AWS.
+# Override per-environment as needed.
+AWS_REGION = "us-east-1"
+# Name of the AWS SSM parameter that holds the build config value.
+APP_CONFIG_PARAM = "/cloudflare-worker/app-config"
+
+[tasks.setup]
+description = "Install dependencies and prepare the local environment"
+run = "npm install"
+
+[tasks.aws-auth]
+description = "Ensure we are authenticated to AWS (required for the config build step)"
+# Fails fast with a clear message if no valid AWS credentials are present.
+# Run `aws sso login` / export creds before invoking deploy if this fails.
+run = """
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+  echo "Not authenticated to AWS. Run 'aws sso login' (or export AWS credentials) and retry." >&2
+  exit 1
+fi
+echo "Authenticated to AWS as: $(aws sts get-caller-identity --query Arn --output text)"
+"""
+
+[tasks.build-config]
+description = "Read the build config value from AWS (SSM Parameter Store)"
+depends = ["aws-auth"]
+# Pull the config value from AWS and expose it for the build/deploy steps.
+run = """
+echo "Reading $APP_CONFIG_PARAM from AWS SSM in $AWS_REGION..."
+APP_CONFIG=$(aws ssm get-parameter \
+  --name "$APP_CONFIG_PARAM" \
+  --with-decryption \
+  --region "$AWS_REGION" \
+  --query Parameter.Value \
+  --output text)
+echo "APP_CONFIG=$APP_CONFIG" > .build-config.env
+echo "Wrote build config to .build-config.env"
+"""
+
+[tasks.dev]
+description = "Run the Worker locally with wrangler"
+run = "npm run dev"
+
+[tasks.lint]
+description = "Lint and type-check the project"
+run = "npm run lint"
+
+[tasks.test]
+description = "Run the test suite"
+run = "npm run test"
+
+[tasks.deploy]
+description = "Deploy the Worker to Cloudflare (authenticates to AWS and reads config first)"
+depends = ["build-config"]
+run = "npm run deploy"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Build the API distribution package"
+#MISE dir="packages/api"
+set -e
+python -m build

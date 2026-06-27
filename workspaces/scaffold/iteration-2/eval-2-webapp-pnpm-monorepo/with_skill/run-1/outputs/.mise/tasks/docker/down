@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Stop the local infra stack and remove containers"
+set -e
+docker compose down

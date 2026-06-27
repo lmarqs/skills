@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Compile the sketch"
+set -e
+arduino-cli compile --fqbn "$ARDUINO_FQBN" .

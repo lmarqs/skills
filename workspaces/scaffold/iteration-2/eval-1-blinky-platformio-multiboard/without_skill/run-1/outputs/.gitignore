@@ -1,0 +1,17 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# Generated asset headers (regenerated from assets/ on every build)
+include/generated/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store

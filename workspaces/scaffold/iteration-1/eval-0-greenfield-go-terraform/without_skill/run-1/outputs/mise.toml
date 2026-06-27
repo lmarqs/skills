@@ -1,0 +1,13 @@
+[settings]
+experimental = true
+
+[tools]
+go = "1.26.2"
+golangci-lint = "2.11.4"
+terraform = "1.14"
+awscli = "2"
+gh = "2"
+jq = "latest"
+
+[env]
+_.file = ".env"

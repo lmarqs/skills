@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists with a [tools] section",
+      "passed": true,
+      "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-1-greenfield-platformio-esp32/without_skill/run-1/outputs/.mise.toml"
+    },
+    {
+      "text": "mise.toml has NO inline [tasks]",
+      "passed": false,
+      "evidence": "inline tasks found"
+    },
+    {
+      "text": "pio tasks setup/build/upload/monitor exist as files",
+      "passed": false,
+      "evidence": "pio/=[]"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": false,
+      "evidence": "0 ok"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "NO aws-auth helper and NO AWS tooling (non-cloud project)",
+      "passed": true,
+      "evidence": "awsauth=False aws_tool=False"
+    },
+    {
+      "text": "NO command-skills (all tasks non-destructive)",
+      "passed": true,
+      "evidence": "none"
+    }
+  ],
+  "pass_count": 3,
+  "total": 7,
+  "summary": {
+    "pass_rate": 0.42857142857142855,
+    "passed": 3,
+    "failed": 4,
+    "total": 7
+  }
+}

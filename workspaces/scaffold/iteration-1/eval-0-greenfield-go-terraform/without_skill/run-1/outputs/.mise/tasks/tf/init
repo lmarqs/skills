@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="Init Terraform (infra/)"
+#USAGE flag "--backend" default="false" help="Configure the backend"
+#USAGE flag "--upgrade" default="false" help="Upgrade providers and modules"
+#USAGE flag "--migrate-state" default="false" help="Reconfigure a backend, and attempt to migrate any existing state."
+#USAGE flag "--reconfigure" default="false" help="Reconfigure a backend, ignoring any saved configuration."
+
+set -ex
+
+cd "${MISE_PROJECT_ROOT}/infra"
+
+TERRAFORM_CLI_ARGS="-upgrade=$usage_upgrade -backend=$usage_backend -migrate-state=$usage_migrate_state -reconfigure=$usage_reconfigure"
+
+terraform init $TERRAFORM_CLI_ARGS

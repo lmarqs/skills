@@ -1,0 +1,15 @@
+{
+  "eval_id": 3,
+  "eval_name": "cloud-iac-terraform-multiregion",
+  "prompt": "New repo for our AWS infrastructure as Terraform. It'll have multiple modules, one per region (global, sa-east-1, us-east-1) under modules/. I want the standard init/plan/apply/fmt/check flow where I pass which module to act on, and we also deploy a few things to EKS so kubectl and helm need to be on hand. Apply should be careful \u2014 show a plan and confirm before it changes anything.",
+  "assertions": [
+    "mise.toml pins terraform+helm+kubectl, no inline [tasks]",
+    "tf tasks init/plan/apply/fmt/check exist",
+    "tf:apply parameterized by module/flags (#USAGE present)",
+    "every task file follows the contract",
+    "aws-auth helper present, no leaked internals",
+    "project 'mise' house-rules skill generated",
+    "command-skills for tf:apply AND tf:plan (guardrails)",
+    "no command-skill for trivial tasks (fmt/check/init)"
+  ]
+}

@@ -1,0 +1,12 @@
+[settings]
+experimental = true
+
+[tools]
+# Pinned major.minor, resolved at scaffold time (2026-06-27).
+go             = "1.26"
+terraform      = "1.15"
+aws-cli        = "2"
+golangci-lint  = "2.12"
+
+[env]
+_.file = ".env.yaml"

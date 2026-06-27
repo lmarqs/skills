@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start LocalStack for local AWS emulation (s3, sqs, lambda)"
+set -e
+docker compose up -d localstack

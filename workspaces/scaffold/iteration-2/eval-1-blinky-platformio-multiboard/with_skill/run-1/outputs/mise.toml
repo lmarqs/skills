@@ -1,0 +1,13 @@
+[settings]
+experimental = true
+# Read the Python version from .python-version (idiomatic version file):
+idiomatic_version_file_enable_tools = ["python"]
+
+[tools]
+# Pinned major.minor, resolved at scaffold time. PlatformIO itself is a Python
+# tool installed into the project venv (see requirements.txt + python:setup).
+python = "3.13"
+
+[env]
+_.file = ".env.yaml"
+_.python.venv = { path = ".venv", create = true }

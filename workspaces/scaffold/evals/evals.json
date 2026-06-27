@@ -1,0 +1,65 @@
+{
+  "skill_name": "scaffold",
+  "evals": [
+    {
+      "id": 0,
+      "name": "terraform-ui-go-cli",
+      "based_on": "github.com/lmarqs/terraform-ui",
+      "toolchains": ["go", "goreleaser", "node"],
+      "mode": "greenfield",
+      "prompt": "I'm building a new Go CLI tool — single Go module, ships as a cross-platform binary. Set me up with mise: build, test, lint, and fmt for day-to-day work, plus a release flow using goreleaser. It's just one Go module so I'd rather have flat task names than a `go:` prefix on everything. Docs get built with mkdocs if that matters.",
+      "expected_output": "Lean mise.toml (go, golangci-lint, goreleaser; .env env file). Because it's a single toolchain, the skill should offer/honor FLAT task names (build, test, lint, fmt) rather than forcing a go: prefix — recording the namespacing fork. A release flow (release:prepare/publish or similar — niche, generated because explicitly asked). A project 'mise' house-rules skill. A command-skill for the destructive release/publish step but NOT for build/test/lint/fmt. No aws-auth (no AWS).",
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "blinky-platformio-multiboard",
+      "based_on": "github.com/lmarqs/blinky",
+      "toolchains": ["pio", "python"],
+      "mode": "greenfield",
+      "prompt": "Firmware project with PlatformIO. It targets two boards — an ESP-01S (ESP8266) and an ESP32. I want mise tasks to build, flash, and open the serial monitor, selecting the board, plus a task that turns the binary files in assets/ into C headers I can #include. There's some Python build tooling involved too.",
+      "expected_output": "Lean mise.toml (platformio + python; no AWS). pio namespace (setup, build, upload, monitor) where build/upload take a board/env argument so both ESP-01S and ESP32 are reachable. A custom asset->header task (e.g. pio:hexdump or assets:bake) following the task contract. A project 'mise' house-rules skill listing the pio tasks. No aws-auth, no command-skills (non-destructive).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "webapp-pnpm-monorepo",
+      "based_on": "github.com/Medprev/medprev-web-app",
+      "toolchains": ["node", "python", "localstack", "docker", "aws-auth"],
+      "mode": "brownfield",
+      "prompt": "We've got an existing pnpm monorepo: a Next.js frontend in packages/frontend and a Python FastAPI service in packages/api, plus a docker-compose for local infra and we use LocalStack to emulate AWS. There's no mise yet. Add our standard setup — per-module setup/lint/test/build/dev, localstack + docker tasks for spinning up local dev, and note our private npm deps come from AWS CodeArtifact. Don't break the existing package.json or lockfiles.",
+      "expected_output": "Brownfield audit path: detects the existing monorepo, reports drift, leaves package.json/pnpm-lock.yaml/pyproject untouched. Lean mise.toml (pnpm, python, aws-cli; .env.yaml; idiomatic version files). node + python + localstack + docker namespaces. aws-auth sourced helper pulled in by node:setup, with CodeArtifact values parameterized via env (NO hard-coded account id or 'medprev' domain). A project 'mise' house-rules skill mentioning the '**:setup' fan-out. No command-skills required (none destructive here) — localstack:deploy is borderline and acceptable either way.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "cloud-iac-terraform-multiregion",
+      "based_on": "github.com/Medprev/medprev-cloud-iac",
+      "toolchains": ["terraform", "helm", "kubectl", "aws-auth"],
+      "mode": "greenfield",
+      "prompt": "New repo for our AWS infrastructure as Terraform. It'll have multiple modules, one per region (global, sa-east-1, us-east-1) under modules/. I want the standard init/plan/apply/fmt/check flow where I pass which module to act on, and we also deploy a few things to EKS so kubectl and helm need to be on hand. Apply should be careful — show a plan and confirm before it changes anything.",
+      "expected_output": "Lean mise.toml (terraform, helm, kubectl, aws-cli). tf namespace (init, plan, apply, fmt, check) where init/plan/apply take a <module> arg and -chdir into modules/<module>; apply has an --auto-approve flag defaulting off. aws-auth sourced helper, internals parameterized. A project 'mise' house-rules skill. Command-skills for tf:apply AND tf:plan carrying guardrails (surface plan, confirm, one module at a time) but none for fmt/check. Module names not hard-coded into a single script in a way that leaks an account.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "well-known-cloudflare-workers",
+      "based_on": "github.com/Medprev/medprev-well-known",
+      "toolchains": ["node", "cloudflare", "aws-auth"],
+      "mode": "greenfield",
+      "prompt": "Bootstrap a Cloudflare Workers project — TypeScript on Node, deployed with wrangler. I need mise tasks for setup, dev, lint, test, and deploy to Cloudflare. One of the build steps reads a config value from AWS, so I need to be authenticated to AWS as part of it too.",
+      "expected_output": "EXTENSIBILITY TEST — cloudflare is NOT in the skill's built-in catalog. The skill should still scaffold sensible tasks following its own contract: a node namespace (setup, lint, test, dev) and a cloudflare namespace (dev, deploy, login via wrangler), each with #!/usr/bin/env bash + set -e + #MISE description. aws-auth sourced helper because a step needs AWS. A project 'mise' house-rules skill. A command-skill for cloudflare:deploy (changes remote/shared state) but not for lint/test. Lean mise.toml (node + wrangler/cloudflare tooling). No leaked internals.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "attiny-arduino-sketch",
+      "based_on": "github.com/lmarqs/attiny-pass-key",
+      "toolchains": ["arduino"],
+      "mode": "greenfield",
+      "prompt": "Arduino project for a Digispark (ATtiny85) USB device. I'm using arduino-cli, not PlatformIO. Set up mise so I can compile the sketch, upload it to the board, and a single 'run' that compiles then uploads. Add a setup task for installing the core and libraries.",
+      "expected_output": "Lean mise.toml (arduino-cli; no AWS). arduino namespace (setup, compile, upload, run) following the task contract, with the board FQBN and serial port parameterized via env (e.g. $ARDUINO_FQBN, $ARDUINO_PORT) rather than hard-coded. 'run' chains compile+upload. A project 'mise' house-rules skill. No aws-auth, no command-skills (non-destructive local flashing).",
+      "files": []
+    }
+  ]
+}

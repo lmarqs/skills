@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#MISE description="Deploy the Worker to Cloudflare (wrangler deploy)"
+#USAGE flag "--env <env>" help="Cloudflare environment from wrangler.toml (e.g. staging, production)"
+set -e
+
+# The deploy build reads a config value from AWS, so authenticate first and
+# fetch it via the sourced helper before handing off to wrangler.
+source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+export BUILD_CONFIG_VALUE="$(get_build_config_value)"
+
+npx wrangler deploy ${usage_env:+--env "$usage_env"}

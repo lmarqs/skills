@@ -1,0 +1,9 @@
+#!/bin/bash
+#MISE description="Run Go unit tests"
+#USAGE arg "<pattern>" help="packages to test" default="./..."
+
+set -e
+
+pattern="${usage_pattern:-./...}"
+
+go test -race -count=1 "${pattern}"

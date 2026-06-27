@@ -1,0 +1,59 @@
+[tools]
+go = "1.22"
+goreleaser = "latest"
+golangci-lint = "latest"
+
+[env]
+# Build into ./dist by default; CGO off for static, portable binaries.
+CGO_ENABLED = "0"
+
+[tasks.build]
+description = "Build the CLI binary into ./dist"
+run = "go build -o dist/ ./..."
+sources = ["**/*.go", "go.mod", "go.sum"]
+outputs = ["dist/*"]
+
+[tasks.test]
+description = "Run the test suite"
+run = "go test ./..."
+
+[tasks.lint]
+description = "Run golangci-lint over the module"
+run = "golangci-lint run ./..."
+
+[tasks.fmt]
+description = "Format all Go source"
+run = "go fmt ./..."
+
+[tasks.tidy]
+description = "Tidy go.mod / go.sum"
+run = "go mod tidy"
+
+[tasks.run]
+description = "Run the CLI (pass args after --)"
+run = "go run ./..."
+
+[tasks.ci]
+description = "Run fmt-check, lint, and tests like CI does"
+depends = ["lint", "test"]
+run = "git diff --exit-code -- '*.go' || (echo 'run `mise run fmt`' && exit 1)"
+
+[tasks.release]
+description = "Cut a real release with goreleaser (needs a git tag)"
+run = "goreleaser release --clean"
+
+[tasks.release-snapshot]
+description = "Build a local snapshot release (no publish, no tag needed)"
+run = "goreleaser release --snapshot --clean"
+
+[tasks.release-check]
+description = "Validate .goreleaser.yaml without building"
+run = "goreleaser check"
+
+[tasks.docs-build]
+description = "Build the documentation site with mkdocs"
+run = "mkdocs build"
+
+[tasks.docs-serve]
+description = "Serve the docs locally with live reload"
+run = "mkdocs serve"

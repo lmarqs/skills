@@ -1,0 +1,19 @@
+# Secrets / local env (never commit; commit .env.example instead)
+.env.yaml
+.env
+
+# Node
+node_modules/
+packages/frontend/.next/
+packages/frontend/out/
+
+# Python
+packages/api/.venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# mise
+.mise.local.toml

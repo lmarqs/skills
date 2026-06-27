@@ -1,0 +1,11 @@
+[settings]
+experimental = true
+
+[tools]
+# Pinned major.minor, resolved at scaffold time. Only the selected toolchain appears here.
+arduino-cli = "1.2"
+
+[env]
+_.file = ".env.yaml"
+
+# No inline [tasks] — every task is a file under .mise/tasks/** (see `mise tasks`).

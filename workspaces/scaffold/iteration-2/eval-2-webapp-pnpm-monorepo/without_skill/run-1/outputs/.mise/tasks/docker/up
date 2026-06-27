@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start the local stack (docker compose)"
+set -e
+docker compose up -d

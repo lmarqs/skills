@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build all Node workspaces for production (pnpm -r build)"
+set -e
+pnpm -r build

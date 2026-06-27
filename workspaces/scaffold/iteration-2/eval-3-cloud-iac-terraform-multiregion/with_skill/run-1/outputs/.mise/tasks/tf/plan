@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Show a Terraform plan for a module"
+#USAGE arg "<module>" help="Module directory under modules/ (global, sa-east-1, us-east-1)"
+set -e
+source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+terraform -chdir="modules/$usage_module" plan

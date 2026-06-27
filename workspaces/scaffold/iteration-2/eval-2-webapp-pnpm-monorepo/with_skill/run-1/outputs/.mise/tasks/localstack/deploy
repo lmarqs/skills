@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#MISE description="Provision local AWS resources into LocalStack"
+set -e
+export AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:4566}"
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+# Wait for LocalStack to be ready, then create the local resources the app expects.
+# Compose declares SERVICES=s3,sqs,lambda — provision those here. Examples:
+#   aws --endpoint-url "$AWS_ENDPOINT_URL" s3 mb s3://acme-local
+#   aws --endpoint-url "$AWS_ENDPOINT_URL" sqs create-queue --queue-name acme-local
+echo "Deploying local infrastructure to LocalStack at $AWS_ENDPOINT_URL" >&2
+# Add resource-creation commands above as the app grows.

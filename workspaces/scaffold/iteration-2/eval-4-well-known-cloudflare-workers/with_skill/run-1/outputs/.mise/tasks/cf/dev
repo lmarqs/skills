@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start the Worker locally (wrangler dev)"
+set -e
+npx wrangler dev

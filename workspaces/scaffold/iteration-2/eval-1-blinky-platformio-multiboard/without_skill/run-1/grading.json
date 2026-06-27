@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists with [tools], no inline [tasks]",
+      "passed": false,
+      "evidence": "inline=True"
+    },
+    {
+      "text": "pio tasks build/upload/monitor/setup exist",
+      "passed": false,
+      "evidence": "pio=[]"
+    },
+    {
+      "text": "both boards reachable (ESP-01/ESP8266 + ESP32 envs in platformio.ini)",
+      "passed": true,
+      "evidence": "esp01=True esp32=True"
+    },
+    {
+      "text": "a custom asset->C-header task exists",
+      "passed": false,
+      "evidence": "task files=[]"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": false,
+      "evidence": "0 files ok"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "no command-skill for trivial tasks",
+      "passed": true,
+      "evidence": "cmd-skills=[]"
+    }
+  ],
+  "pass_count": 2,
+  "total": 7,
+  "summary": {
+    "pass_rate": 0.2857142857142857,
+    "passed": 2,
+    "failed": 5,
+    "total": 7
+  }
+}

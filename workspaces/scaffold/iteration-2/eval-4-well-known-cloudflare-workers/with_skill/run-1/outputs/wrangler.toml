@@ -1,0 +1,6 @@
+name = "cloudflare-worker"
+main = "src/index.ts"
+compatibility_date = "2026-06-27"
+
+# The build-time config value fetched from AWS is passed in by the mise tasks
+# via the BUILD_CONFIG_VALUE env var; reference it from a build var if needed.

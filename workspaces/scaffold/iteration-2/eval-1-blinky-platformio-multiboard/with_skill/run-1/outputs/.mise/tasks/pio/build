@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Build firmware for a board (esp01s | esp32)"
+#USAGE arg "[env]" help="platformio.ini environment / board; defaults to PIO_DEFAULT_ENV"
+set -e
+ENV="${usage_env:-$PIO_DEFAULT_ENV}"
+pio run -e "$ENV"

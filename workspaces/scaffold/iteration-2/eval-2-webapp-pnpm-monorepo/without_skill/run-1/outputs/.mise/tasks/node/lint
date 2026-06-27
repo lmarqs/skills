@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Lint the frontend"
+#MISE dir="packages/frontend"
+set -e
+pnpm run lint

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run the API test suite (pytest)"
+#MISE dir="packages/api"
+#USAGE arg "[pattern]" help="Optional pytest -k filter"
+set -e
+pytest ${usage_pattern:+-k "$usage_pattern"}

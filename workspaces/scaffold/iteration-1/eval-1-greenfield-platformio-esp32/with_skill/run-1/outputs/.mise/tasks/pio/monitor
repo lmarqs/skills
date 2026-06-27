@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Open the serial monitor"
+set -e
+# Serial port comes from the env file (PIO_UPLOAD_PORT); unset = PlatformIO auto-detect.
+pio device monitor ${PIO_UPLOAD_PORT:+-p "$PIO_UPLOAD_PORT"}

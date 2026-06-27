@@ -1,0 +1,21 @@
+# Local environment (account-specific values)
+.env.yaml
+
+# Go build output
+/bin/
+*.test
+*.out
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl

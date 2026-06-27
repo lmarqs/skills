@@ -1,0 +1,6 @@
+# mise local environment (real values; never commit)
+.env.yaml
+
+# Node / Next.js
+node_modules/
+.next/

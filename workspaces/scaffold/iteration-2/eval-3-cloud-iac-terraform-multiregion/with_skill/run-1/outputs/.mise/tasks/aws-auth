@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Sourced helper — NOT a task. Usage in another task:
+#   source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+# All account-specific values come from env (.env.yaml); nothing internal is committed.
+set -e
+
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+
+if ! aws sts get-caller-identity --query Account --output text >/dev/null 2>&1; then
+  echo "You must be authenticated to AWS to run this task (try: aws sso login)." >&2
+  exit 1
+fi
+
+# Point kubectl/helm at an EKS cluster. Pass the cluster name and (optionally) its region.
+#   eks_update_kubeconfig "$EKS_CLUSTER_NAME" "us-east-1"
+eks_update_kubeconfig() {
+  local cluster="${1:-$EKS_CLUSTER_NAME}"
+  local region="${2:-$AWS_REGION}"
+  if [ -z "$cluster" ]; then
+    echo "eks_update_kubeconfig: no cluster name (set EKS_CLUSTER_NAME or pass an arg)." >&2
+    return 1
+  fi
+  aws eks update-kubeconfig --name "$cluster" --region "$region"
+}

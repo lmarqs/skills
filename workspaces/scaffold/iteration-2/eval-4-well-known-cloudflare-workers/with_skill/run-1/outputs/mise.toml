@@ -1,0 +1,12 @@
+[settings]
+experimental = true
+# Read the node version from .node-version:
+idiomatic_version_file_enable_tools = ["node"]
+
+[tools]
+# Pinned major.minor, resolved at scaffold time.
+node    = "24"
+aws-cli = "2"
+
+[env]
+_.file = ".env.yaml"

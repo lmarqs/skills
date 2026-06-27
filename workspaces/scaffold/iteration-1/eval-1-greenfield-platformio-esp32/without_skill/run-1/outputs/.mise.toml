@@ -1,0 +1,55 @@
+# mise configuration for the ESP32 PlatformIO firmware project.
+#
+# Run `mise tasks` to list available tasks, or `mise run <task>` to execute one.
+# Most tasks are thin wrappers around the PlatformIO CLI (`pio`) so you don't
+# have to memorize the raw commands.
+
+[tools]
+# PlatformIO Core ships as a Python package. mise installs it into an isolated
+# pipx-managed environment so `pio` is on PATH for the tasks below.
+python = "3.12"
+"pipx:platformio" = "latest"
+
+[env]
+# Default PlatformIO environment (matches [env:esp32dev] in platformio.ini).
+PIO_ENV = "esp32dev"
+
+[tasks.build]
+description = "Compile the firmware"
+run = "pio run -e $PIO_ENV"
+
+[tasks.upload]
+description = "Build and flash the firmware to the connected ESP32"
+run = "pio run -e $PIO_ENV --target upload"
+
+[tasks.flash]
+description = "Alias for `upload` — build and flash the firmware"
+depends = ["upload"]
+
+[tasks.monitor]
+description = "Open the serial monitor (115200 baud)"
+run = "pio device monitor -e $PIO_ENV"
+
+[tasks.watch]
+description = "Flash, then immediately attach the serial monitor"
+run = "pio run -e $PIO_ENV --target upload --target monitor"
+
+[tasks.clean]
+description = "Remove build artifacts"
+run = "pio run -e $PIO_ENV --target clean"
+
+[tasks.fullclean]
+description = "Remove build artifacts and the .pio directory entirely"
+run = "pio run -e $PIO_ENV --target fullclean"
+
+[tasks.devices]
+description = "List connected serial devices / ports"
+run = "pio device list"
+
+[tasks.test]
+description = "Run the unit tests"
+run = "pio test -e $PIO_ENV"
+
+[tasks.update]
+description = "Update PlatformIO platforms and libraries"
+run = "pio pkg update"

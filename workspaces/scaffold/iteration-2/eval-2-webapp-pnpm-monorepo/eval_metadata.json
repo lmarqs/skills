@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "webapp-pnpm-monorepo",
+  "prompt": "We've got an existing pnpm monorepo: a Next.js frontend in packages/frontend and a Python FastAPI service in packages/api, plus a docker-compose for local infra and we use LocalStack to emulate AWS. There's no mise yet. Add our standard setup \u2014 per-module setup/lint/test/build/dev, localstack + docker tasks for spinning up local dev, and note our private npm deps come from AWS CodeArtifact. Don't break the existing package.json or lockfiles.",
+  "assertions": [
+    "existing project files left unchanged (brownfield-safe)",
+    "mise.toml pins node+pnpm+python, no inline [tasks]",
+    "node tasks setup/lint/test/build/dev exist",
+    "python tasks setup/lint/test exist (py: or python:)",
+    "localstack + docker tasks exist",
+    "aws-auth helper present and parameterized (no leaked id/domain)",
+    "every task file follows the contract",
+    "project 'mise' house-rules skill generated"
+  ]
+}

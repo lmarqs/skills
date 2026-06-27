@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Convert binary files in assets/ into C headers under include/generated/"
+#USAGE flag "--src <dir>" help="Source directory of binary assets (default: assets)"
+#USAGE flag "--out <dir>" help="Output directory for headers (default: include/generated)"
+set -e
+python "$MISE_PROJECT_ROOT/tools/bin2header.py" \
+  --src "${usage_src:-assets}" \
+  --out "${usage_out:-include/generated}"

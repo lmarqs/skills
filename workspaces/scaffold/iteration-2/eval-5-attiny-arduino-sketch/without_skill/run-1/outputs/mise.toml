@@ -1,0 +1,55 @@
+#:schema https://mise.jdx.dev/schema/mise.json
+#
+# mise config for a Digispark (ATtiny85) Arduino project using arduino-cli.
+#
+# Quick start:
+#   mise run setup     # one-time: install the Digistump core + libraries
+#   mise run run       # compile, then upload to the board
+#
+# Individual steps:
+#   mise run compile   # compile the sketch only
+#   mise run upload    # upload the last compiled build to the board
+
+[tools]
+arduino-cli = "latest"
+
+[env]
+# Sketch directory (must match the .ino filename) and the target board FQBN.
+SKETCH = "digispark-blink"
+FQBN = "digistump-avr:avr:digispark-tiny"
+
+# Digistump board package index URL — needed so arduino-cli can find the
+# Digispark / ATtiny85 core. Picked up by `arduino-cli core` commands below.
+ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS = "https://raw.githubusercontent.com/digistump/arduino-boards-index/master/package_digistump_index.json"
+
+[tasks.setup]
+description = "Install the Digistump AVR core and required libraries (run once)"
+run = [
+  # Make the Digistump board index available, then refresh the index.
+  "arduino-cli config init --overwrite --additional-urls \"$ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS\"",
+  "arduino-cli core update-index",
+  # Install the Digispark / ATtiny85 core.
+  "arduino-cli core install digistump-avr:avr",
+  # Add libraries here as you need them, e.g.:
+  #   arduino-cli lib install DigiKeyboard
+  # (DigiKeyboard / DigiUSB ship with the Digistump core.)
+]
+
+[tasks.compile]
+description = "Compile the sketch for the Digispark (ATtiny85)"
+run = "arduino-cli compile --fqbn \"$FQBN\" \"$SKETCH\""
+
+[tasks.upload]
+description = "Upload the compiled sketch to the Digispark over USB (micronucleus)"
+# The Digispark has no serial port; micronucleus waits for the board to be
+# plugged in. Unplug the board, run this, then plug it in within 60 seconds.
+run = "arduino-cli upload --fqbn \"$FQBN\" \"$SKETCH\""
+
+[tasks.run]
+description = "Compile then upload to the board"
+# Run sequentially (not via `depends`, which would run them in parallel) so the
+# upload always uses a freshly compiled build.
+run = [
+  "mise run compile",
+  "mise run upload",
+]

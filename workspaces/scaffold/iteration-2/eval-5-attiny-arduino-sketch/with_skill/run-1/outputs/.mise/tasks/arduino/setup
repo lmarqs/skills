@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="Install the arduino-cli core and libraries for this board"
+set -e
+
+# Make sure the third-party Digistump index is on the board-manager search path,
+# then refresh the index and install the core (e.g. digistump:avr).
+arduino-cli core update-index --additional-urls "$ARDUINO_BOARD_MANAGER_URL"
+arduino-cli core install "$ARDUINO_FQBN_CORE" --additional-urls "$ARDUINO_BOARD_MANAGER_URL"
+
+# Install any libraries the sketch needs (space-separated in $ARDUINO_LIBS).
+if [ -n "${ARDUINO_LIBS:-}" ]; then
+  # shellcheck disable=SC2086
+  arduino-cli lib install $ARDUINO_LIBS
+fi
