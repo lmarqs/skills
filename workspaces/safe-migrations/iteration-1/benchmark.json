@@ -1,0 +1,400 @@
+{
+  "metadata": {
+    "skill_name": "safe-migrations",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-08-10T17:17:46Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 106.0,
+        "tokens": 11087,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+          "passed": true,
+          "evidence": "Finding 2: 'From that moment until the last v1 pod terminates (~15 minutes), every v1 pod still in the rollout executes SELECT ... full_name ... / UPDATE ... SET full_name = ... against a schema where the column no longer exists. Every one of those queries errors \u2014 column \"full_name\" does not exist. That's up to 15 minutes of hard failures.'"
+        },
+        {
+          "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+          "passed": true,
+          "evidence": "Intro states the schema must stay compatible 'plus however long you need rollback to v1 to remain possible afterwards'; Finding 2: 'And rollback is worse than the rollout: if v2 misbehaves and you redeploy v1, v1 is now broken by the schema, so rolling back the application requires also reverse-renaming the column \u2014 under incident pressure, against data v2 has been writing.' Not scoped to mid-rollout only."
+        },
+        {
+          "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+          "passed": true,
+          "evidence": "Finding 1: 'Narrowing VARCHAR(100) \u2192 VARCHAR(20) discards information. Widening back later restores the *shape* of the column, not any characters that were lost \u2014 there is no down migration for this.' Also flags MySQL non-strict mode 'silently truncates ... one of them is invisible.'"
+        },
+        {
+          "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+          "passed": true,
+          "evidence": "Finding 1: '\"We checked\" is a point-in-time observation, not a constraint'; recommends 'add a CHECK (char_length(phone) <= 20) NOT VALID, clean existing data, then VALIDATE CONSTRAINT'; replacement step 4: 'Verify with queries: ... zero phones over 20 chars ... Then VALIDATE CONSTRAINT on the phone check.'"
+        },
+        {
+          "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+          "passed": true,
+          "evidence": "Finding 3 flags the statement failing outright on existing rows, then: 'If you \"fix\" it by adding a DEFAULT, it's still only conditionally safe: it works because v1's inserts (which don't mention loyalty_tier) get the default \u2014 but that means \"v2 sets it on every insert\" is doing none of the safety work; the default is.' Explicitly identifies old-pod inserts as incompatible with NOT NULL absent a default."
+        },
+        {
+          "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+          "passed": true,
+          "evidence": "Verdict is 'do not merge'; Finding 2 gives a 5-step 'Staged alternative (Expand\u2013Migrate\u2013Contract), each step an independent deployment'; the 'Recommended shape of the replacement' section lays out a 6-step deployment sequence (expand V42, dual-write app deploy, backfill, verify, contract app deploy, later V43+ cleanup)."
+        },
+        {
+          "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+          "passed": true,
+          "evidence": "Finding 2 step 5: 'Cleanup (separate, later migration, after the rollback window and after proving nothing reads/writes full_name): drop full_name. This is the only irreversible step, which is why it goes last and alone, with a date and an owner.' Replacement step 6: 'V43+, after an agreed rollback window (put a date on it now): drop full_name.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 119.5,
+        "tokens": 51059,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+          "passed": true,
+          "evidence": "Plan is structured as 'The plan \u2014 six independent deployments' (Deployment 1\u20136), with 'Each step is a separate deploy with its own rollback story. Do not collapse steps.' Compatibility is the stated governing rule: 'can every application version in traffic work with every intermediate database state? Each numbered deployment keeps the answer yes', and each deployment ends with an explicit rollback story against the prior version."
+        },
+        {
+          "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+          "passed": true,
+          "evidence": "Deployment 1 adds 'two nullable columns, no default, no index yet' via migrations.AddField with null=True, notes 'ADD COLUMN ... NULL with no default is metadata-only', and does not modify name ('Old code is untouched \u2014 it never selects columns it doesn't know about')."
+        },
+        {
+          "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+          "passed": true,
+          "evidence": "Deployment 2 is 'dual-write + fallback reads': save() 'Writes both representations, old one authoritative' (sets first_name/last_name from name and syncs name from the parts), and reads use 'new-with-fallback' \u2014 display_first_name returns self.first_name if not None else split_name(self.name)[0]. It also audits update()/bulk_create()/bulk_update() paths that bypass save()."
+        },
+        {
+          "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+          "passed": true,
+          "evidence": "Deployment 3 is 'A management command, not a Django data migration \u2014 40M rows must never run inside one migration transaction'. Loop processes BATCH = 5_000 rows per transaction.atomic() block, iterating by PK ('Iterate by PK range, never OFFSET'), with 'Bounded: ~5k rows per transaction, short locks, no long transaction holding back vacuum' and a throttle sleep."
+        },
+        {
+          "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+          "passed": true,
+          "evidence": "Explicit properties: 'Idempotent: the first_name__isnull=True predicate makes re-running a batch a no-op, and never clobbers rows the dual-write path already populated' and 'Restartable: checkpoint on id; crash \u2192 resume, not restart' \u2014 the loop persists save_checkpoint(last_id) and filters first_name__isnull=True, name__isnull=False."
+        },
+        {
+          "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+          "passed": true,
+          "evidence": "Deployment 4: 'keeps dual-writing name ... This is what keeps the rollback window open' and 'Define the rollback window now, with a date and an owner \u2014 e.g. 2\u20134 weeks covering at least one full business cycle.' The drop is Deployment 6: 'A separate, later deployment \u2014 never bundled with Deployment 5', gated on Deployment 5 being 'stable past its own rollback window'."
+        },
+        {
+          "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+          "passed": true,
+          "evidence": "Convergence query 'SELECT COUNT(*) FROM users WHERE first_name IS NULL AND name IS NOT NULL; -- must reach 0' plus reconstruction/shape checks. Before Deployment 5: 'code search for name usages (ORM, raw SQL, serializers, admin, reports, BI/ETL jobs ...)' and 'pg_stat_statements / RDS Performance Insights showing no queries referencing users.name other than your own dual-write'. Deployment 6 preconditions re-check both plus a tagged snapshot."
+        },
+        {
+          "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+          "passed": true,
+          "evidence": "'The split itself is a lossy, ambiguous transformation ... single-word names, multi-word surnames ... Once name is dropped, no down migration can reconstruct it faithfully' and, bolded: 'name is the source of truth until the very last step, and that step is deliberately delayed.' An 'ambiguity ledger' tracks uncertain rows for later compensating fixes."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 99.4,
+        "tokens": 7048,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+          "passed": true,
+          "evidence": "Title: 'do NOT restore the snapshot over production.' Body: 'Restoring last night's RDS snapshot (or PITR) in place is the wrong call. It would fix account_balance as of last night by destroying every legitimate write made since \u2014 the full day of deposits and withdrawals you just said are real.'"
+        },
+        {
+          "text": "Recommends a compensating forward migration/repair rather than any further rollback",
+          "passed": true,
+          "evidence": "Title: 'Repair forward with a compensating migration.' Body: 'That combination makes this a compensating forward migration (a targeted backfill), not a restore.' Also explicitly rejects restore-then-replay as 'strictly worse'."
+        },
+        {
+          "text": "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+          "passed": true,
+          "evidence": "Names 'two sources of truth': the pre-migration snapshot/PITR point and 'the append-only, intact transactions table \u2014 every legitimate delta applied since.' Step 2 derives wrong_post_migration_base as 'current account_balance \u2212 \u03a3(deltas in transactions since migration start)' and Step 4 reconciles against 'correct_pre + \u03a3(transactions deltas since migration start)'."
+        },
+        {
+          "text": "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+          "passed": true,
+          "evidence": "Step 1: 'Restore aside, never over. Restore the pre-migration snapshot ... into a separate RDS instance.' Repair is applied to production per-account via a scratch table (balance_repair_2026_08_10) with rows selected 'WHERE applied_at IS NULL', and accounts where cross-checks disagree are flagged 'for manual review instead of auto-repairing'."
+        },
+        {
+          "text": "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+          "passed": true,
+          "evidence": "Step 3 'Run it as a real backfill, under the backfill contract': 'Idempotent: additive updates are not naturally idempotent, so stamp progress \u2014 set applied_at in the scratch table in the same transaction as each UPDATE, and only select rows WHERE applied_at IS NULL' and 'Bounded: batches of ~1k\u20135k by account_id range; never one 2M-row transaction.'"
+        },
+        {
+          "text": "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+          "passed": true,
+          "evidence": "Step 4 'Verify with queries, not exit codes': convergence query (COUNT WHERE applied_at IS NULL \u2192 0), per-account reconciliation assertion 'account_balance = correct_pre + \u03a3(transactions deltas since migration start)', and aggregate sum sanity check."
+        },
+        {
+          "text": "Notes that the app rollback only stopped new bad writes and repaired nothing",
+          "passed": true,
+          "evidence": "'Rolling the app back this morning stopped nothing retroactively \u2014 application rollback is not database rollback. It only prevented further bad recalculation.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.57,
+        "passed": 4,
+        "failed": 3,
+        "total": 7,
+        "time_seconds": 78.8,
+        "tokens": 7380,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+          "passed": true,
+          "evidence": "Statement 1: 'breaks every old pod for the entire ~15-minute rollout window ... old-version pods ... are still issuing SELECT ... full_name ... and INSERT ... (full_name, ...). Every one of those queries fails with column \"full_name\" does not exist until the last old pod cycles out.'"
+        },
+        {
+          "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+          "passed": false,
+          "evidence": "The only rollback discussion is scoped to mid-rollout: 'Rollback story. If the deploy is rolled back mid-rollout, old code returns but the rename has already happened \u2014 the rollback is also broken.' The review never states that rollback to the previous release remains broken after the rollout completes; the distinct post-completion rollback hazard (and the need to keep the old schema working for a rollback window) is not made."
+        },
+        {
+          "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+          "passed": false,
+          "evidence": "Statement 2 raises three problems (ACCESS EXCLUSIVE rewrite/lock, data race making the ALTER fail with a value-too-long error, and cosmetic benefit) but never mentions data loss, truncation being irreversible, or that widening back would not restore lost characters. Irreversibility of the narrowing is not flagged anywhere."
+        },
+        {
+          "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+          "passed": true,
+          "evidence": "Statement 2, Problem 2: '\"We checked and nobody has phone numbers that long\" is a point-in-time check' \u2014 explicitly rejects the assumption; then recommends a real data check via constraint: 'ADD CONSTRAINT customers_phone_len CHECK (char_length(phone) <= 20) NOT VALID' followed by 'VALIDATE CONSTRAINT customers_phone_len', which validates all existing rows against the new length before any tightening."
+        },
+        {
+          "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+          "passed": true,
+          "evidence": "Statement 3, Problem 2: 'even fixed with a DEFAULT, old pods don't set it. During the 15-minute window, old-version pods INSERT without loyalty_tier. That's only OK if the column has a DEFAULT (or is nullable). So NOT NULL without a default is doubly wrong here.'"
+        },
+        {
+          "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+          "passed": true,
+          "evidence": "Verdict is 'do not merge as-is'; Statement 1 prescribes expand/contract across Release N / N+1 / N+2 (add display_name + backfill + dual-write, then read/write only display_name, then drop full_name); 'Suggested replacement' splits the work into V42 (expand, ships with dual-compatible app code) and V43 (next release: validate constraint, drop full_name)."
+        },
+        {
+          "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+          "passed": false,
+          "evidence": "The drop is deferred ('Release N+2 (or later migration): drop full_name'; V43 'next release, after all pods read/write display_name'), but no rollback window is mentioned \u2014 nothing about keeping full_name long enough to allow rolling back the contract release \u2014 and no verification step (e.g. confirming backfill convergence or that nothing still reads/writes full_name) is required before the DROP COLUMN. Deferral by one release alone does not satisfy the assertion's rollback-window-plus-verification requirement."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 126.0,
+        "tokens": 43951,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+          "passed": true,
+          "evidence": "Plan is organized as Phases 0\u20136 mapped to numbered deploys (Deploy 1\u20136), with 'Every step is individually deployable, backward-compatible with the code one version behind it, and reversible until the final drop', plus a per-deploy rollback matrix and key invariant 'Never let any live code version reference a column that doesn't exist'."
+        },
+        {
+          "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+          "passed": true,
+          "evidence": "Phase 1 (Deploy 1): 'Add first_name and last_name as nullable, no default enforced by a rewrite' via AddField(null=True, blank=True); name is marked '# unchanged for now' and 'Old code (previous release) never sees these columns and is unaffected'."
+        },
+        {
+          "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+          "passed": false,
+          "evidence": "Dual-write is present (save() override plus a DB trigger, and reverse-sync of name in Deploy 3), but the read side never uses new-with-fallback-to-name. Deploy 2 states 'Reads still use name only', and Phase 4 switches reads directly to the new columns: the full_name property returns f\"{self.first_name} {self.last_name}\" with no fallback to name anywhere. The plan's alternative (trigger + verified convergence before the read switch) is defensible, but the assertion's required fallback-read pattern is absent."
+        },
+        {
+          "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+          "passed": true,
+          "evidence": "Phase 3: 'Never backfill inside a Django migration: RunPython runs in one transaction...'. Management command processes BATCH = 5_000 via keyset pagination (WHERE id > %(last_id)s ORDER BY id LIMIT %(batch)s), 'Each batch is its own short transaction', with throttling sleep and FOR UPDATE SKIP LOCKED."
+        },
+        {
+          "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+          "passed": true,
+          "evidence": "Batch SQL filters '(first_name IS NULL OR last_name IS NULL)', and operational notes state 'Resumable: it logs the high-water id; on crash, restart with --start-id. The first_name IS NULL predicate makes it idempotent regardless.'"
+        },
+        {
+          "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+          "passed": true,
+          "evidence": "Deploy 3 keeps writing name ('This keeps name fresh so you can roll back Deploy 3 instantly') with 'Bake for a few days'; the timeline gives explicit bake windows ('Bake 3\u20137 days', 'Bake one full release cycle') and a rollback matrix per deploy. The physical drop is Deploy 6, 'a separate release, after Deploy 5 is fully rolled out everywhere' (timeline: Day ~20+), and Phase 6 explicitly splits state removal from the drop."
+        },
+        {
+          "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+          "passed": true,
+          "evidence": "Post-backfill verification: 'SELECT count(*) FROM users WHERE first_name IS NULL OR last_name IS NULL; -- must be 0' plus a mismatch spot-check. Before Deploy 6: 'Grep the codebase (and any raw SQL / analytics jobs / other services) for users.name to be sure \u2014 this is the last checkpoint', and 'Before running it: take/verify a snapshot, and confirm the mismatch audit from Phase 3 is empty or accepted.'"
+        },
+        {
+          "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+          "passed": true,
+          "evidence": "Phase 0: 'Splitting a full name is lossy and culturally fraught ... Accept that some rows will be wrong ... Because we keep name intact until the very end, you can re-run a corrected backfill at any time before the drop.' Phase 3: 'name is still the source of truth, so this is cheap to iterate', and Deploy 6 suggests archiving id,name because 'the split is lossy'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.86,
+        "passed": 6,
+        "failed": 1,
+        "total": 7,
+        "time_seconds": 71.5,
+        "tokens": 6117,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+          "passed": true,
+          "evidence": "Title: 'Do NOT restore the snapshot in place.' TL;DR: 'Restoring last night's pre-migration snapshot over production and \"calling it a day\" is the wrong call. It would fix the accounts table by destroying a full day of legitimate data \u2014 every deposit, withdrawal, new account, and every other table's writes since ~last night.'"
+        },
+        {
+          "text": "Recommends a compensating forward migration/repair rather than any further rollback",
+          "passed": true,
+          "evidence": "TL;DR: 'use it \u2014 together with the intact, append-only transactions table \u2014 to recompute correct balances and apply a forward-fix to production.' Bottom line frames the PITR copy 'as reference data for a forward fix, not as a replacement for a production database.' Option B is an explicit compensating additive correction (per-account offset)."
+        },
+        {
+          "text": "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+          "passed": true,
+          "evidence": "Phase 2: 'Because transactions is append-only and intact, the correct current balance is: correct_balance = correct_balance_at_T (from the PITR copy) + SUM(transaction deltas WHERE ts > T) (from prod's transactions table).'"
+        },
+        {
+          "text": "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+          "passed": true,
+          "evidence": "Phase 1: 'Use PITR to restore a new instance at T - \u03b5 ... Production stays up and untouched.' The fix is then applied to production accounts rows via batched UPDATEs (Options A/B), with a correction audit table recording each repaired account."
+        },
+        {
+          "text": "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+          "passed": true,
+          "evidence": "Operational hygiene section: 'Write it as a reviewed, idempotent script; dry-run it against the PITR copy first' and 'Update in batches (e.g., 5\u201310k rows per transaction) to avoid long locks, replication lag, and a 2M-row single transaction.' A correction audit table (account_id, old_balance, new_balance, offset, applied_at) makes the fix auditable."
+        },
+        {
+          "text": "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+          "passed": true,
+          "evidence": "Phase 3 \u2014 Verify: 'Reconcile: for every account, account_balance must equal opening_balance_from_PITR + SUM(all transaction deltas since T). Zero mismatches (or a triaged explanation for each) before declaring done. Global invariants: total sum of balances, counts, spot-check high-value accounts.'"
+        },
+        {
+          "text": "Notes that the app rollback only stopped new bad writes and repaired nothing",
+          "passed": false,
+          "evidence": "The response never mentions the app rollback at all. The prompt states 'we rolled the app back to the previous release this morning, but the balances are still wrong,' but the output contains no statement that the rollback only prevented further bad writes and repaired no data \u2014 the words 'rollback', 'rolled back', or any equivalent framing of the app-level revert are absent."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 108.3,
+        "stddev": 10.2455,
+        "min": 99.4,
+        "max": 119.5
+      },
+      "tokens": {
+        "mean": 23064.6667,
+        "stddev": 24327.7702,
+        "min": 7048,
+        "max": 51059
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.7683,
+        "stddev": 0.1719,
+        "min": 0.57,
+        "max": 0.875
+      },
+      "time_seconds": {
+        "mean": 92.1,
+        "stddev": 29.5843,
+        "min": 71.5,
+        "max": 126.0
+      },
+      "tokens": {
+        "mean": 19149.3333,
+        "stddev": 21488.1547,
+        "min": 6117,
+        "max": 43951
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.23",
+      "time_seconds": "+16.2",
+      "tokens": "+3915"
+    }
+  },
+  "notes": [
+    "With-skill passed 22/22 assertions across the three modes; baseline passed 17/22. Every baseline failure is a rollback-safety framing miss, not a mechanics miss.",
+    "Baselines are strong on zero-downtime mechanics (lock_timeout, CHECK ... NOT VALID, keyset-paginated backfills came up unprompted in both configurations) \u2014 the skill's marginal value concentrated in: post-rollout rollback breakage (eval 0), irreversibility of VARCHAR narrowing (eval 0), rollback window + verification before destructive drop (eval 0), read-with-fallback during transition (eval 1), and 'app rollback repaired nothing' (eval 2).",
+    "Eval 2 (incident) is nearly non-discriminating: 7/7 vs 6/7 \u2014 both configurations rejected the full restore and reached restore-aside + forward repair. Consider making the incident harder (e.g. no intact ledger) or accept it as a regression guard.",
+    "Grader flagged the eval-1 'read new with fallback' assertion as over-specific: the baseline's trigger+convergence strategy is a defensible alternative that fails the assertion as worded.",
+    "Grader also noted no assertion covers DDL lock safety (both runs handled it anyway), and the baseline eval-1 plan contains an actual bug (plpgsql trigger references OLD on INSERT) that no assertion catches \u2014 a code-correctness assertion could discriminate further.",
+    "Cost of the skill: ~+16s mean wall-clock and modestly more tokens (reads SKILL.md + 3 references). One run per configuration per eval, so variance figures are cross-eval spread, not run-to-run stability."
+  ]
+}
