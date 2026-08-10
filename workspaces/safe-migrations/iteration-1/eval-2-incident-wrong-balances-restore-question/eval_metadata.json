@@ -1,0 +1,14 @@
+{
+  "eval_id": 2,
+  "eval_name": "incident-wrong-balances-restore-question",
+  "prompt": "we're in a mess. last night a data migration recalculated account_balance for every row in `accounts` (~2M rows) using the wrong exchange rate. we rolled the app back to the previous release this morning, but the balances are still wrong \u2014 and customers kept transacting all day, so there are legitimate deposits and withdrawals sitting on top of the wrong numbers. one of my teammates wants to restore last night's RDS snapshot from right before the migration and call it a day. is that the right call? for context: the `transactions` table is append-only and intact, and we have RDS automated backups / PITR. write your recommendation to outputs/response.md.",
+  "assertions": [
+    "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+    "Recommends a compensating forward migration/repair rather than any further rollback",
+    "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+    "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+    "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+    "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+    "Notes that the app rollback only stopped new bad writes and repaired nothing"
+  ]
+}

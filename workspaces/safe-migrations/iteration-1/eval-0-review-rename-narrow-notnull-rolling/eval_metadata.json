@@ -1,0 +1,14 @@
+{
+  "eval_id": 0,
+  "eval_name": "review-rename-narrow-notnull-rolling",
+  "prompt": "Can you review this Flyway migration before I merge? Context: we deploy with rolling updates on k8s and it usually takes ~15 minutes for all pods to cycle to the new version.\n\nV42__cleanup_customers.sql:\n\nALTER TABLE customers RENAME COLUMN full_name TO display_name;\nALTER TABLE customers ALTER COLUMN phone TYPE VARCHAR(20);\nALTER TABLE customers ADD COLUMN loyalty_tier VARCHAR(10) NOT NULL;\n\nThe app code in this same PR is already updated to use display_name everywhere and to set loyalty_tier on every insert. phone was VARCHAR(100) before but nobody has phone numbers that long, we checked.\n\nWrite your review to outputs/review.md.",
+  "assertions": [
+    "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+    "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+    "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+    "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+    "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+    "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+    "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first"
+  ]
+}

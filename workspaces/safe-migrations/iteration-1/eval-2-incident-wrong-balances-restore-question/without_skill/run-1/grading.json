@@ -1,0 +1,80 @@
+{
+  "expectations": [
+    {
+      "text": "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+      "passed": true,
+      "evidence": "Title: 'Do NOT restore the snapshot in place.' TL;DR: 'Restoring last night's pre-migration snapshot over production and \"calling it a day\" is the wrong call. It would fix the accounts table by destroying a full day of legitimate data — every deposit, withdrawal, new account, and every other table's writes since ~last night.'"
+    },
+    {
+      "text": "Recommends a compensating forward migration/repair rather than any further rollback",
+      "passed": true,
+      "evidence": "TL;DR: 'use it — together with the intact, append-only transactions table — to recompute correct balances and apply a forward-fix to production.' Bottom line frames the PITR copy 'as reference data for a forward fix, not as a replacement for a production database.' Option B is an explicit compensating additive correction (per-account offset)."
+    },
+    {
+      "text": "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+      "passed": true,
+      "evidence": "Phase 2: 'Because transactions is append-only and intact, the correct current balance is: correct_balance = correct_balance_at_T (from the PITR copy) + SUM(transaction deltas WHERE ts > T) (from prod's transactions table).'"
+    },
+    {
+      "text": "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+      "passed": true,
+      "evidence": "Phase 1: 'Use PITR to restore a new instance at T - ε ... Production stays up and untouched.' The fix is then applied to production accounts rows via batched UPDATEs (Options A/B), with a correction audit table recording each repaired account."
+    },
+    {
+      "text": "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+      "passed": true,
+      "evidence": "Operational hygiene section: 'Write it as a reviewed, idempotent script; dry-run it against the PITR copy first' and 'Update in batches (e.g., 5–10k rows per transaction) to avoid long locks, replication lag, and a 2M-row single transaction.' A correction audit table (account_id, old_balance, new_balance, offset, applied_at) makes the fix auditable."
+    },
+    {
+      "text": "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+      "passed": true,
+      "evidence": "Phase 3 — Verify: 'Reconcile: for every account, account_balance must equal opening_balance_from_PITR + SUM(all transaction deltas since T). Zero mismatches (or a triaged explanation for each) before declaring done. Global invariants: total sum of balances, counts, spot-check high-value accounts.'"
+    },
+    {
+      "text": "Notes that the app rollback only stopped new bad writes and repaired nothing",
+      "passed": false,
+      "evidence": "The response never mentions the app rollback at all. The prompt states 'we rolled the app back to the previous release this morning, but the balances are still wrong,' but the output contains no statement that the rollback only prevented further bad writes and repaired no data — the words 'rollback', 'rolled back', or any equivalent framing of the app-level revert are absent."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 1,
+    "total": 7,
+    "pass_rate": 0.86
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present; no transcript available.",
+    "output_chars": 6117
+  },
+  "timing": {
+    "total_tokens": 39472,
+    "duration_ms": 71469,
+    "total_duration_seconds": 71.5
+  },
+  "claims": [
+    {
+      "claim": "The additive offset correction (Option B) is safe under concurrent traffic only if no code path sets the balance absolutely or computes fees from the wrong balance",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct and appropriately caveated — the response instructs verifying this assumption in app code before choosing Option B."
+    },
+    {
+      "claim": "RDS restores don't merge; they replace — cutover discards everything written since the restore point across all tables",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Accurate description of RDS snapshot/PITR semantics: a restore creates a new instance frozen at the restore point."
+    },
+    {
+      "claim": "The fix script is idempotent",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The response requires idempotency but does not specify the mechanism that makes the additive Option B UPDATE safe to re-run (the audit table records applied_at but is not explicitly used to gate re-application, unlike a select-where-not-applied pattern)."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present in outputs."
+  }
+}

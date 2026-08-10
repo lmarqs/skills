@@ -1,0 +1,111 @@
+{
+  "expectations": [
+    {
+      "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+      "passed": true,
+      "evidence": "Plan is organized as Phases 0–6 mapped to numbered deploys (Deploy 1–6), with 'Every step is individually deployable, backward-compatible with the code one version behind it, and reversible until the final drop', plus a per-deploy rollback matrix and key invariant 'Never let any live code version reference a column that doesn't exist'."
+    },
+    {
+      "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+      "passed": true,
+      "evidence": "Phase 1 (Deploy 1): 'Add first_name and last_name as nullable, no default enforced by a rewrite' via AddField(null=True, blank=True); name is marked '# unchanged for now' and 'Old code (previous release) never sees these columns and is unaffected'."
+    },
+    {
+      "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+      "passed": false,
+      "evidence": "Dual-write is present (save() override plus a DB trigger, and reverse-sync of name in Deploy 3), but the read side never uses new-with-fallback-to-name. Deploy 2 states 'Reads still use name only', and Phase 4 switches reads directly to the new columns: the full_name property returns f\"{self.first_name} {self.last_name}\" with no fallback to name anywhere. The plan's alternative (trigger + verified convergence before the read switch) is defensible, but the assertion's required fallback-read pattern is absent."
+    },
+    {
+      "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+      "passed": true,
+      "evidence": "Phase 3: 'Never backfill inside a Django migration: RunPython runs in one transaction...'. Management command processes BATCH = 5_000 via keyset pagination (WHERE id > %(last_id)s ORDER BY id LIMIT %(batch)s), 'Each batch is its own short transaction', with throttling sleep and FOR UPDATE SKIP LOCKED."
+    },
+    {
+      "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+      "passed": true,
+      "evidence": "Batch SQL filters '(first_name IS NULL OR last_name IS NULL)', and operational notes state 'Resumable: it logs the high-water id; on crash, restart with --start-id. The first_name IS NULL predicate makes it idempotent regardless.'"
+    },
+    {
+      "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+      "passed": true,
+      "evidence": "Deploy 3 keeps writing name ('This keeps name fresh so you can roll back Deploy 3 instantly') with 'Bake for a few days'; the timeline gives explicit bake windows ('Bake 3–7 days', 'Bake one full release cycle') and a rollback matrix per deploy. The physical drop is Deploy 6, 'a separate release, after Deploy 5 is fully rolled out everywhere' (timeline: Day ~20+), and Phase 6 explicitly splits state removal from the drop."
+    },
+    {
+      "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+      "passed": true,
+      "evidence": "Post-backfill verification: 'SELECT count(*) FROM users WHERE first_name IS NULL OR last_name IS NULL; -- must be 0' plus a mismatch spot-check. Before Deploy 6: 'Grep the codebase (and any raw SQL / analytics jobs / other services) for users.name to be sure — this is the last checkpoint', and 'Before running it: take/verify a snapshot, and confirm the mismatch audit from Phase 3 is empty or accepted.'"
+    },
+    {
+      "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+      "passed": true,
+      "evidence": "Phase 0: 'Splitting a full name is lossy and culturally fraught ... Accept that some rows will be wrong ... Because we keep name intact until the very end, you can re-run a corrected backfill at any time before the drop.' Phase 3: 'name is still the source of truth, so this is cheap to iterate', and Deploy 6 suggests archiving id,name because 'the split is lossy'."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.875
+  },
+  "execution_metrics": {
+    "note": "No metrics.json or transcript available for this run",
+    "total_tokens": 43951,
+    "output_chars": 17626,
+    "output_files": ["plan.md"]
+  },
+  "timing": {
+    "executor_duration_seconds": 126.0,
+    "duration_ms": 125965,
+    "total_tokens": 43951
+  },
+  "claims": [
+    {
+      "claim": "The BEFORE INSERT OR UPDATE trigger keeps the split columns correct for rows written by old pods during the rolling deploy",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The trigger body evaluates NEW.name IS DISTINCT FROM OLD.name unconditionally. In plpgsql, referencing OLD in a trigger fired on INSERT raises 'record \"old\" is not assigned yet' at runtime, so as written every INSERT would error. It needs a TG_OP = 'INSERT' guard. The rolling-deploy safety argument leans on this trigger, so this is a substantive bug in the plan's safety net (app-level dual-write still covers save() paths)."
+    },
+    {
+      "claim": "RunPython data migrations run in one transaction, making them unsuitable for a 40M-row backfill",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct for default atomic migrations on Postgres; the stated risks (long snapshot, WAL bloat, pipeline timeout) are accurate."
+    },
+    {
+      "claim": "NOT NULL can be added without blocking via CHECK NOT VALID → VALIDATE → SET NOT NULL (PG 12+ proves it from the validated check)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct Postgres pattern; VALIDATE 'scans without blocking writes' is accurate (SHARE UPDATE EXCLUSIVE)."
+    },
+    {
+      "claim": "Django reads every field on the model in its default SELECT, so dropping the column while old pods run would throw ProgrammingError on every query",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; motivates the state-only RemoveField in Deploy 5 before the physical drop in Deploy 6."
+    },
+    {
+      "claim": "A full-table backfill creates ~40M dead tuples; autovacuum tuning and post-migration pg_repack are advisable",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct: every UPDATE writes a new row version; the plan's per-table autovacuum settings and pg_repack advice are sound operational mitigations."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present"
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+        "reason": "This assertion hard-codes one safe strategy (app-level fallback reads). This run used a defensible alternative — DB trigger dual-write plus switching reads only after verified backfill convergence — and fails purely on pattern mismatch. If the eval intends to test 'no read path can observe missing new-column data at any point', consider rewording toward that outcome rather than the specific fallback-read mechanism."
+      },
+      {
+        "reason": "No assertion covers DDL lock safety (lock_timeout/statement_timeout guards, avoiding ACCESS EXCLUSIVE queueing, CREATE INDEX CONCURRENTLY) even though this is a core zero-downtime failure mode on 'the hottest table' — both runs addressed it substantially, and a plan that omitted it entirely could still pass all 8 assertions."
+      }
+    ],
+    "overall": "Assertions are discriminating and outcome-focused overall; the two gaps above are the only ones worth acting on."
+  }
+}
