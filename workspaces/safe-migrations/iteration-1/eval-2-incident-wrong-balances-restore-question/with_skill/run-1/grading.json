@@ -1,0 +1,80 @@
+{
+  "expectations": [
+    {
+      "text": "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+      "passed": true,
+      "evidence": "Title: 'do NOT restore the snapshot over production.' Body: 'Restoring last night's RDS snapshot (or PITR) in place is the wrong call. It would fix account_balance as of last night by destroying every legitimate write made since — the full day of deposits and withdrawals you just said are real.'"
+    },
+    {
+      "text": "Recommends a compensating forward migration/repair rather than any further rollback",
+      "passed": true,
+      "evidence": "Title: 'Repair forward with a compensating migration.' Body: 'That combination makes this a compensating forward migration (a targeted backfill), not a restore.' Also explicitly rejects restore-then-replay as 'strictly worse'."
+    },
+    {
+      "text": "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+      "passed": true,
+      "evidence": "Names 'two sources of truth': the pre-migration snapshot/PITR point and 'the append-only, intact transactions table — every legitimate delta applied since.' Step 2 derives wrong_post_migration_base as 'current account_balance − Σ(deltas in transactions since migration start)' and Step 4 reconciles against 'correct_pre + Σ(transactions deltas since migration start)'."
+    },
+    {
+      "text": "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+      "passed": true,
+      "evidence": "Step 1: 'Restore aside, never over. Restore the pre-migration snapshot ... into a separate RDS instance.' Repair is applied to production per-account via a scratch table (balance_repair_2026_08_10) with rows selected 'WHERE applied_at IS NULL', and accounts where cross-checks disagree are flagged 'for manual review instead of auto-repairing'."
+    },
+    {
+      "text": "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+      "passed": true,
+      "evidence": "Step 3 'Run it as a real backfill, under the backfill contract': 'Idempotent: additive updates are not naturally idempotent, so stamp progress — set applied_at in the scratch table in the same transaction as each UPDATE, and only select rows WHERE applied_at IS NULL' and 'Bounded: batches of ~1k–5k by account_id range; never one 2M-row transaction.'"
+    },
+    {
+      "text": "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+      "passed": true,
+      "evidence": "Step 4 'Verify with queries, not exit codes': convergence query (COUNT WHERE applied_at IS NULL → 0), per-account reconciliation assertion 'account_balance = correct_pre + Σ(transactions deltas since migration start)', and aggregate sum sanity check."
+    },
+    {
+      "text": "Notes that the app rollback only stopped new bad writes and repaired nothing",
+      "passed": true,
+      "evidence": "'Rolling the app back this morning stopped nothing retroactively — application rollback is not database rollback. It only prevented further bad recalculation.'"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present; no transcript available.",
+    "output_chars": 7048
+  },
+  "timing": {
+    "total_tokens": 49111,
+    "duration_ms": 99382,
+    "total_duration_seconds": 99.4
+  },
+  "claims": [
+    {
+      "claim": "An additive correction (SET account_balance = account_balance + correction) commutes with concurrent deposits/withdrawals, so no write freeze is needed",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Mathematically sound given the stated model (transactions apply deltas); the response also mitigates residual risk by cross-checking two independent derivations of the wrong base and flagging disagreements for manual review. It does not, however, explicitly verify that no code path writes balances absolutely."
+    },
+    {
+      "claim": "Today's state decomposes as current_wrong = wrong_post_migration_base + Σ(today's transaction deltas)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with the prompt's premise that transactions is append-only and intact and that post-rollback writes are legitimate deltas."
+    },
+    {
+      "claim": "Restore-then-replay of today's transactions would still lose every non-transactions write of the day and require an outage",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct: a snapshot restore replaces the whole instance state; replaying only the transactions table cannot recover other tables' writes."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present in outputs."
+  }
+}
