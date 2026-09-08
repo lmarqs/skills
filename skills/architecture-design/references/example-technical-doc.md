@@ -10,6 +10,8 @@ is in English, but the same structure applies in any language.)
 
 # Social Authentication with Google (AWS Cognito)
 
+**Status:** accepted (in production since 2026-03)
+
 ## Introduction
 
 This document details the implementation of social login in the Admin system, using Google as the
@@ -21,8 +23,13 @@ Google→Cognito over SAML 2.0).
 ### Prior situation
 
 Admin had only internal CPF-and-password authentication, with vulnerabilities: credential sharing,
-weak passwords, an **access token with a long lifetime (12h)**, and **non-expiring refresh tokens
-stored in localStorage** (XSS risk).
+weak passwords, an **access token with a long lifetime (12h)** (`auth/jwt.py:41`, `EXP_HOURS = 12`;
+*measured*), and **non-expiring refresh tokens stored in localStorage** (`admin-web/src/auth.ts:88`;
+*measured*), which an XSS would have handed over. Credential sharing was reported in the Q4 security
+review but never counted (*assumed*; an audit of concurrent sessions per account would quantify it).
+
+> Even a retrospective document sources its current-state claims. "The token lifetime was long" invites
+> an argument; `auth/jwt.py:41` ends it, and the label says whether anyone actually checked.
 
 ### Motivations for the change
 
@@ -101,6 +108,20 @@ flag.]
 To raise security, improve the PKCE flow (validate `code_challenge`/`code_verifier`). Not implemented
 today because initialization happens via Google Workspace with a fixed ACS URL, which prevents dynamic
 generation of those parameters.
+
+## Glossary
+
+| Term | Meaning |
+| --- | --- |
+| CPF | Brazilian individual taxpayer number, used as the internal login identifier |
+| User pool | The Cognito directory holding staff identities and its client configuration |
+| PKCE | Proof Key for Code Exchange, the OAuth extension that binds an authorization code to the client that requested it |
+
+## Sources
+
+- `auth/jwt.py:41` and `admin-web/src/auth.ts:88` (prior token lifetimes and storage).
+- Q4 security review, credential-sharing finding.
+- Cognito user pool `admin-staff`, console configuration as of the cutover.
 
 ## Version history
 
