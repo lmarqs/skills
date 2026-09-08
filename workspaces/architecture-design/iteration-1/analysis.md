@@ -1,8 +1,10 @@
 # Iteration 1 analysis
 
-Seven evals, two configurations, one run each. `with_skill` is the rewritten skill on this branch;
-`old_skill` is `skills/architecture-design` as it stands on `main`, pinned at
-`workspaces/architecture-design/skill-snapshot/`.
+Seven evals, two configurations, one run each. `with_skill` is the rewritten skill on this branch at
+commit `2ea0f3f`; `old_skill` is `skills/architecture-design` as it stands on `main`. The baseline copy
+is not tracked in git: materialize it when an iteration runs with
+`git archive main skills/architecture-design | tar -x -C <scratch>/skill-snapshot --strip-components=1`
+(the path `workspaces/*/skill-snapshot/` is ignored).
 
 ## Result
 

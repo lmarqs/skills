@@ -20,3 +20,6 @@ skills/*-workspace/
 
 # generated eval-viewer artifact (transient; regenerated from benchmark + outputs)
 workspaces/**/review.html
+
+# baseline skill copy for eval runs (materialized on demand from git history)
+workspaces/*/skill-snapshot/

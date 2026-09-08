@@ -10,8 +10,8 @@ description: >-
   decision, consequences and confirmation. Writes in the request's language. Use it whenever someone is
   choosing between technical options or documenting one: "write an RFC", "design doc", "architecture
   decision", "ADR", "tradeoff analysis", "technical documentation of an implementation", "help me
-  decide between X and Y", even if they never say "RFC". Also fits documenting an implementation after
-  the fact (lessons learned, version history).
+  decide between X and Y", even if they never say "RFC". Also fits documenting an implementation
+  afterwards (lessons learned, version history).
 ---
 
 # Architecture decision document

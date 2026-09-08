@@ -17,7 +17,7 @@
         "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
         "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
         "Tradeoff analysis includes at least one credible alternative the user did not propose",
-        "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+        "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
         "States an explicit decision (which alternative was chosen) rather than leaving it open",
         "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
         "Includes a conclusion with a rollout/launch strategy or a task roadmap",
@@ -40,7 +40,7 @@
         "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
         "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
         "Tradeoff analysis includes at least one credible alternative the user did not propose",
-        "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+        "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
         "States an explicit decision (which alternative was chosen) rather than leaving it open",
         "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
         "Includes a conclusion with a rollout/launch strategy or a task roadmap",
@@ -59,7 +59,7 @@
         "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
         "Includes at least one step-by-step numbered flow of the event-driven process",
         "Has a risks-and-mitigations section",
-        "Has a lessons-learned section",
+        "Has a lessons-learned section containing at least one concrete lesson discovered by doing the work, not only a heading or generic advice",
         "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
         "Includes a version-history table (version, date, author, description)",
         "Written entirely in English",
@@ -70,32 +70,32 @@
       "id": 3,
       "name": "rfc-constraint-laden-input",
       "prompt": "Write an RFC for the new audit-log service. Here are the requirements: (1) must use Kafka, the platform team already decided that; (2) endpoints follow our company API standard; (3) it should be fast; (4) test coverage above 90%; (5) must run on AWS because that's where everything else is; (6) nice to have: a UI for browsing the logs. Every action taken in the admin panel has to end up queryable by our compliance team, they currently ask us to grep production logs by hand.",
-      "expected_output": "An RFC that does not accept the six-item list as requirements. Kafka, the API standard, the coverage gate and AWS are recorded as constraints with a source and a cost to challenge, and none of them pre-selects an alternative; the UI is dropped from the requirements as a wish; 'it should be fast' becomes a non-functional requirement with a metric, target, condition and measurement, or is flagged as needing one; the real functional requirement (compliance can query admin actions without grepping production logs) is derived from the last sentence with its goal stated. The document tells the user what was reclassified and why, and the tradeoff analysis still evaluates at least one alternative that violates the Kafka constraint, with the violation priced as a cost.",
+      "expected_output": "An RFC that does not accept the six-item list as requirements. Kafka, the API standard, the coverage gate and AWS are recorded as prior decisions or constraints (givens) with a source and a cost to challenge or reverse, and none of them pre-selects an alternative; the UI is dropped from the requirements as a wish; 'it should be fast' becomes a non-functional requirement with a metric, target, condition and measurement, or is flagged as needing one; the real functional requirement (compliance can query admin actions without grepping production logs) is derived from the last sentence with its goal stated. The document tells the user what was reclassified and why, and the tradeoff analysis still evaluates at least one alternative to Kafka, with the reversal of the platform team's decision priced as a cost.",
       "files": [],
       "assertions": [
-        "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
-        "Each constraint carries a source (who or what imposed it)",
-        "Each constraint carries an indication of the cost or difficulty of challenging it",
+        "Records Kafka, the company API standard, the coverage gate and AWS as constraints, prior decisions or givens in a section separate from the requirements",
+        "Each of those items carries a source (who or what imposed or decided it)",
+        "Each of those items carries an indication of the cost or difficulty of challenging or reversing it",
         "The 'nice to have' log-browsing UI does not appear as a requirement",
         "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
         "Test coverage above 90% is not listed as a non-functional requirement of the running system",
-        "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+        "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated and the compliance role named",
         "The document explicitly tells the reader which of the user's items were reclassified and why",
         "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
-        "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis"
+        "Where an alternative conflicts with a stated given, the conflict is recorded as a cost rather than used to exclude the option before analysis"
       ]
     },
     {
       "id": 4,
       "name": "rfc-evidence-in-context",
-      "prompt": "We need an RFC on splitting the reporting queries off the main database. Reports are slow and they're hurting the app. I know p95 on the dashboard endpoint was around 8 seconds last month, that's on the 'api-latency' Grafana board. The report queries are all in reports/queries.py. I think reporting is maybe 40% of our database load but honestly I'm not sure, nobody has measured it. We have around 300 active tenants.",
-      "expected_output": "An RFC whose Context distinguishes what is known from what is not. The p95 figure carries the Grafana board as its source, the query location cites reports/queries.py, the 40% database-load figure is explicitly labelled as unverified with a named way to confirm it (for example pg_stat_statements or Performance Insights attribution), and the tenant count is labelled by how it is known. The argument is followable without opening the Grafana board, and requirements derive from these Context facts rather than from nowhere.",
+      "prompt": "We need an RFC on splitting the reporting queries off the main database. Reports are slow and they're hurting the app. p95 on the dashboard endpoint was around 8 seconds last month, that's on the 'api-latency' Grafana board. The report queries are all in reports/queries.py. Reporting is 40% of our database load. We have around 300 active tenants.",
+      "expected_output": "An RFC whose Context distinguishes what is known from what is not. The p95 figure carries the Grafana board as its source, the query location cites reports/queries.py, the 40% database-load figure (stated by the user as fact, with no source) is labelled by how it is known and given a named way to confirm it (for example pg_stat_statements or Performance Insights attribution), and the tenant count is labelled by how it is known. The argument is followable without opening the Grafana board, and requirements derive from these Context facts rather than from nowhere.",
       "files": [],
       "assertions": [
         "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
         "The location of the report queries is cited concretely (reports/queries.py)",
-        "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
-        "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+        "The 40% database-load figure, which the prompt states with no source, is not repeated as established fact: it carries a label (assumed, estimated, unverified, or 'per the requester') rather than being presented as measured",
+        "For the 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
         "Quantitative claims in the context carry either a source or a label indicating how they are known",
         "At least one requirement traces explicitly back to a specific fact stated in the context",
         "The reasoning can be followed without opening any linked or external resource",
@@ -111,7 +111,7 @@
       "assertions": [
         "The document states explicitly that the items the user listed are design choices rather than requirements",
         "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
-        "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+        "At least one requirement is derived from the 2% checkout failure rate, with a goal, and a target that is either derived from a stated fact or explicitly labelled as assumed",
         "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
         "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
         "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
@@ -131,9 +131,76 @@
         "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
         "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
         "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
-        "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+        "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency, each with a reason or fact behind it; a bare 'unknown' or 'TBD' does not count",
         "Reaches an explicit decision rather than only listing options",
         "Says plainly, in the document or in the reply, that the framing was challenged and why"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "rfc-regulation-vs-platform-decision",
+      "prompt": "Write an RFC for where we store and serve patient consent records. Objectives: (1) a REST API with versioning, (2) move to the managed Postgres the platform team standardized on, (3) 99.9% availability, (4) an audit trail. Two things you need to know: our data protection law (LGPD, art. 16, plus the health-records rule from the sector regulator) requires consent records to be kept for 20 years and to stay hosted in Brazil; and the platform team decided in 2025 that all new services use Postgres and Kubernetes. Today consents live as JSON blobs in the monolith's MySQL, about 4 million rows.",
+      "expected_output": "An RFC that separates the regulation from the platform team's decision. The 20-year retention and the Brazil residency rule are constraints with the law and article as source, and any option they exclude is excluded by citing the clause. The platform team's Postgres and Kubernetes standard is a prior decision (an internal choice) with its author and a cost to reverse; at least one alternative to it is analysed in the tradeoff table. The four 'objectives' are recognised as requirements, prior decisions or design choices, and real goals are stated as outcomes for roles. Non-functional targets state where their numbers come from or are labelled assumed. The 4-million-row figure is labelled by how it is known.",
+      "files": [],
+      "assertions": [
+        "The 20-year retention and the Brazil data-residency rule are recorded as constraints with the law and article (or the regulator's rule) named as their source, in a section separate from the requirements",
+        "The platform team's Postgres and Kubernetes standardization is recorded as a prior decision, internal decision or given with its author and a cost to reverse, and is not presented as equivalent to the regulation",
+        "At least one alternative to the platform team's standardized stack (a different store or runtime) is analysed in the tradeoff table with pros, cons and risks, rather than excluded upfront",
+        "Any option excluded on the basis of the regulation cites the clause or rule that excludes it",
+        "The four items the user called objectives are not presented as goals; the document says which are requirements, prior decisions or design choices, and states goals as outcomes for a role without a feature, technology or system metric",
+        "Every non-functional requirement's target states where its number comes from (a current measured value, an external reference, or a named stakeholder commitment) or is explicitly labelled assumed",
+        "The 4-million-row figure and the MySQL location carry a source or a label for how they are known",
+        "Reaches an explicit decision with its decider, consequences and confirmation"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "rfc-departments-to-usage-roles",
+      "prompt": "We need a design doc for an internal tool that lets our Marketing team publish HTML analysis pages on a company domain instead of a personal one. Stakeholders: Marketing, Finance, the CTO, and Support. It must be intuitive, secure and fast, and it should guarantee that nothing is ever lost. Today one analyst hosts about 30 pages on his own domain and colleagues ask him to change things over chat.",
+      "expected_output": "A design document whose stakeholders are usage roles (an analyst publishing a page, a colleague reading one, an operator answering who changed a file, a budget owner), not departments; whose functional requirements each name the role they serve and carry a scenario as proof; where 'intuitive', 'secure', 'fast' and 'guarantee nothing is ever lost' are turned into measurable statements or flagged as not yet requirements; where the current-state figures are labelled by how they are known; and whose tradeoff table includes an option nobody proposed and a do-nothing baseline.",
+      "files": [],
+      "assertions": [
+        "Stakeholders are described as usage roles stating what each does with the system (for example an analyst publishing a page, a colleague reading one, an operator answering who changed a file), not only as department or title names",
+        "Each functional requirement names the role it serves",
+        "Each functional requirement's proof is a concrete scenario (a role, a situation, an action, an observable result), not a restatement of the requirement",
+        "'Intuitive', 'secure', 'fast' and 'guarantee that nothing is ever lost' do not survive as requirement text; each becomes a measurable statement with a target and condition, or is explicitly flagged as not yet a requirement",
+        "The current-state figures (about 30 pages, one analyst, requests over chat) appear with a label for how they are known",
+        "Any requirement the author adds that the user did not ask for names the role it serves and the goal behind it",
+        "The tradeoff table includes at least one option nobody proposed and a baseline row of doing nothing or the smallest change",
+        "Reaches an explicit decision with its decider and consequences"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "rfc-embedded-diagrams-vendor-neutral",
+      "prompt": "Write an RFC for a webhook ingestion pipeline: partners post events to us, we validate, deduplicate, persist and fan out to three internal consumers. Include the diagrams; the team reads these on the wiki and will not open external links. We expect about 200 events per second at peak, measured last month.",
+      "expected_output": "An RFC with at least one static and one dynamic diagram embedded as Mermaid (or another text-rendered diagram), each captioned with its type or zoom level and the requirement IDs it answers, the static one at a single level of zoom. No monitoring, ticketing or dashboard vendor is named, since the prompt names none; instruments are named generically. The 200 events per second figure is carried as measured and used to derive at least one non-functional target with a condition. The tradeoff table compares options against requirement IDs and includes a baseline row.",
+      "files": [],
+      "assertions": [
+        "At least one static diagram (context, container or component) is embedded in the document as Mermaid or another text-rendered diagram, not merely described in prose or linked",
+        "At least one dynamic diagram (sequence or flow) is embedded in the document as Mermaid or another text-rendered diagram",
+        "Each diagram caption states its type or zoom level and the requirement IDs it addresses",
+        "The static diagram stays at one level of zoom: it does not mix external actors and systems with the internal modules of a single component",
+        "No monitoring, ticketing or dashboard vendor product is named that the prompt did not mention; instruments are referred to generically (for example the latency board, the load run)",
+        "The 200 events per second figure is carried with its 'measured' label and used to derive at least one non-functional target with a stated condition",
+        "The tradeoff table scores options against requirement IDs and includes a baseline row (do nothing or the smallest change)",
+        "Reaches an explicit decision with its decider, consequences and confirmation"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "rfc-hidden-shared-decision-open-question",
+      "prompt": "RFC needed: we want to replace the paid third-party address and geocoding APIs (costing us around $4k/month) with our own service. Options: Lambda + Aurora Serverless, Lambda + DynamoDB, or Fargate + Aurora Serverless, all in Go. Target p95 under 100 ms. One caveat: legal hasn't confirmed yet whether we can use the public postcode dataset commercially. Recommend one.",
+      "expected_output": "An RFC that names what the three options share (an in-house service, the language, the cloud) and treats each shared element as a prior decision with a row or adds an option outside it, including keeping the providers behind a proxy and cache, licensing the official dataset, and a do-nothing baseline. The legal question is blocking: it carries an owner and a date, and the recommendation is conditional on it or the status stays proposed. The p95 target carries a derivation or is labelled assumed; the $4k figure is labelled by how it is known with a way to confirm it. The title and opening name the problem, not the stack. It still recommends one option with decider and consequences.",
+      "files": [],
+      "assertions": [
+        "The document states what all three proposed options have in common (building an in-house service, the language, the cloud) and treats each shared element as a prior decision with a row or adds an option outside it",
+        "At least one option outside 'build our own service' is analysed in the tradeoff table (for example keep the providers behind a proxy and cache, license the official dataset, renegotiate the contract), plus a do-nothing baseline",
+        "The legal question is marked as blocking with an owner and a date (or explicitly escalated), and the recommendation is stated as conditional on it or the status is kept at proposed",
+        "The p95 under 100 ms target carries a derivation (a current measured value, an external reference, or a stakeholder commitment) or is explicitly labelled assumed",
+        "The $4k/month figure is labelled by how it is known and the document names what would confirm it (for example the billing report by SKU)",
+        "The title and the opening paragraph name the problem to solve, not the product or stack to build",
+        "Still reaches an explicit recommendation with its decider, consequences and confirmation"
       ]
     }
   ]
