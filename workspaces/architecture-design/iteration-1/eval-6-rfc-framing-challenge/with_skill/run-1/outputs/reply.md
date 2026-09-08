@@ -1,0 +1,15 @@
+RFC done: **recommendation is Go**, not Rust. Full reasoning and a tradeoff table are in the document. Since you said "pick one," I picked — but a few things in your framing don't hold up as given, and I want to be upfront about them rather than bury the caveats.
+
+**What I couldn't verify (I had no access to your codebase, dashboards, or tickets):**
+- The 12-second figure and the finance team's complaints are taken as reported inputs, not measurements I made. I have no profiling data on the current Python service.
+- I don't know whether that 12 seconds is actually CPU-bound rendering, or if it's dominated by data fetching (DB/service calls for line items). This matters a lot: **if the bottleneck is I/O, rewriting in either Rust or Go won't fix it** — you'd be solving the wrong problem. I flagged this as "Assumption A1" in the doc and made it the first thing the RFC calls out, because it's the biggest risk to this whole effort.
+- I don't know your actual concurrent/batch volume (e.g., a month-end run generating many invoices at once). That number is the single input most likely to flip this recommendation toward Rust — high sustained concurrency is where Rust's no-GC model earns its keep; a single 40-page document is not.
+- I don't know finance's actual latency tolerance. I proposed a ≤2s p95 target for the 40-page case as a working number, not a validated SLO — treat it as a placeholder to confirm with them.
+- I inferred, but could not confirm, that your existing backend leans Go (based only on repo naming visible to me, not a language audit). I used this as one factor favoring Go's maintainability case, but flagged it explicitly as unconfirmed in case it's wrong.
+- No evidence surfaced that anyone on the team has production Rust experience. If that's wrong and you do have Rust depth in-house, it weakens my strongest argument against Rust (the ramp-up risk) and the decision is closer than I made it look.
+
+**Why Go over Rust, in short:** both languages would likely blow past Python's interpreter overhead for this workload, so the latency requirement doesn't really separate them. The tie-breaker is that this is a financial-document generator that needs to be maintained for years — Go's shallower learning curve, larger hiring pool, and more invoice-shaped PDF libraries (tabular/itemized) make it the lower-risk long-term owner. Rust's real edge (no GC, lower tail latency, tighter memory control) only pays off at high sustained concurrency, which I couldn't confirm you have.
+
+**One recommendation before you spend engineering time on this:** run a short profiling spike on the current Python service first, splitting data-fetch time from render time. It's a day or two of work and it tells you whether this rewrite will actually fix finance's complaint before you commit to it. I built this into the Launch strategy section as step 1, not optional.
+
+If any of the five items under "Open verification items" in the doc come back differently than assumed, I'd revisit the recommendation — it's not load-bearing on being right about all of them, but it's built on stating them rather than guessing silently.

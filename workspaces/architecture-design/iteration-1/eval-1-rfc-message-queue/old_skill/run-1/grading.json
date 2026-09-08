@@ -1,0 +1,125 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "## Context defines the domain from scratch: \"a chain of services that reacts to an order being placed — charging payment, reserving inventory, notifying the customer, triggering fulfillment\" and defines both candidates for a reader who may not know them: \"AWS SQS — a fully managed, 'serverless' queue service. No cluster to run...\" and \"Self-hosted RabbitMQ — an open-source AMQP 0-9-1 broker...\". No prior knowledge of either technology is assumed."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "Document has '### Functional' (lines 64-75) and '### Non-functional' (lines 77-97) subheadings under '## Requirements'."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": false,
+      "evidence": "Several requirements are stated without any accompanying rationale/goal clause. Functional: \"A message that repeatedly fails processing must be preserved for inspection and reprocessing, never silently dropped, after a bounded number of retries\" (line 71) states only the requirement, no 'why'. Non-functional Availability: \"the broker itself must not be a single point of failure; no single-node design is acceptable for this path\" (line 83) is a restatement of the requirement, not a stated goal. Non-functional Throughput: \"[ASSUMPTION-VOLUME] sustained tens, peak low hundreds of messages/sec. Needs confirmation — see Open questions\" (line 85) gives a target but no rationale for why that target matters. Most other requirements (durability, latency, operability, security, observability) do carry an explicit rationale clause, but the bar is 'every requirement', and at least these three do not."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "Multiple NFRs have no number at all. Availability (line 83): \"the broker itself must not be a single point of failure; no single-node design is acceptable\" — no percentage, RTO/RPO, or node count. Operability (line 89-90): \"minimize new categories of production incident and on-call load\" — purely qualitative. Cost (line 91-92): \"predictable and roughly proportional to actual usage; avoid large fixed cost\" — no dollar figure or ratio. Security (line 93-94): \"encryption in transit and at rest; least-privilege access\" — a binary control, not a quantified target. Observability (line 95-97): \"depth of the dead-letter queue and age of the oldest unprocessed message must be visible on a dashboard and alertable\" — names the metrics to watch but gives no numeric threshold (e.g., alert if DLQ depth > N or age > N minutes). 5 of 8 non-functional requirements fail the 'number with a unit' bar."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": false,
+      "evidence": "No requirement in the '## Requirements' section (functional or non-functional, lines 59-98) includes a verification/proof method. There is no 'Verification' field or clause attached to any bullet, and no dedicated verification section anywhere in the document. Related activities exist elsewhere (a 'Chaos/load test' roadmap task, DLQ alarms) but they are not tied back to individual requirements as their stated proof of fulfilment."
+    },
+    {
+      "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+      "passed": true,
+      "evidence": "\"**Durability (business-critical, non-negotiable):** zero accepted-and-enqueued order may be lost due to a single-AZ outage, a broker node failure, or a crashed consumer.\" (lines 79-82). This operationalizes 'can't lose messages' into a zero-loss target against three named, concrete failure modes rather than leaving it as an unmeasurable slogan."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Components are named and each tied to a requirement (Order Service, Fan-out layer, Per-consumer queue, DLQ, Idempotency check, Monitoring — lines 107-123). A static mermaid 'graph LR' component/topology diagram is included (lines 127-142) and a dynamic mermaid 'sequenceDiagram' covering the happy path and failure/DLQ path is included (lines 150-173)."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+      "passed": true,
+      "evidence": "The tradeoff table (lines 191-197) has a row for 'AWS SQS (Standard queues + SNS fan-out + per-queue DLQ)' and a row for 'Self-hosted RabbitMQ on the existing cluster (quorum queues...)', each with populated Pros and Cons columns."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "'Amazon MQ for RabbitMQ (managed RabbitMQ, active/standby, multi-AZ)' is added as a third full row in the tradeoff table (line 197) with its own pros, cons, and a complete risk entry — not something the user's prompt mentioned (user only named SQS and self-hosted RabbitMQ). Kafka/MSK is also discussed and reasoned about in 'Also considered' (lines 177-183), though outside the formal table."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+      "passed": true,
+      "evidence": "All 5 risk rows in the table (2 under AWS SQS, 2 under self-hosted RabbitMQ, 1 under Amazon MQ) have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. the quorum-queue risk row: Impact 'High', Probability 'Medium–High, specifically because of [ASSUMPTION-OPS]...', Mitigation 'Dedicated node pool / resource quotas...', Contingency 'Fail over consumers to read from per-consumer local buffers is not viable... realistic contingency is an expedited cutover to Amazon MQ or SQS...' (line 195-196)."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "\"**Recommendation: AWS SQS Standard queues (FIFO where per-order ordering is required) with an SNS fan-out layer and a per-queue DLQ**, as diagrammed above.\" (lines 221-222) is an unambiguous, named choice, not left open."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": false,
+      "evidence": "No dedicated 'Consequences' statement exists, and no explicit post-decision confirmation checkpoint (a scheduled metric/review to verify the decision was correct after launch) is stated. The closest material is pre-approval 'Open questions (block sign-off, not the RFC's circulation)' (lines 247-256) and a flip-condition on the recommendation itself (lines 234-240) plus 'Revisit this RFC if any open question resolves in a way that flips the recommendation' (launch strategy step 5, line 264) — these gate the decision before/during build, not confirm it after the fact. DLQ depth/age alarms are operational monitoring for the running system, not framed anywhere as a check on whether the SQS-vs-RabbitMQ decision itself was correct."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both a '## Launch strategy' (5-step sequenced rollout, lines 258-264) and a '## Tasks and roadmap' table with task/description/estimate columns (lines 266-276) are present."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "The entire document (headers, prose, table contents, diagrams) is written in English, matching the English-language prompt."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 4,
+    "total": 14,
+    "pass_rate": 0.71
+  },
+  "execution_metrics": {
+    "note": "No execution transcript or metrics.json was available for this run; grading was performed from output files alone per task instructions.",
+    "output_chars_document_md": 22440,
+    "output_chars_reply_md": 3428
+  },
+  "timing": {
+    "total_duration_seconds": 265.5,
+    "note": "Sourced from timing.json (total_tokens: 88328, duration_ms: 265471). No separate executor/grader breakdown was recorded for this run."
+  },
+  "claims": [
+    {
+      "claim": "SQS FIFO queues support 300 msg/s per API action without batching, 3,000/s with batching, and high-throughput mode raises this further, regionally capped at 2,400–9,000 TPS per API action",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Confirmed via web search against current AWS documentation/announcements: default FIFO throughput is 300 msg/s without batching / 3,000 msg/s with batching; high-throughput mode quotas are region-tiered at 2,400 TPS (most regions), 4,500 TPS (several APAC regions), and 9,000 TPS (US-East/US-West/EU primary regions), matching the document's stated range. (A newer 70,000 TPS figure exists but only for a narrower set of regions and a later announcement; the document's more conservative baseline figure is still accurate and not fabricated.)"
+    },
+    {
+      "claim": "RabbitMQ classic mirrored queues were removed in RabbitMQ 4.0, with quorum queues as the only replicated-queue option",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Confirmed via web search: RabbitMQ's own documentation and blog state classic queue mirroring was deprecated in 3.9 and completely removed in 4.0, with quorum queues as the only supported replicated/highly-available queue type from 4.0 onward."
+    },
+    {
+      "claim": "(reply.md) \"the concrete numbers cited in the doc ... were verified against current AWS and RabbitMQ documentation before being written down, with sources checked via web search this session\"",
+      "type": "process",
+      "verified": false,
+      "evidence": "Cannot be verified — no execution transcript exists for this run, so there is no record of any web search actually having been performed during the run. The cited numbers do independently check out as accurate (see factual claims above), but that corroborates the numbers, not the claimed verification process."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Written entirely in English (matching the request language)",
+        "reason": "This passes for essentially any English-language output regardless of quality — it would also pass for a shallow, low-effort RFC. Low discriminating power on its own; it only adds value bundled with the substantive assertions."
+      },
+      {
+        "assertion": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+        "reason": "This assertion is hard to adjudicate crisply as worded. This document has several near-miss elements (a stated flip-condition on the recommendation, a 'revisit this RFC' clause, DLQ/age alarms) that gesture at consequence-tracking without ever framing anything as 'here is how we'll confirm this decision was right, and when.' Tightening the assertion to require an explicit post-decision review checkpoint (a date, metric, or named review event distinct from pre-approval open questions) would make it easier to grade and harder to satisfy by accident."
+      },
+      {
+        "reason": "Important uncovered outcome: despite being a well-argued, well-organized RFC, the document fails two of the skill's own core method requirements rather badly — 5 of 8 non-functional requirements have no quantified number/unit at all (Availability, Operability, Cost, Security, Observability are all purely qualitative), and not a single requirement (functional or non-functional) states how its fulfilment will be verified. No existing assertion set flags this as a pattern; each requirement was graded independently but the aggregate picture — the document is strong on tradeoff/design/decision rigor but weak on requirements rigor — is worth calling out explicitly since it's a systematic gap, not an isolated miss."
+      }
+    ],
+    "overall": "The document is a strong, well-reasoned RFC (explicit assumptions, a genuinely weighed third alternative, complete four-attribute risk entries, a clear and self-critiqued decision, a real roadmap) but fails 4 of 14 assertions, and the failures cluster in one place: the Requirements section states goals inconsistently, omits numeric targets for most non-functional requirements, and never states a verification method per requirement. The eval suite catches this correctly; no assertion here is trivially satisfied by a bad document."
+  }
+}
