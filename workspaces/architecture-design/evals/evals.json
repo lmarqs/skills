@@ -5,15 +5,21 @@
       "id": 0,
       "name": "rfc-rate-limiting",
       "prompt": "We need to decide how to implement rate limiting on our public API (public-search-api), which today has no controls at all and has already given us a few abuse scares. It's between using AWS API Gateway's native throttling or standing up our own middleware with Redis on our Kubernetes cluster. Write an RFC so we can settle it at the next architecture meeting.",
-      "expected_output": "A forward-looking RFC in English following the 6-part method: context (current state, pains), functional and non-functional requirements, design with diagrams (static + dynamic, or described placeholders), a tradeoff table comparing API Gateway throttling vs Redis middleware with pros/cons/risks (each risk with impact, probability, mitigation, contingency), an explicit decision with decision style, and a conclusion/communication (launch strategy / roadmap). Written entirely in English.",
+      "expected_output": "A forward-looking RFC in English following the method: context with sourced or explicitly labelled claims, constraints kept separate from requirements, functional and non-functional requirements each with a goal and a proof (non-functional ones with a metric and target), design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing API Gateway throttling vs Redis middleware plus at least one alternative the user did not name, with pros/cons/risks (each risk with impact, probability, mitigation, contingency), an explicit decision with its style, consequences and confirmation, and a conclusion (launch strategy / roadmap). Written entirely in English.",
       "files": [],
       "assertions": [
         "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
         "Requirements are present and explicitly split into functional and non-functional",
+        "Every requirement states the goal or rationale it serves, not just the requirement text",
+        "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+        "Every requirement names how its fulfilment will be proven or verified at the end",
+        "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
         "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
         "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+        "Tradeoff analysis includes at least one credible alternative the user did not propose",
         "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
         "States an explicit decision (which alternative was chosen) rather than leaving it open",
+        "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
         "Includes a conclusion with a rollout/launch strategy or a task roadmap",
         "Written entirely in English (matching the request language)"
       ]
@@ -22,15 +28,21 @@
       "id": 1,
       "name": "rfc-message-queue",
       "prompt": "We're building an order-processing pipeline and need to pick a message queue. It's between AWS SQS (managed, dead simple) and self-hosting RabbitMQ on our existing cluster (more control, supports complex routing we might need later). Orders are business-critical and we can't lose messages. Write up an RFC so the team can decide.",
-      "expected_output": "A forward-looking RFC in English following the 6-part method: context, architecturally-relevant requirements (incl. non-functional like durability/no message loss), design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing SQS vs RabbitMQ with pros/cons/risks where each risk has impact, probability, mitigation, and contingency, an explicit decision with decision style, and a conclusion (rollout/roadmap). Written entirely in English (matching the request language).",
+      "expected_output": "A forward-looking RFC in English following the method: context, constraints separated from requirements, architecturally-relevant requirements each with a goal, a proof and (for non-functional ones) a metric covering durability and no message loss, design with static + dynamic diagrams (or described placeholders), a tradeoff table comparing SQS vs RabbitMQ plus at least one alternative the user did not name, each risk with impact, probability, mitigation and contingency, an explicit decision with style, consequences and confirmation, and a conclusion. Written entirely in English.",
       "files": [],
       "assertions": [
         "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
         "Requirements are present and explicitly split into functional and non-functional",
+        "Every requirement states the goal or rationale it serves, not just the requirement text",
+        "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+        "Every requirement names how its fulfilment will be proven or verified at the end",
+        "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
         "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
         "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+        "Tradeoff analysis includes at least one credible alternative the user did not propose",
         "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
         "States an explicit decision (which alternative was chosen) rather than leaving it open",
+        "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
         "Includes a conclusion with a rollout/launch strategy or a task roadmap",
         "Written entirely in English (matching the request language)"
       ]
@@ -39,17 +51,89 @@
       "id": 2,
       "name": "tech-doc-retrospective",
       "prompt": "We just finished migrating our notifications service: it went from a monolithic cron running in a pod to an event-driven flow with EventBridge triggering Lambdas per notification type (email, push, sms). It's already in production. I need to document technically how it turned out so new folks on the team can understand the architecture and maintain it.",
-      "expected_output": "A retrospective technical documentation in English using the retrospective shape: Context (prior situation -> motivations -> scope), Architecture (components with responsibilities + numbered step-by-step flow(s), accompanying a dynamic diagram or placeholder), Risks and mitigations, Lessons learned, Improvement point(s), and a Version history table. Written entirely in English, documenting what was built (not deciding).",
+      "expected_output": "A retrospective technical documentation in English using the retrospective shape: Context (prior situation -> motivations -> scope) with claims sourced or labelled where no source exists, Architecture (components with responsibilities + numbered step-by-step flow(s), accompanying a dynamic diagram or placeholder), Risks and mitigations, Lessons learned, Improvement point(s), a glossary of the domain terms and acronyms used, and a Version history table. Written entirely in English, documenting what was built (not deciding).",
       "files": [],
       "assertions": [
         "Context section covers the situation before, the motivations for the change, and the scope",
+        "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
         "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
         "Includes at least one step-by-step numbered flow of the event-driven process",
         "Has a risks-and-mitigations section",
         "Has a lessons-learned section",
+        "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
         "Includes a version-history table (version, date, author, description)",
         "Written entirely in English",
         "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "rfc-constraint-laden-input",
+      "prompt": "Write an RFC for the new audit-log service. Here are the requirements: (1) must use Kafka, the platform team already decided that; (2) endpoints follow our company API standard; (3) it should be fast; (4) test coverage above 90%; (5) must run on AWS because that's where everything else is; (6) nice to have: a UI for browsing the logs. Every action taken in the admin panel has to end up queryable by our compliance team, they currently ask us to grep production logs by hand.",
+      "expected_output": "An RFC that does not accept the six-item list as requirements. Kafka, the API standard, the coverage gate and AWS are recorded as constraints with a source and a cost to challenge, and none of them pre-selects an alternative; the UI is dropped from the requirements as a wish; 'it should be fast' becomes a non-functional requirement with a metric, target, condition and measurement, or is flagged as needing one; the real functional requirement (compliance can query admin actions without grepping production logs) is derived from the last sentence with its goal stated. The document tells the user what was reclassified and why, and the tradeoff analysis still evaluates at least one alternative that violates the Kafka constraint, with the violation priced as a cost.",
+      "files": [],
+      "assertions": [
+        "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
+        "Each constraint carries a source (who or what imposed it)",
+        "Each constraint carries an indication of the cost or difficulty of challenging it",
+        "The 'nice to have' log-browsing UI does not appear as a requirement",
+        "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+        "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+        "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+        "The document explicitly tells the reader which of the user's items were reclassified and why",
+        "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+        "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "rfc-evidence-in-context",
+      "prompt": "We need an RFC on splitting the reporting queries off the main database. Reports are slow and they're hurting the app. I know p95 on the dashboard endpoint was around 8 seconds last month, that's on the 'api-latency' Grafana board. The report queries are all in reports/queries.py. I think reporting is maybe 40% of our database load but honestly I'm not sure, nobody has measured it. We have around 300 active tenants.",
+      "expected_output": "An RFC whose Context distinguishes what is known from what is not. The p95 figure carries the Grafana board as its source, the query location cites reports/queries.py, the 40% database-load figure is explicitly labelled as unverified with a named way to confirm it (for example pg_stat_statements or Performance Insights attribution), and the tenant count is labelled by how it is known. The argument is followable without opening the Grafana board, and requirements derive from these Context facts rather than from nowhere.",
+      "files": [],
+      "assertions": [
+        "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+        "The location of the report queries is cited concretely (reports/queries.py)",
+        "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
+        "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+        "Quantitative claims in the context carry either a source or a label indicating how they are known",
+        "At least one requirement traces explicitly back to a specific fact stated in the context",
+        "The reasoning can be followed without opening any linked or external resource",
+        "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "rfc-requirements-are-all-solutions",
+      "prompt": "I need an RFC for the checkout refactor. Requirements: use the saga pattern, split into microservices, add Redis caching, use gRPC between services, and introduce a feature flag system. Checkout currently fails about 2% of the time and when it does we don't know which step broke.",
+      "expected_output": "An RFC that recognises that every item on the user's list is a design choice, not a requirement, and says so. The real requirements are derived from the stated pain (a checkout failure rate to bring down, and the ability to identify which step failed) with goals, metrics and proofs; the saga pattern, microservices, Redis, gRPC and feature flags reappear in the design or as alternatives in the tradeoff analysis, each tied to the requirement it would serve, and at least one is questioned or shown to be unnecessary. The push-back is explicit rather than silent, and any missing information is either assumed with a label or asked about with a recommended answer.",
+      "files": [],
+      "assertions": [
+        "The document states explicitly that the items the user listed are design choices rather than requirements",
+        "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+        "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+        "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+        "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+        "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+        "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+        "Every requirement in the document carries a goal and a stated way to prove it is met"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "rfc-framing-challenge",
+      "prompt": "Write an RFC to decide between rewriting our PDF generation service in Rust or in Go. It currently takes about 12 seconds to generate a 40-page invoice PDF in Python and the finance team complains constantly. Rust or Go, pick one.",
+      "expected_output": "An RFC that treats the Rust-vs-Go framing as a hypothesis rather than the option space. It asks what goal makes a rewrite the candidate, notes that the 12-second figure has not been attributed to a cause (language versus the PDF library, the query feeding it, or synchronous generation), and puts at least one non-rewrite alternative on the table (profile and fix the Python path, change the PDF library, generate asynchronously, or use a service) alongside the two the user named. The requirement is a generation-time target derived from what the finance team actually needs, with a measurement method, and the document says plainly that a rewrite may not be the answer while still delivering the full analysis and a decision.",
+      "files": [],
+      "assertions": [
+        "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+        "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+        "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+        "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+        "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+        "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+        "Reaches an explicit decision rather than only listing options",
+        "Says plainly, in the document or in the reply, that the framing was challenged and why"
       ]
     }
   ]
