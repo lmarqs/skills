@@ -1,0 +1,15 @@
+{
+  "eval_id": 6,
+  "eval_name": "rfc-framing-challenge",
+  "prompt": "Write an RFC to decide between rewriting our PDF generation service in Rust or in Go. It currently takes about 12 seconds to generate a 40-page invoice PDF in Python and the finance team complains constantly. Rust or Go, pick one.",
+  "assertions": [
+    "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+    "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+    "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+    "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+    "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+    "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency, each with a reason or fact behind it; a bare 'unknown' or 'TBD' does not count",
+    "Reaches an explicit decision rather than only listing options",
+    "Says plainly, in the document or in the reply, that the framing was challenged and why"
+  ]
+}

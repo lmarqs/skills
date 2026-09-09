@@ -1,0 +1,15 @@
+{
+  "eval_id": 8,
+  "eval_name": "rfc-departments-to-usage-roles",
+  "prompt": "We need a design doc for an internal tool that lets our Marketing team publish HTML analysis pages on a company domain instead of a personal one. Stakeholders: Marketing, Finance, the CTO, and Support. It must be intuitive, secure and fast, and it should guarantee that nothing is ever lost. Today one analyst hosts about 30 pages on his own domain and colleagues ask him to change things over chat.",
+  "assertions": [
+    "Stakeholders are described as usage roles stating what each does with the system (for example an analyst publishing a page, a colleague reading one, an operator answering who changed a file), not only as department or title names",
+    "Each functional requirement names the role it serves",
+    "Each functional requirement's proof is a concrete scenario (a role, a situation, an action, an observable result), not a restatement of the requirement",
+    "'Intuitive', 'secure', 'fast' and 'guarantee that nothing is ever lost' do not survive as requirement text; each becomes a measurable statement with a target and condition, or is explicitly flagged as not yet a requirement",
+    "The current-state figures (about 30 pages, one analyst, requests over chat) appear with a label for how they are known",
+    "Any requirement the author adds that the user did not ask for names the role it serves and the goal behind it",
+    "The tradeoff table includes at least one option nobody proposed and a baseline row of doing nothing or the smallest change",
+    "Reaches an explicit decision with its decider and consequences"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "eval_id": 7,
+  "eval_name": "rfc-regulation-vs-platform-decision",
+  "prompt": "Write an RFC for where we store and serve patient consent records. Objectives: (1) a REST API with versioning, (2) move to the managed Postgres the platform team standardized on, (3) 99.9% availability, (4) an audit trail. Two things you need to know: our data protection law (LGPD, art. 16, plus the health-records rule from the sector regulator) requires consent records to be kept for 20 years and to stay hosted in Brazil; and the platform team decided in 2025 that all new services use Postgres and Kubernetes. Today consents live as JSON blobs in the monolith's MySQL, about 4 million rows.",
+  "assertions": [
+    "The 20-year retention and the Brazil data-residency rule are recorded as constraints with the law and article (or the regulator's rule) named as their source, in a section separate from the requirements",
+    "The platform team's Postgres and Kubernetes standardization is recorded as a prior decision, internal decision or given with its author and a cost to reverse, and is not presented as equivalent to the regulation",
+    "At least one alternative to the platform team's standardized stack (a different store or runtime) is analysed in the tradeoff table with pros, cons and risks, rather than excluded upfront",
+    "Any option excluded on the basis of the regulation cites the clause or rule that excludes it",
+    "The four items the user called objectives are not presented as goals; the document says which are requirements, prior decisions or design choices, and states goals as outcomes for a role without a feature, technology or system metric",
+    "Every non-functional requirement's target states where its number comes from (a current measured value, an external reference, or a named stakeholder commitment) or is explicitly labelled assumed",
+    "The 4-million-row figure and the MySQL location carry a source or a label for how they are known",
+    "Reaches an explicit decision with its decider, consequences and confirmation"
+  ]
+}
