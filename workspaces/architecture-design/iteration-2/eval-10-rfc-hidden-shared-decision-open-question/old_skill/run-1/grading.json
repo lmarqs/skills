@@ -1,0 +1,108 @@
+{
+  "expectations": [
+    {
+      "text": "The document states what all three proposed options have in common (building an in-house service, the language, the cloud) and treats each shared element as a prior decision with a row or adds an option outside it",
+      "passed": false,
+      "evidence": "The commonality is stated — 'Note first what the three offered options actually are: a subset of a **2 × 2** (Lambda | Fargate) × (Aurora | DynamoDB)', plus a 'Constraints already settled' section naming 'Language: Go. All three candidate options in the request were \"in Go\"' and 'Cloud: AWS. Implied by every option offered'. But two of the three named shared elements are neither treated as a prior decision with a row nor given an option outside them. Go is classified as an externally settled constraint and is explicitly refused a row: 'Go is absent from this table on purpose — it is a settled constraint, not an alternative (see *Constraints already settled*)', and no alternative language appears anywhere; the only follow-up is open question 6, 'Is Go genuinely settled?', which is a question, not a row or an option. AWS gets a single one-line bullet ('Cloud: AWS. Implied by every option offered (Lambda, Fargate, Aurora, DynamoDB)') with no reversal cost and no alternative — C4 (EKS/Kubernetes) is still AWS. Only the build-in-house element is handled as the assertion asks, via S3 ('Keep the vendor / renegotiate (the honest baseline)') and S2 in the Dimension-3 table."
+    },
+    {
+      "text": "At least one option outside 'build our own service' is analysed in the tradeoff table (for example keep the providers behind a proxy and cache, license the official dataset, renegotiate the contract), plus a do-nothing baseline",
+      "passed": true,
+      "evidence": "The 'Dimension 3 — Data sourcing' tradeoff table carries two non-build options with the full pros / cons / risk / impact / probability / mitigation / contingency treatment: 'S2 — Licensed commercial dataset (bulk licence)' ('license the official dataset' in the assertion's own example list) and 'S3 — Keep the vendor / renegotiate (the honest baseline)', whose pros are 'Zero engineering cost; zero legal exposure; no dataset maintenance forever' — a do-nothing baseline. Both feed named outcomes: 'If a licence costs near $4,000/month, do not build — fall back to S3' and, in the flip table, 'The vendor offers a large discount in Phase 0 → S3. Do not build. This RFC becomes the record of why.'"
+    },
+    {
+      "text": "The legal question is marked as blocking with an owner and a date (or explicitly escalated), and the recommendation is stated as conditional on it or the status is kept at proposed",
+      "passed": false,
+      "evidence": "The second half passes: the recommendation is explicitly conditional — 'gated on written legal clearance of the dataset (N6) before any build work starts' — and Phase 0 is 'blocking ... Nothing proceeds without this.' The first half fails on both owner and date, by the document's own admission: open question 3 reads '**(N6) Who owns the legal question, and when will the written opinion land?** Which dataset, publisher, and licence version specifically?' — i.e. neither is set. 'Legal's call' names a function, not an owner, and the only time figure is a duration estimate, not a date ('Legal clearance (N6) ... 1w (elapsed, not effort)'; 'Phase 0 — Close the gates (≈ 1 week, blocking)'). Nor is it explicitly escalated: the unresolved blocker is handed back to the requester as a question, with no named party or forum to resolve it and no deadline attached."
+    },
+    {
+      "text": "The p95 under 100 ms target carries a derivation (a current measured value, an external reference, or a stakeholder commitment) or is explicitly labelled assumed",
+      "passed": false,
+      "evidence": "The 100 ms number itself is carried straight through from the request as a given — 'with a target of **p95 under 100 ms**' in Context, and N1 states 'p95 ≤ 100 ms and **p99 ≤ 250 ms**, server-side at the service boundary, measured under 2× observed peak' with no derivation column and no 'assumed' label. What is labelled assumed is only the *condition*, not the target: 'A5 | p95 ≤ 100 ms is **server-side, measured at the service boundary**, not client-observed end-to-end. Basis: Standard reading of a latency target stated for a service.' The document contains no current measured p95 for the incumbent, no external latency reference, and no stakeholder commitment behind the number; open question 4 likewise asks only whether it is server-side or client-observed. The companion p99 ≤ 250 ms is justified in reasoning ('A p95-only target is gameable') but is also underived and unlabelled. By contrast N3's cost target is derived ('an order of magnitude below the US$ 4,000 it replaces'), so the omission is specific to the latency target."
+    },
+    {
+      "text": "The $4k/month figure is labelled by how it is known and the document names what would confirm it (for example the billing report by SKU)",
+      "passed": false,
+      "evidence": "The confirmation half is present — 'Related documents' names 'Current vendor invoice and contract (term, notice period, per-request rate, any minimum commitment)' and 'Vendor request volume and endpoint breakdown for the last 90 days (from the API gateway / vendor dashboard)', with Phase 0 assigned to fetch them. The labelling half fails: the figure is asserted as current fact with no provenance — 'That bill is now around **US$ 4,000/month**, and it is pure variable cost that grows with traffic' — and is used unlabelled thereafter ('the US$ 4,000 it replaces', '~$48k/year saving'). The only hedge concerns the figure's composition inside a different assumption ('A3 ... **Unverified — the US$ 4,000 could equally be a flat enterprise licence**'), which also contradicts Context's unhedged 'it is pure variable cost'. Nowhere is the number marked as requester-stated or unverified where it is introduced or used."
+    },
+    {
+      "text": "The title and the opening paragraph name the problem to solve, not the product or stack to build",
+      "passed": false,
+      "evidence": "The title names the product to build: 'RFC — In-house address lookup and geocoding service'. The opening paragraph does name the problem ('Today, address lookup and geocoding are bought ... the application calls a third-party HTTP API and pays per request. That bill is now around US$ 4,000/month, and it is pure variable cost that grows with traffic'), and a problem statement follows later ('**The problem to solve:** decide the architecture of an in-house address and geocoding service ...' — itself framed around the service). The assertion requires both the title and the opening; the title fails."
+    },
+    {
+      "text": "Still reaches an explicit recommendation with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "Recommendation: '**Recommendation: Fargate + Aurora Serverless v2 (PostgreSQL with PostGIS and pg_trgm), in Go — one of the three options offered — gated on written legal clearance of the dataset (N6)**'. Decider: '**Decision style: autocratic.** The technical recommendation is mine to make and I own it', with two parts explicitly delegated (N6 to legal, N4's threshold to the product owner). Consequences are stated, though not under that heading: 'The genuine cost of building is engineering time, not infrastructure — roughly 6–8 engineer-weeks ... plus the N3 maintenance ceiling of ≤ 4 days/quarter, forever ... a permanent tax the vendor currently absorbs', plus the retained vendor fallback (N7) and the owned dataset-refresh pipeline. Confirmation: 'Phase 1 — Latency spike (2–3 days, go/no-go on N1) ... **Gate: if p95 misses 100 ms, switch to D3 before building anything else**', 'Gate: N4 quality parity on the golden set before any real traffic', staged canary observation windows, and N5 dashboards including match rate and dataset version."
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 5,
+    "total": 7,
+    "pass_rate": 0.29
+  },
+  "execution_metrics": {
+    "output_chars": 54051
+  },
+  "timing": {
+    "total_tokens": 84998,
+    "duration_ms": 411536,
+    "total_duration_seconds": 411.5
+  },
+  "claims": [
+    {
+      "claim": "Estimated monthly infrastructure for the recommended stack is ≈ $160–195, so cost does not discriminate between the three options",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Line items check out against us-east-1 list rates: Fargate compute 2 × 0.5 vCPU × 730 h × 0.04 = 29.2 (≈ $30); memory 2 × 1 GB × 730 h × 0.0044 = 6.4 (≈ $7); Aurora 2 × 0.5 ACU × 730 h × 0.12 = 87.6 (≈ $88); plus $5–20 storage/IO, $20 ALB, $10–30 telemetry sums to $160–195. The document flags the estimates as unverified and recalls-from-memory, and the conclusion survives the stated error margin."
+    },
+    {
+      "claim": "US$ 4,000/month at commodity geocoding list rates of $4–5 per 1,000 requests implies ≈ 0.8–1M requests/month ≈ 0.3–0.4 req/s average",
+      "type": "factual",
+      "verified": true,
+      "evidence": "4000 ÷ 5 = 800k and 4000 ÷ 4 = 1M requests; 1M ÷ 2.63M seconds per month ≈ 0.38 req/s. The arithmetic holds and the document labels the input rate as assumed."
+    },
+    {
+      "claim": "The US$ 4,000/month is pure variable cost that grows with traffic",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Contradicted by the document's own A3: 'Unverified — the US$ 4,000 could equally be a flat enterprise licence, in which case volume is unconstrained by this arithmetic.' Context states it as fact without a label; nothing in the inputs establishes it."
+    },
+    {
+      "claim": "DynamoDB cannot satisfy F2 (fuzzy free-text matching) or F4 (nearest-neighbour) as a query engine, and the standard fix (DynamoDB + OpenSearch) costs more than the entire Aurora option",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Technically accurate: DynamoDB has no native full-text/fuzzy matching and no spatial index; KNN requires hand-rolled geohash sort keys with multi-cell fan-out. A managed OpenSearch cluster does exceed the ≈ $160–195 total estimated for the Aurora option."
+    },
+    {
+      "claim": "Lambda cold starts land inside the p95 rather than the p99 because low average volume keeps no pool warm while autocomplete fires bursts of concurrent requests",
+      "type": "quality",
+      "verified": true,
+      "evidence": "A sound argument given the document's own assumption A3 (low, bursty volume) and F2 (per-keystroke autocomplete): concurrent invocations each need their own execution environment. It rests on the unverified A3, which the document states."
+    },
+    {
+      "claim": "Aurora Serverless v2 scale-to-zero has a resume latency measured in seconds, incompatible with a 100 ms p95, so the cluster must sit at minimum capacity 24/7",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with documented Aurora Serverless v2 auto-pause/resume behaviour. No source is cited for it in this document, but the claim is correct."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "All cost figures are 'order-of-magnitude estimates from AWS us-east-1 list prices as I recall them' and explicitly NOT verified",
+      "A1 (which of the four capabilities are in scope) is flagged as decisive and would reverse the recommendation if wrong",
+      "A3 (request volume, inferred from the bill) is unverified and would break if the $4k is a flat licence",
+      "A4 (dataset fits in container memory) unverified; the 6–8 engineer-week estimate is 'a guess'"
+    ],
+    "needs_review": [
+      "Owner and landing date of the blocking legal opinion are unknown (open question 3)",
+      "Whether 100 ms is server-side or client-observed (open question 4); if client-observed, none of the three options suffices",
+      "N4 quality-parity threshold is left to the product owner"
+    ],
+    "workarounds": [
+      "Go excluded from the tradeoff table as a settled constraint, with a note asking whether it is in fact still open",
+      "Recommendation gated on Phase 0 rather than approved, and D3 (in-process index) kept as the documented escape hatch"
+    ]
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "eval_id": 1,
+  "eval_name": "rfc-message-queue",
+  "prompt": "We're building an order-processing pipeline and need to pick a message queue. It's between AWS SQS (managed, dead simple) and self-hosting RabbitMQ on our existing cluster (more control, supports complex routing we might need later). Orders are business-critical and we can't lose messages. Write up an RFC so the team can decide.",
+  "assertions": [
+    "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+    "Requirements are present and explicitly split into functional and non-functional",
+    "Every requirement states the goal or rationale it serves, not just the requirement text",
+    "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+    "Every requirement names how its fulfilment will be proven or verified at the end",
+    "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+    "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+    "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+    "Tradeoff analysis includes at least one credible alternative the user did not propose",
+    "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+    "States an explicit decision (which alternative was chosen) rather than leaving it open",
+    "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+    "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+    "Written entirely in English (matching the request language)"
+  ]
+}

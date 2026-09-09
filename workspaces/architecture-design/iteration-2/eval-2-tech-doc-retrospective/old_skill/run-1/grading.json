@@ -1,0 +1,117 @@
+{
+  "expectations": [
+    {
+      "text": "Context section covers the situation before, the motivations for the change, and the scope",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a section named Context (or equivalent) must contain all three of prior state, motivation, scope as identifiable content. Met: '## 1. Context' contains '### 1.1 Prior situation' (the single cron process in a long-lived pod, with a before-state Mermaid diagram and four structural problems), '### 1.2 Motivation for the change' (react to something happening rather than the next poll, isolate the channels, make cost track volume, deploy and scale each channel independently), and '### 1.4 Scope' (in scope: the transport and dispatch path; out of scope: content and templating, preferences and opt-outs, provider selection, in-app/websocket)."
+    },
+    {
+      "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+      "passed": false,
+      "evidence": "STANDARD (applied to both runs, read as universal per the eval instruction): every specific factual claim about the pre-migration system that the user did not supply and that does not follow from the described topology must carry a source or an explicit uncertainty label. Partly done - the polling mechanism is labelled ('it looked for work that was due (pending rows in the database `[A-1]`)') and A-1 is in the assumptions register. But the numbered list of the cron's four problems, which the document presents as fact ('That shape had four structural problems, and they are the reason the migration happened'), carries no labels. Violating instances: 'The pod was sized for the worst tick and paid for around the clock, including the hours with no notifications at all' (a claim about the old pod's sizing and cost profile that was never supplied and does not follow from 'a cron running in a pod'; the document itself later asks for the volume and cost numbers in Open questions 3 and 4) and 'an unhandled error anywhere could abort the run, including work already queued behind it in the same batch' (depends on the old code's error handling, which the document has no access to). Symmetry note: the with_skill run fails on the same class of claim ('One pod's cost, constant whether or not anything was sent'), so this verdict is identical for both."
+    },
+    {
+      "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a components list or set of component sections naming each part and what it is responsible for. Met: '## 3. Architecture' has a static Mermaid view plus one subsection per component - 3.2 the event and the bus ('A producer calls PutEvents on a custom event bus... The producer's responsibility ends there'), 3.3 rules one per notification type ('whose event pattern selects that channel's events and whose single target is that channel's function'), 3.4 one Lambda per channel ('owns dispatch end to end: validate the payload, resolve the recipient's address or device token, render the content, call the provider, interpret the provider's response, and record the outcome'), 3.5 dead-letter queues and the archive, 3.6 idempotency, 3.7 observability. Each subsection also names the requirements it serves."
+    },
+    {
+      "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): at least one ordered, numbered walk-through of the runtime event path. Met: '### 3.8 Dynamic view - dispatch of one notification' gives a Mermaid sequence diagram followed by 'Step by step, in words - the numbered form is what to walk through with a newcomer', with 8 numbered steps from '1. A domain thing happens' and the PutEvents publish through '3. Rules evaluate the event', '5. The function claims the notificationId', to '8. On exhaustion the event lands in the channel's DLQ'. Section 6.4 adds a second numbered procedure for adding a notification type."
+    },
+    {
+      "text": "Has a risks-and-mitigations section",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a dedicated section pairing risks with mitigations. Met: '## 5. Risks in the deployed architecture, and how they are managed' is a table with columns # | Risk | Impact | Prob. | Mitigation | Contingency and 9 rows R-1..R-9 (silent drop, duplicate notification, concurrency stampede against a provider rate limit, distributed debugging cost, DLQ as a silent data-loss buffer, cold start latency, fire-and-forget mistaken for delivery, envelope schema drift, payload growth). Every row has a populated impact, probability, mitigation and contingency."
+    },
+    {
+      "text": "Has a lessons-learned section containing at least one concrete lesson discovered by doing the work, not only a heading or generic advice",
+      "passed": false,
+      "evidence": "STANDARD (applied to both runs, and the point on which iteration 1's judges split): the section must contain at least one lesson that is both concrete and presented as learned by doing this work; a heading alone, generic advice, or lessons derived from documentation or from the architecture's structure do not satisfy it. The section exists and its lessons are concrete and migration-specific ('The failure mode changed shape, not just size. A cron fails loudly... An event bus fails quietly'; 'Guarantees the single process gave away for free became explicit work'), which clears the 'not only a heading or generic advice' half. But the section opens by disclaiming the other half: 'The lessons that follow are the ones this architecture *implies*, derived from its structure rather than collected from the team. Treat them as a starting draft: replace them with what actually went wrong during the migration... they cannot be inferred `[A-14]`.' A-14 in the register repeats it. reply.md repeats it again: 'Lessons learned is a draft I derived from the architecture, not from your team.' So nothing in the section is presented as discovered by doing the work. Symmetry note: with_skill fails on the same ground, its lessons being labelled [platform] and read from AWS documentation."
+    },
+    {
+      "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): the domain vocabulary the document leans on must be defined, by glossary or where the term is introduced; industry-standard abbreviations the stated audience (an engineer joining an AWS team) is expected to know - SQS, HTTP, TTL, FIFO, p95, K8s/ECS - need not be expanded. Met by the inline route rather than a glossary: 3.2 defines the event and the custom bus and shows the envelope as annotated JSON, naming the routing key and the idempotency key as the two fields with architectural weight; 3.3 defines rules and targets ('Rules are independent subscriptions to the same event, not a chain'); 3.5 defines and contrasts the target DLQ and the bus archive in a table of what each catches and does not catch; 3.6 defines idempotency as 'a first-writer-wins check on the event's notificationId before contacting the provider'; the RF-n / RNF-n ID scheme is anchored by the '2.1 Functional' and '2.2 Non-functional' headings it sits under. Below the bar, and the same latitude was given to with_skill: 'DLQ' is first used in the Related documents list before section 3.5 explains it, and 'ADR-style' and 'MSK' appear once each without expansion."
+    },
+    {
+      "text": "Includes a version-history table (version, date, author, description)",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a table under a version-history heading carrying all four columns. Met: '## Version history' with header '| Version | Date | Author | Description |' and one row - '1.0 | 2026-09-08 | `<author>` | Document created from a verbal description of the migration; assumptions and open questions marked for team confirmation.' The Author cell is an explicit placeholder, which reply.md flags to the user ('the author field are placeholders')."
+    },
+    {
+      "text": "Written entirely in English",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): no non-English prose anywhere, including headings, tables, Mermaid labels and figure captions. Met: verified by reading all 600 lines and by grepping for Portuguese function words and non-ASCII characters - the only non-ASCII hits are em dashes, arrows and the section sign. Diagram labels, the JSON envelope keys and the references are English."
+    },
+    {
+      "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): the frame must be a record of a shipped system; an alternatives comparison is permitted only if explicitly retrospective and not putting a choice to the reader. Met: the header states 'Type: retrospective technical documentation (ADR-style record of an implementation already in production)', 1.3 'What was built' ends 'This is live in production', and section 5 is titled 'Risks in the deployed architecture'. Section 4 is titled 'Alternatives considered', which is proposal-shaped on its face, but it is explicitly retrospective in its own opening - 'the migration is already shipped, and this table is reconstructed from the shape of the result, not transcribed from the decision meeting... If a written record of that discussion exists, it supersedes this table `[A-13]`' - the deployed option is marked '(chosen)', and the analysis justifies what exists rather than asking the reader to pick. reply.md states the same framing. Judged the same way as with_skill's comparison section, which carries an equivalent disclaimer."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 2,
+    "total": 10,
+    "pass_rate": 0.8
+  },
+  "execution_metrics": {
+    "output_chars": 45409
+  },
+  "timing": {
+    "total_tokens": 95357,
+    "duration_ms": 364097,
+    "total_duration_seconds": 364.1
+  },
+  "claims": [
+    {
+      "claim": "A PutEvents request must total under 1 MB, with at most 10 entries per request - a raise from the widely-cited 256 KB",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented PutEvents contract; cited as reference [1] with the API Reference URL and a 'Checked 2026-09-08' note."
+    },
+    {
+      "claim": "EventBridge quotas: 300 rules per event bus in most Regions (100 in af-south-1, eu-south-1) and 5 targets per rule, not adjustable",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented EventBridge quotas; cited as reference [3] with the quotas page URL."
+    },
+    {
+      "claim": "EventBridge DLQs are SQS standard queues (FIFO not supported); messages carry RULE_ARN, TARGET_ARN, ERROR_CODE, ERROR_MESSAGE, EXHAUSTED_RETRY_CONDITION, RETRY_ATTEMPTS; some errors (missing permissions, non-existent target) go straight to the DLQ with no retry",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented dead-letter-queue behaviour for EventBridge rule targets; cited as reference [4]."
+    },
+    {
+      "claim": "RetryPolicy ranges: MaximumEventAgeInSeconds 60-86,400 and MaximumRetryAttempts 0-185",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented RetryPolicy value ranges; cited as reference [5]. The document is careful to present these as configurable ranges and marks what this team's rules actually set as unknown ([A-10])."
+    },
+    {
+      "claim": "'I did not invent a single number about your system' (reply.md)",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Mostly true and no system metric is fabricated - RNF-5 says 'No numeric target is on record' and the cost and volume questions are left open. But the prior-situation narrative asserts unmeasured properties of the old pod as fact ('The pod was sized for the worst tick and paid for around the clock'), which is the basis for the assertion-2 failure even though no figure is attached to it."
+    },
+    {
+      "claim": "Every requirement lands on a component and every component names the requirement that justifies it (the traceability check in section 2)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Spot-checked the mapping 'RF-1->3.2, RF-2->3.4, RF-3->3.2/3.3, RF-4->3.5, RF-5->3.6, RNF-1->3.3/3.4, RNF-2->3.4, RNF-3->3.7, RNF-4->3.4, RNF-5->3.2, RNF-6->3.5/6' against the sections: each named section carries a 'Requirements served' line covering those IDs. The document also names its own weakest links (RF-5 and RNF-6, which rest on assumptions)."
+    },
+    {
+      "claim": "Process claim in reply.md: AWS facts are verified against current AWS docs, checked today",
+      "type": "process",
+      "verified": false,
+      "evidence": "Cannot be verified - no execution transcript was available for this grading, so the retrieval itself is unobservable. The five cited facts are individually correct and each carries a specific documentation URL and a check date, which is consistent with the claim without establishing it."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  }
+}

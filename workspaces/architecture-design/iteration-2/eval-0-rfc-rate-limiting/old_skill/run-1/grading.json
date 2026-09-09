@@ -1,0 +1,141 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "\"## Context\" starts from zero: \"`public-search-api` is the internet-facing API that serves search to our web and mobile front ends. It is *public* in the strong sense: anyone can call it from anywhere, and the majority of its traffic carries no credential that identifies a caller... it shipped with **no request-rate controls of any kind**.\" It then names the three things that make the exposure worse, states \"The problem to solve\", and lists out-of-scope items and assumptions A1-A7. Terms used in Context are explained inline (the account-level throttle quota is spelled out as \"per account, per Region, across all APIs — 10,000 rps steady-state with a 5,000-request burst bucket by default\"). No glossary, and later sections use unexplained jargon (CGNAT, JA3/JA4, HPA, WCU), but the contextualization section itself assumes no prior knowledge."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "\"## Requirements\" contains \"### Functional\" (F1-F7) and \"### Non-functional\" (N1-N7) as separate labelled lists, plus a third subsection \"### Explicitly *not* requirements\"."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": false,
+      "evidence": "Most requirements do carry a rationale (F1 \"A control that only caps the aggregate is not sufficient: it converts abuse into a shared outage instead of preventing it\"; F6 \"Guessing a threshold and enforcing it blind is how a rate limiter takes the site down\"; N7 \"A limit keyed on a client-supplied header is a limit with an opt-out\"). But at least two state only the requirement. Verbatim F3: \"**F3 — Distinct budgets per traffic class.** At minimum three classes with independently tunable limits: (a) our own front ends, (b) named integrators who can be given a credential, (c) anonymous and unknown callers.\" — an enumeration of the requirement, with no goal or rationale for why distinct budgets are needed. Verbatim F5: \"**F5 — An immediate manual eject button.** An operator must be able to block a named source (IP or CIDR) within minutes, through a path that does **not** depend on the rate-counting machinery and does not require an application deploy.\" — again the requirement restated, no goal served. N2 and N3 likewise state the requirement and its contents without naming the goal behind them. There is no goal/source column or mapping, so nothing supplies the rationale elsewhere."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "Only 2 of 7 are quantified: N1 \"≤ 10 ms at p95\" and N6 \"Time to protection ≤ 2 weeks from approval\". The other five are adjectival with no number or unit: N2 \"No new single point of failure. The control must not introduce a component whose failure takes the API down\"; N3 \"Observability. Per-rule allowed/blocked counts as metrics; the ability to list the sources currently being limited...\"; N4 \"The control's run cost must be **a small fraction** of the cost of the abuse it prevents\"; N5 \"Operability. Configuration lives in Terraform, is peer-reviewed and auditable, and adds no bespoke always-on component to the on-call surface\"; N7 \"Non-forgeable enforcement key.\""
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": false,
+      "evidence": "Only N1 names its verification (\"it is **measured** in Phase 0, where a web ACL in Count mode incurs the full inspection cost with zero enforcement risk. That measurement is a gate, not a formality\"). F1, F2, F3, F5, F7, N2, N4, N5, N6 and N7 name no proof, measurement, test or check. The requirement lists are prose bullets with no proof field, and the scoring table that follows (\"How each alternative scores against the requirements\", ✔/~/✘) is the author's assessment of options, not a verification plan. The Launch strategy exit criteria happen to cover a few (added p95 ≤ 10 ms, a 2× peak load test, an eject-button game day), but the majority of requirements are never tied to any way of proving fulfilment."
+    },
+    {
+      "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+      "passed": true,
+      "evidence": "F1-F7 and N1-N7 are all stated as obligations (\"must\", \"an operator must be able to\", \"≤ 10 ms\"), with no item marked optional or stretch. The subsection \"### Explicitly *not* requirements (deferred, and named so we notice if they change)\" does describe cost-weighted limits as \"Desirable, not needed to stop the current abuse\", but its heading declares those items to be outside the requirement set rather than inside it, and the preamble states \"Only requirements that actually shape the structure are listed. Anything that would not change the design if dropped is deliberately absent.\""
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "\"### Components\" is a table naming C1 (WAF web ACL) with sub-rules C1.1-C1.4, C2 (API Gateway stage/method throttling), C3 (API keys + usage plans), C4 (observability), C5 (the 429 contract), C6 (Terraform module), each mapped to the requirements it serves. Static: \"### Static diagram — components and how they fit together\", a mermaid `flowchart LR`, plus a prose fallback describing the same path precisely (\"client → API Gateway REST stage → WAF web ACL (rule 1 IP-set block → rule 2 per-credential rate rule → rule 3 per-IP rate rule) → stage/method token-bucket throttle → usage-plan key check → VPC link/NLB → EKS pods → search read replica\"). Dynamic: \"### Dynamic diagram — an abusive burst, end to end\", a mermaid `sequenceDiagram` with an autonumbered walkthrough referenced by step number in the following paragraph."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+      "passed": true,
+      "evidence": "Dimension 1 row \"**A. API Gateway native throttling only** (stage + method + usage plans)\" has Pros (\"Already available, zero new infrastructure; no added per-request cost; config in Terraform; token bucket protects the backend and the account-wide quota well\") and Cons (\"**Structurally cannot do per-caller limiting for anonymous traffic.**... There is no per-IP option... no eject button, no count-only mode\"). Row \"**B. Own middleware + Redis on the K8s cluster** *(as framed)*\" has Pros (\"Total control of algorithm, key and response; exact per-second semantics... the team knows the language and the cluster\") and Cons (\"**Runs inside the thing it protects (F2 fails).**... adds a permanent on-call surface (N5); slowest of the viable options to deliver (N6)\"). Option E is offered as \"the steelman of B\"."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "Four in Dimension 1: C (AWS WAF rate-based rules at the API Gateway stage, the recommendation), D (ingress-level limiting with per-replica local state), E (Envoy/Istio + the upstream global rate-limit service), F (CloudFront Functions / Lambda@Edge with a KeyValueStore). Dimensions 2 and 3 add further un-proposed options (JA3/JA4 fingerprint key, session/user token key, fail-open vs fail-closed). The document states the added options explicitly: \"**C**, **D** and **E** were added because the original framing left the strongest managed option and the strongest version of the Redis option off the table.\""
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+      "passed": false,
+      "evidence": "Two failures. (1) Whole attributes are missing on several risks: Dimension 3 row \"**WAF's decaying rate estimate over a 60–600 s window**\" reads \"Documented above under [Enforcement point] C | — | — | — | —\" (all four attributes are em-dashes); row \"**Centralized sliding window / token bucket in Redis**\" reads \"See B | — | — | — | —\"; the fail-closed row \"Self-inflicted outage from a dependency failure | High | Medium | — | Rejected\" has no mitigation; Dimension 1 option F has \"Mitigation: — (rejected before mitigation is worth designing) | Contingency: —\". (2) Not one impact or probability cell in any of the three risk tables carries a reason or fact — every one is a bare adjective (\"High | High\", \"Medium | High\", \"Low | Medium\", \"Medium | Low\"), across all 22 risk rows."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "\"## The decision — **Recommendation: adopt Option C as the per-caller control and Option A as the aggregate backstop — that is, AWS WAF rate-based rules on the API Gateway REST stage, plus API Gateway stage and method throttling, plus API keys and usage plans for named integrators. Do not build the Redis middleware.**\" Followed by five numbered reasons in decision order and a stated decision style (\"Autocratic with consultation, ratified democratically\")."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "Consequences are recorded, though scattered rather than in a section of their own: what is being accepted is stated plainly in \"### The strongest objection to this recommendation\" (\"We are choosing a control that is approximate, laggy, and keyed on the one identifier an attacker can most cheaply change\" — followed by \"Everything in that objection is true\"), plus the cost consequence (\"cost scales with request volume\", crossover at ~167 M requests/month \"worth revisiting annually\") and the per-IP collateral damage on CGNAT users. Later confirmation is explicit: per-phase exit criteria (\"measured added p95 ≤ 10 ms; the Count-mode rule would have blocked nothing we recognize as legitimate\"; \"a load test at 2× peak confirms the stage throttle behaves as intended\"; \"eject button rehearsed in a game day\") and \"### Conditions that would flip this decision\", five named triggers for a revisit with Option E as the target."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both: \"## Launch strategy\" with Phase 0 (observe, Count mode, 7 days of data), Phase 1 (enforce the essentials), Phase 2 (identify callers), Phase 3 (conditional, not scheduled), each with stated exit criteria; and \"## Tasks and roadmap\", an 8-task table with descriptions and day estimates totalling 14 d, plus a comparison estimate for the rejected option B."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "Document and reply are entirely in English; no non-English text anywhere, including headings, tables and diagram labels."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 4,
+    "total": 14,
+    "pass_rate": 0.71
+  },
+  "execution_metrics": {
+    "output_chars": 53724
+  },
+  "timing": {
+    "total_tokens": 125082,
+    "duration_ms": 717084,
+    "total_duration_seconds": 717.1
+  },
+  "claims": [
+    {
+      "claim": "WAF costs $16 / $70 / $250 per month at 10M / 100M / 400M inspected requests, given $5.00 per web ACL, $1.00 per rule, $0.60 per million and one ACL with five rules",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: fixed 5 + 5 = 10; 10 + 10*0.60 = 16; 10 + 60 = 70; 10 + 240 = 250. All three rows match."
+    },
+    {
+      "claim": "The infrastructure crossover is V ≈ F / 0.60 million requests per month, so at F = $100 WAF becomes the more expensive line item above roughly 167 M requests/month",
+      "type": "factual",
+      "verified": true,
+      "evidence": "100 / 0.60 = 166.7 million, so \"roughly 167 M\" is correct, and the formula is the right inversion of the $0.60-per-million variable charge against a fixed monthly cost F."
+    },
+    {
+      "claim": "`public-search-api` serves search to the company's web and mobile front ends, every uncached search request reaches application compute and then the database, and the data store is a search read replica",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Stated as fact in Context (\"the internet-facing API that serves search to our web and mobile front ends\"; \"**Search is expensive per request.** Every uncached search request reaches application compute and then the database\") and drawn as `DB[(\"search read replica\")]` in the static diagram, but none of it is in the prompt and none of it is labelled as an assumption. The reply concedes \"No codebase or traffic data was inspected.\" These are unsourced internal facts presented as findings."
+    },
+    {
+      "claim": "The service sits behind an API Gateway REST API (v1) in `sa-east-1` routing to pods on the EKS cluster",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Invented specifics — the prompt names neither a region, nor an existing API Gateway, nor EKS. It is labelled honestly as assumption \"A2 ⚠\" with its flip consequence (\"WAF cannot be attached to an API Gateway HTTP API (v2)\"), and the reply repeats it as an assumption, but the whole recommendation (\"WAF rate-based rules **on the API Gateway REST stage**\") and the static diagram are built on it as though settled, and the Sources note reasons about the account quota specifically for `sa-east-1`."
+    },
+    {
+      "claim": "\"Every requirement maps to at least one component\"",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The components table's \"Requirements served\" column covers F1-F7 and N1-N5 (C1: F1, F2, F5, F6, F7, N7; C1.2/C1.3: F3, F4; C2: F2, N2; C3: F3; C4: N3, F6, N1; C5: F4; C6: N5, F7). N6 (time to protection) is not mapped to a component, but it is a schedule constraint rather than a buildable component; C1.4 is deliberately mapped to \"—\"."
+    },
+    {
+      "claim": "AWS WAF's supported protected resources exclude API Gateway HTTP APIs; API Gateway has exactly four throttle scopes with no per-IP option; rate-based windows are 60/120/300/600 s with a minimum limit of 10; WAF limiting is \"not intended for precise request-rate limiting\" and can lag \"up to several minutes\"; WAF pricing is $5 per web ACL, $1 per rule, $0.60 per million",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Each is cited to a named AWS documentation URL with a read date of 2026-09-08, and the reply distinguishes what was and was not verified (it flags that it could not load the custom-response status-code page, so whether 429 is available is left open, with 403 as the fallback). Not verifiable from the two output files alone — no transcript was available for this grading. Flagged as unverified rather than contradicted."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Assumptions A1-A7, with A2 (REST vs HTTP API), A3 (traffic volume) and A4 (concentrated vs distributed abuse) marked as the ones that would change the analysis",
+      "The reply flags three items it could not verify: whether 429 is on WAF's allowed custom-response status codes (\"if it is not, the fallback is `403` with a documented body, which weakens F4\"), whether a WAF block on an API-Gateway-attached ACL still incurs the API Gateway request charge, and ElastiCache pricing for the crossover calculation",
+      "WAF inspection latency deliberately left unquantified because AWS publishes no figure; N1 is written as a gate on the Phase 0 measurement"
+    ],
+    "needs_review": [
+      "Eight questions the author would have asked before writing, listed in the reply — most consequentially whether the endpoint is behind a REST or HTTP API, and what the abuse episodes actually looked like",
+      "The Phase 1 threshold-setting rule is explicitly left for the meeting to decide (\"the multiple to be agreed at the meeting, not guessed here\")"
+    ],
+    "workarounds": [
+      "No service or traffic data was available, so every threshold is left as a formula plus a derivation rule from the Phase 0 baseline",
+      "The static diagram is duplicated as prose in case mermaid does not render"
+    ]
+  }
+}

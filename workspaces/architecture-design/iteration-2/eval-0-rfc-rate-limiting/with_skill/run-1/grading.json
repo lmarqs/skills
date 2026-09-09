@@ -1,0 +1,156 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "\"## Context\" opens with no assumed knowledge: \"`public-search-api` is a publicly reachable HTTP API. Anyone who knows the URL can call it, as often as they like, with no credential, and nothing in the request path counts how often they do it or refuses them when they do it too much.\" It then adds a current-usage table by role, a stated problem, goals, stakeholders, constraints and out-of-scope, and every piece of jargon it later uses (ASN, web ACL, rate-based rule, count-only mode, usage plan, fail-open, backstop) is defined in the Glossary; ASN is also expanded inline at first use."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "\"## Requirements\" contains \"### Functional\" (F1-F5) and \"### Non-functional\" (N1-N5) as separate labelled tables."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": true,
+      "evidence": "Both requirement tables carry a populated \"Goal\" column plus a \"Source\" column for all ten requirements. Examples: F3 goal \"A searcher gets their answer while someone else is hammering the endpoint\", source \"Driver 1: a threshold guessed from no data refuses real searchers\"; N4 goal \"On call can stop one caller without taking the endpoint away from everyone\", source \"The problem: today's response time depends on who notices\". No row has an empty goal or source cell."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": true,
+      "evidence": "N1 \"at most 5 ms at p95 and 20 ms at p99\"; N2 \"at or below 0.1% of requests over the failure window... store fully unreachable for 10 minutes at the measured peak\"; N3 \"one caller identity sending 20x the measured peak rate, the p95 wait for all other callers stays within 20% of its no-abuse value\"; N4 \"Median time from an abuse alert firing to the abusive caller being refused: at most 15 minutes\"; N5 \"monthly run cost is at most 10% of the endpoint's current monthly infrastructure cost\". All five are numbers with units; several are labelled *assumed* placeholders, but the target itself is quantified in every case."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": true,
+      "evidence": "The functional table has a \"Proof (the scenario, and how it is run)\" column populated for F1-F5 in Given/When/Then form with the vehicle named (\"run as the timed abuse drill\", \"run as a contract test against the deployed endpoint\", \"run as the Phase 1 count-only window, which gates enforcement\"). The non-functional table has \"Proof (measurement)\" for N1-N5 (\"Load run at the measured peak, with the control attached and detached\", \"Fault-injection drill\", \"Quarterly abuse drill, timed from alert to containment\", \"Cost report one month after enforcement starts\"). The Confirmation section repeats each by ID."
+    },
+    {
+      "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+      "passed": true,
+      "evidence": "F1-F5 and N1-N5 are all stated as things the system does or must achieve (\"can see\", \"receives HTTP 429\", \"adds at most 5 ms\"); none is marked optional, desirable or stretch. The only mention of an absent requirement is the negative declaration \"One requirement was deliberately not written... Nothing here asks for a *precise* limit\", which excludes rather than smuggles in a wish. Deferred work (exact quotas, remaining-count headers) is confined to Design/Phase 3, not the requirement lists."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Design names each component against the requirement it answers (edge resource, WAF web ACL and its per-key/per-ASN/per-address rate-based rules, cluster ingress, public-search-api pods with a pod-local backstop counter, deferred rate-limit service + Redis). Static: \"### Static view\" mermaid `flowchart TB`, captioned \"Figure 1. C4 container diagram of the target state\". Dynamic: \"### Dynamic view\" mermaid `sequenceDiagram` (Figure 2, count-only then blocking), plus a third `flowchart TD` decision flow (Figure 3)."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+      "passed": true,
+      "evidence": "Row \"B. API Gateway in front of the service, native stage or method throttling *(the requester's first option, as stated)*\" has populated Pros (\"Fully managed, no code, no datastore. Token-bucket throttling and a documented 429...\") and Cons (\"Stage and method throttling is a single shared bucket for all callers...\"). Row \"D. Bespoke middleware inside `public-search-api` + Redis *(the requester's second option, as stated)*\" has Pros (\"the only option that can limit on something only the application knows\") and Cons (\"the team writes and maintains a distributed rate limiter: window-boundary bursts, races... The check happens after the request has taken a pod\"). Row B2 (API Gateway usage plans) and row C (Redis rate-limit service at the ingress) cover the stronger versions of each."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "Five, each with pros/cons/risks: A (WAF rate-based rules on the existing edge resource, the recommendation), E (per-replica local counters), F (mandatory API key for every caller), G (edge caching instead of refusing, marked \"nobody proposed this\"), H (managed CDN / API-management product, \"nobody proposed this\"), plus a \"do nothing\" baseline."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+      "passed": false,
+      "evidence": "All 13 risk rows do carry four non-placeholder attributes, and probability, mitigation and contingency carry a reason throughout (e.g. \"High - documented vendor behaviour, not a maybe\"; \"Set the rule action back to Count in one API call; no deploy, no rollback\"). But four Impact cells are bare ratings with no reason or fact attached: option C row 2, risk \"The limit check's latency is charged to every request, including the 99.9% that are fine\" -> Impact \"Medium\"; option F, risk \"Migration window during which callers we never knew about simply stop working\" -> Impact \"High\"; option G, risk \"Adopted as the answer, and the next episode looks exactly like the last\" -> Impact \"High\"; option H, risk \"Procurement and cutover outlast the exposure they were meant to end\" -> Impact \"Medium\". Option C row 1's \"High either way\" is also a rating without a stated reason. The assertion requires a reason or fact behind each of the four attributes, so it fails on those instances - a much narrower failure than old_skill's, where whole attributes are \"-\", but a failure on the assertion's own words."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "\"## The decision — **Enforce at the edge, with AWS WAF rate-based rules on the resource already fronting the service: count-only first, then block with a 429 and a `Retry-After`; add an optional credential with its own tier; keep an off-the-shelf rate-limit service with Redis in reserve... Both options as originally framed are rejected for the first phase.**\" The decision names the winning option (A) and why each loser lost, driver by driver, and records the decision style (\"autocratic\") plus the tiebreaker if the meeting votes. The status remains *proposed* pending B1-B3, but the chosen alternative is stated unconditionally."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "\"### Consequences\" lists what gets easier, harder, new to maintain, not taken on, and \"A new failure mode we are choosing: the control can refuse a legitimate caller\"; \"### Residual risks\" adds five accepted ones. \"### Confirmation\" gives the gate (\"seven days in count-only mode... Blocking does not turn on until someone has read that report and signed it\"), a fitness function (\"an alarm when the count of refused requests carrying a first-party client marker exceeds zero over any five-minute window\"), a named check per N1-N5, and \"Review date: 90 days after enforcement starts, and immediately if B3 turns up a contracted caller, if measured peak volume doubles, or if an episode gets through the control.\""
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both: \"## Launch strategy\" with Phase 0 (measure, 2 days, no production change), Phase 1a (count-only), Phase 1b (refuse), Phase 2 (optional credential), Phase 3 (conditional on a requirement); and \"## Tasks and roadmap\", a 13-row table of tasks with descriptions and day estimates. Effort figures are explicitly labelled *estimated*."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "Document and reply are entirely in English; no non-English text anywhere, including headings, tables, diagram labels and glossary."
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 1,
+    "total": 14,
+    "pass_rate": 0.93
+  },
+  "execution_metrics": {
+    "output_chars": 81827
+  },
+  "timing": {
+    "total_tokens": 170409,
+    "duration_ms": 927777,
+    "total_duration_seconds": 927.8
+  },
+  "claims": [
+    {
+      "claim": "WAF on the existing edge resource costs USD 15 / 69 / 609 per month at 10M / 100M / 1,000M requests, given USD 5.00 per web ACL, USD 1.00 per rule and USD 0.60 per million requests with 4 rules",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: fixed 5 + 4 = 9; 9 + 10*0.60 = 15; 9 + 60 = 69; 9 + 600 = 609. All three table cells match."
+    },
+    {
+      "claim": "API Gateway REST as a new hop costs USD 35+ / 350+ / 3,500+ per month at the same volumes, and HTTP API USD 10 / 100 / at least 480 for the first 500M",
+      "type": "factual",
+      "verified": true,
+      "evidence": "3.50 per million gives 35, 350, 3500 (the \"+\" covers data transfer, stated separately). HTTP API: 300M at 1.00 = 300, next 200M at 0.90 = 180, total 480 for the first 500M — matches \"≥ USD 480 for the first 500M alone\"."
+    },
+    {
+      "claim": "\"There are no invented figures anywhere\" (reply) — every internal fact is labelled assumed with the instrument that would confirm it",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Holds in the document. The Context claim table labels each internal fact *assumed* with a source and a confirmation cost; the per-address threshold is left symbolic (T); N1-N5 targets are each tagged *assumed* with the measurement that will replace them; cost-table volumes are labelled \"*illustrative*\"; phase effort figures are labelled \"*estimated*\" with the reason no baseline exists. No invented traffic volume, latency or cost figure for this service appears."
+    },
+    {
+      "claim": "AWS WAF can attach only to CloudFront, ALB, API Gateway REST API, AppSync, Cognito, App Runner, Bedrock AgentCore Gateway, Verified Access and Amplify (not NLB); WAF Block actions support a custom 429 with static custom headers; rate-based windows are 60/120/300/600 s with a minimum limit of 10; API Gateway's account throttle default is 10,000 rps / 5,000 burst shared per account per Region",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Cited to named AWS documentation pages with a read date of 2026-09-08 and listed in \"## Sources\", but not verifiable from the two output files alone — no transcript was available for this grading, so the vendor pages could not be re-checked. Flagged as unverified rather than contradicted."
+    },
+    {
+      "claim": "Every requirement above appears in the Design section (\"Every component below names the requirement it answers, and every requirement above appears here\")",
+      "type": "quality",
+      "verified": true,
+      "evidence": "F1-F5 and N1-N5 all appear as IDs in Design subsection headings or figure captions: identity dimension (F1, F4, F5), enforcement point (F2, N1, N2, N3), algorithm/counters (N1, N2), refusal contract (F4), rollout and visibility (F1, F3), Figure 1 (F1, F2, F4, F5, N1, N2, N3), Figure 2 (F3, F4, N1, N3), Figure 3 (F3, F4, F5, N3). N4 and N5 appear in Confirmation rather than in Design proper; N5's unit prices are in the Design cost table."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Three blocking questions (B1 what AWS resource fronts the service, B2 whether legitimate traffic is separable by source address, B3 whether any signed agreement promises a rate or unauthenticated access) are open, and the document holds its status at *proposed* because of them",
+      "All five non-functional targets are self-labelled *assumed* placeholders pending a Phase 0 log read",
+      "The reply flags one deliberate method deviation: F4 names HTTP 429 and Retry-After, a mechanism inside a requirement, justified as the one-way-door contract"
+    ],
+    "needs_review": [
+      "Whether the abuse episodes ever caused a user-facing outage — the reply says this is the assumption most likely to change the recommendation"
+    ],
+    "workarounds": [
+      "No repository, logs, dashboards or cost report were available, so the whole Context is written from the request's claims with each one labelled and given a confirmation instrument"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+        "reason": "Both configurations fail this as written, so it does not discriminate — but for very different reasons, and the assertion cannot express the difference. old_skill has risk rows whose four attributes are all literal em-dashes (\"Documented above under [Enforcement point] C | — | — | — | —\") and carries no reason on any impact or probability cell in three tables; with_skill fills all four cells on all 13 risks and reasons all but four impact ratings. Consider splitting it into two assertions — (a) every risk carries four non-placeholder attributes, (b) every impact and probability rating states the reason behind the rating — so the grade distinguishes a missing attribute from an unjustified one."
+      },
+      {
+        "assertion": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+        "reason": "Non-discriminating and near-trivially satisfied: both documents pass, and old_skill passes while carrying a subsection *inside* § Requirements headed \"Explicitly *not* requirements\" that calls cost-weighted limits \"Desirable, not needed\". As worded, an explicit deferral list is a pass, so the assertion mostly checks that the author did not use the word \"nice-to-have\" in a requirement bullet. If the intent is that deferred wishes must live outside the requirements section, say so; if deliberate deferral lists are acceptable, the assertion adds little."
+      },
+      {
+        "assertion": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+        "reason": "Passes for both, but for old_skill only by reading scattered acknowledgements (a \"strongest objection\" quote, per-phase exit criteria, five flip conditions) as a consequences record — there is no consequences section at all. Tightening it to something like \"names what the decision makes harder or newly obligates, and a dated review or named fitness function\" would separate a structured consequences record from an argument that happens to mention downsides."
+      },
+      {
+        "reason": "No assertion checks whether internal facts the author could not have known are labelled as assumptions rather than asserted. This is the sharpest observable difference between the two runs and it goes entirely uncaught: with_skill labels every internal claim *assumed* with a confirmation instrument and invents no figure, while old_skill states unverified specifics as fact in Context (\"serves search to our web and mobile front ends\", \"Every uncached search request reaches application compute and then the database\", a \"search read replica\" in the static diagram) and assumes a concrete region and gateway type (\"API Gateway REST API (v1) in `sa-east-1`\") — labelled as assumption A2, but still load-bearing for the entire recommendation. An assertion like \"no internal fact about the system is stated without either a source or an explicit assumption label\" would be discriminating and hard to satisfy by accident."
+      },
+      {
+        "reason": "No assertion checks that requirements are free of design/mechanism choices, even though both documents raise the issue themselves (with_skill reclassifies the two proposed options as design choices and flags F4's 429 as a deliberate exception; old_skill's F4 hard-codes 429 + Retry-After and F5 hard-codes IP/CIDR blocking without comment). That is a core failure mode for this document type and currently unmeasured."
+      }
+    ],
+    "overall": "Twelve of the fourteen assertions are well targeted and three of them (requirement rationale, quantified NFR targets, per-requirement proof) cleanly separated the two configurations. The risk-attribute assertion needs splitting — as written it fails both runs and hides a large quality gap. Two assertions (optional requirements, consequences) pass for both and are close to non-discriminating. The biggest uncovered outcome is fabrication control: nothing checks whether unknowable internal facts are labelled as assumptions."
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "'## Context' explains what public-search-api is, its current lack of controls ('a public-facing endpoint with, as of today, no rate limiting, throttling, or abuse controls of any kind'), stakeholders, constraints, and out-of-scope items, and a Glossary at the end defines terms like 'usage plan', 'fail open/closed', 'ingress/service mesh' for a reader with no prior context."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "Document has explicit '### Functional' (F1-F4) and '### Non-functional' (N1-N5) subsections under '## Requirements'."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": true,
+      "evidence": "Both requirement tables have a dedicated 'Goal (why it matters)' column distinct from the requirement column, e.g. F2: 'One abusive caller must not be able to exhaust the budget shared by every other caller...' followed by the separate requirement text; N2: 'Trading a rare abuse incident for a guaranteed availability incident...' followed by the fail-open requirement."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "N4 explicitly fails to quantify: 'a specific ceiling could not be set without the current cost and traffic figures — see Assumptions) ... stays a minor fraction of the API's current hosting cost' — 'a minor fraction' is an adjective/qualitative target, not a number with a unit, and the document itself says a number could not be set. N5's target ('live in production within days of this RFC being approved') also gives a vague unit ('days') rather than a specific numeric target. N1 (10 ms), N2 (1 minute), and N3 (15 minutes) are properly quantified, but the assertion requires EVERY non-functional requirement to carry a quantified metric, and N4 in particular is a clear miss."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": true,
+      "evidence": "Both tables have a 'Proof' column filled for every row, e.g. F3: 'Test that drives traffic through the real multi-replica path and confirms the aggregate allowance observed matches the configured single-identity limit'; N4: 'Cloud cost report one month after launch, tagged to the new component'."
+    },
+    {
+      "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+      "passed": true,
+      "evidence": "No 'nice-to-have', 'optional', 'stretch', or 'wish' language appears in the F1-F4 / N1-N5 tables. The only forward-looking item (cross-API/cost-aware limiting) is explicitly kept out of Requirements and placed in 'Out of scope' and the roadmap table instead."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Design lists named components (Identity resolution, Enforcement point, Response contract, Fail-open policy, Edge-level volumetric backstop, Observability), followed by an ASCII '### Static diagram' (client -> WAF -> Enforcement point -> pods -> datastore) and a numbered '### Dynamic diagram' with 7 request-flow steps."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+      "passed": true,
+      "evidence": "Table rows 'A — AWS API Gateway native throttling' and 'B — Redis-backed custom middleware on the existing Kubernetes cluster' each have populated Pros and Cons cells (e.g. A pros: 'Fully managed... globally consistent by construction'; B cons: 'The team takes on operating Redis reliably for every public request...')."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "Row 'C — Ingress/service-mesh rate limiting on the existing cluster ... — the credible alternative neither original option named', with its own pros/cons/risk analysis, plus a 'Do nothing (status quo)' baseline row."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+      "passed": true,
+      "evidence": "All risk rows (Option A x2, Option B x3, Option C x1, Do nothing x1) have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. Option B 'Redis... becomes unavailable': Impact=High, Probability=Medium, Mitigation='Managed Redis with multi-AZ replication...', Contingency='Automatic fail-open plus a page...'."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "'## The decision': 'Adopt AWS API Gateway native throttling (Option A) as the primary enforcement mechanism...' with Option B explicitly rejected and Option C recorded as fallback."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "'### Consequences' lists concrete downstream effects (new component to operate, thresholds become console/IaC-level, no new Redis dependency). '### Confirmation' lists concrete checks: WAF ship date vs RFC approval date for N5, F1 contract test as a CI release gate, N2/N3 drills before migration is 'done', one-month-later cost comparison against N4's modelled figure."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both present: '## Launch strategy' (two tracks: immediate WAF rule in days, primary API Gateway migration in shadow mode over weeks) and '## Tasks and roadmap' table with 7 tasks and estimates."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "The entire document.md and reply.md are in English; the eval prompt was in English."
+    }
+  ],
+  "summary": {
+    "passed": 13,
+    "failed": 1,
+    "total": 14,
+    "pass_rate": 0.93
+  },
+  "execution_metrics": {
+    "note": "No execution transcript was provided for this run; tool-call and step counts are unavailable. output_chars computed from output file sizes.",
+    "output_chars": 37762
+  },
+  "timing": {
+    "total_duration_seconds": 476.2
+  },
+  "claims": [
+    {
+      "claim": "Usage plans + API keys satisfy F2's two-tier requirement (anonymous vs. identified) directly",
+      "type": "quality",
+      "verified": false,
+      "evidence": "AWS API Gateway usage plans attach throttling/quota to API keys, not to source IP. The document's own Identity resolution component says the fallback for unauthenticated callers is 'the source IP otherwise', but usage plans have no native IP-based tiering mechanism — an 'anonymous tier' under Option A would need a separate mechanism (e.g. a resource policy, WAF rule, or default account-level throttle), which the design does not spell out. The claim that this is satisfied 'directly' overstates what API Gateway usage plans do out of the box."
+    },
+    {
+      "claim": "REST API flavor of API Gateway is priced higher per request than the HTTP API flavor",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with AWS's published API Gateway pricing, where HTTP APIs are cheaper per request than REST APIs; the document itself flags this as 'general knowledge... verify against the account's actual configuration and current pricing page', an appropriately hedged claim."
+    },
+    {
+      "claim": "This RFC was drafted without access to the company's dashboards, incident tickets, cloud console, or the public-search-api codebase",
+      "type": "process",
+      "verified": true,
+      "evidence": "Consistent with the eval setup: no execution transcript or tool access is evidenced anywhere in the outputs, and every current-state fact in the document is explicitly labelled 'assumed' with a named source of confirmation, matching this claim."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+        "reason": "This assertion is doing real discriminating work — it caught a genuine gap (N4's 'minor fraction' and N5's 'within days') that a shallower read would have missed. Worth keeping as-is; no change needed. Flagging only so the eval author sees it was exercised, not trivially satisfied."
+      },
+      {
+        "reason": "No assertion checks internal technical consistency of the chosen design against the stated requirements. The document's Identity resolution component and F2 both rely on 'source IP' as the fallback identity for anonymous callers, but the recommended Option A (API Gateway usage plans) only tiers by API key, not IP — the document asserts this is satisfied 'directly' without addressing the gap. A document could pass every current assertion while carrying this kind of internal inconsistency between the Design section and the chosen Alternative."
+      }
+    ],
+    "overall": "Strong run overall — genuinely derives requirements rather than restating the user's two named options, adds a credible third alternative and a do-nothing baseline, fills every risk's four attributes with substantive (not boilerplate) text, and gives a concrete confirmation plan. The one real miss is N4 (cost ceiling) which the document itself admits it could not quantify, and a secondary, uncovered issue is a technical seam between the IP-based identity fallback and API Gateway's key-based usage plans in the chosen alternative."
+  }
+}

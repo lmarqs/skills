@@ -1,0 +1,1041 @@
+{
+  "metadata": {
+    "skill_name": "architecture-design",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-09-08T18:03:14Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.79,
+        "passed": 11,
+        "failed": 3,
+        "total": 14,
+        "time_seconds": 231.8,
+        "tokens": 22903,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+          "passed": true,
+          "evidence": "## Context: '`public-search-api` is a public-facing search endpoint with no request-rate controls of any kind today: no per-client quotas, no throttling, no circuit breaking. Any caller \u2014 authenticated or not \u2014 can send requests at whatever rate their client allows.' Followed by consequences and an explicit 'The problem to solve' statement and 'Out of scope' subsection. Covers current state without assuming the reader already knows the incident history."
+        },
+        {
+          "text": "Requirements are present and explicitly split into functional and non-functional",
+          "passed": true,
+          "evidence": "Document has '## Requirements' with '### Functional' and '### Non-functional' subsections, each containing bulleted requirements."
+        },
+        {
+          "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+          "passed": false,
+          "evidence": "Several requirements are stated as bare constraints with no accompanying goal/rationale. E.g. functional bullet 1: '\"Every request to `public-search-api` must be evaluated against a per-client rate limit before reaching business logic. \"Per-client\" means per API key when one is presented, falling back to source IP for anonymous callers.' \u2014 no stated why. Non-functional 'Correctness under scale-out' and 'Explicit failure behavior' bullets similarly state the constraint ('must be enforced globally...', 'must have a stated fail-open or fail-closed policy') without explaining the goal it serves. Only a minority of requirements (e.g. the adjustable-limits one: '...so an on-call engineer can tighten or loosen a specific client's limit mid-incident') carry an explicit rationale. The assertion requires it for every requirement, which is not met."
+        },
+        {
+          "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+          "passed": false,
+          "evidence": "Only 'Latency overhead' has a number ('Proposed target: \u2264 10ms at p95'). The others do not: 'Correctness under scale-out' has no metric; 'Explicit failure behavior' has no metric; 'Observability' says only 'alerting on sustained throttling' with no threshold; 'Operability' says 'changeable within minutes' (no specific number); 'Cost proportionality' says the cost 'should be visibly smaller than the cost of the abuse it prevents, not merely \"acceptable\"' \u2014 an adjective ('visibly smaller'), not a number+unit."
+        },
+        {
+          "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+          "passed": false,
+          "evidence": "No requirement in the Functional or Non-functional lists names a verification method (e.g., a load test, a specific dashboard check, an audit). The closest text is 'this must be validated against the real budget before sign-off' under Latency overhead, which flags that the number itself is unverified, not how the requirement's fulfilment will be proven. No other requirement mentions verification at all."
+        },
+        {
+          "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+          "passed": true,
+          "evidence": "All functional and non-functional bullets use 'must'/'should not' framing; no 'nice-to-have', 'wish', or 'stretch goal' language appears in the Requirements section."
+        },
+        {
+          "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+          "passed": true,
+          "evidence": "Components named: 'Client identity resolution', 'Policy store', 'Shared state', 'Enforcement point', 'Metrics emission'. A '### Static diagram (described...)' ASCII-art box diagram follows, and a '### Dynamic diagram \u2014 request flow (described)' gives a numbered 7-step sequence from client request through enforcement to metrics emission."
+        },
+        {
+          "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+          "passed": true,
+          "evidence": "The Alternatives table has rows '[Mechanism] AWS API Gateway native throttling' and '[Mechanism] Custom Redis-backed middleware on Kubernetes', each with populated Pros and Cons columns."
+        },
+        {
+          "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+          "passed": true,
+          "evidence": "Third table row: '[Mechanism] Ingress/service-mesh rate limiting already in-cluster (e.g., NGINX ingress annotations, Envoy/Istio policy) \u2014 considered and set aside', with its own pros/cons/risk, explicitly not one of the two alternatives named in the prompt."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+          "passed": true,
+          "evidence": "All 7 risk rows in the table have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. row 4: 'Impact: High | Probability: Medium | Mitigation: Define an explicit fail-open-with-alert policy...run Redis with replication/Sentinel... | Contingency: Page on-call to disable the middleware via feature flag...'"
+        },
+        {
+          "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+          "passed": true,
+          "evidence": "'## The decision \u2014 Recommendation: Alternative A \u2014 AWS API Gateway native throttling, paired with an AWS WAF rate-based rule to cover anonymous/IP traffic \u2014 as the mechanism to ship first...' followed by an explicit 'Why this, and not Alternative B' explanation. Framed as a recommendation for the meeting to ratify (consistent with the prompt's 'settle it at the next architecture meeting'), but the alternative chosen is unambiguous, not left open."
+        },
+        {
+          "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+          "passed": true,
+          "evidence": "'Phase 2 \u2014 validate and tune: watch the dashboards from Phase 1 against real traffic for a defined window (proposed: two weeks) and adjust limits; confirm whether abuse recurs and whether it's now contained at the edge.'"
+        },
+        {
+          "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+          "passed": true,
+          "evidence": "Both present: '## Launch strategy' with Phase 1/2/3, and a separate '## Tasks and roadmap' table with tasks and time estimates."
+        },
+        {
+          "text": "Written entirely in English (matching the request language)",
+          "passed": true,
+          "evidence": "Both document.md and reply.md are written entirely in English; the eval prompt was in English."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.71,
+        "passed": 10,
+        "failed": 4,
+        "total": 14,
+        "time_seconds": 265.5,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+          "passed": true,
+          "evidence": "## Context defines the domain from scratch: \"a chain of services that reacts to an order being placed \u2014 charging payment, reserving inventory, notifying the customer, triggering fulfillment\" and defines both candidates for a reader who may not know them: \"AWS SQS \u2014 a fully managed, 'serverless' queue service. No cluster to run...\" and \"Self-hosted RabbitMQ \u2014 an open-source AMQP 0-9-1 broker...\". No prior knowledge of either technology is assumed."
+        },
+        {
+          "text": "Requirements are present and explicitly split into functional and non-functional",
+          "passed": true,
+          "evidence": "Document has '### Functional' (lines 64-75) and '### Non-functional' (lines 77-97) subheadings under '## Requirements'."
+        },
+        {
+          "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+          "passed": false,
+          "evidence": "Several requirements are stated without any accompanying rationale/goal clause. Functional: \"A message that repeatedly fails processing must be preserved for inspection and reprocessing, never silently dropped, after a bounded number of retries\" (line 71) states only the requirement, no 'why'. Non-functional Availability: \"the broker itself must not be a single point of failure; no single-node design is acceptable for this path\" (line 83) is a restatement of the requirement, not a stated goal. Non-functional Throughput: \"[ASSUMPTION-VOLUME] sustained tens, peak low hundreds of messages/sec. Needs confirmation \u2014 see Open questions\" (line 85) gives a target but no rationale for why that target matters. Most other requirements (durability, latency, operability, security, observability) do carry an explicit rationale clause, but the bar is 'every requirement', and at least these three do not."
+        },
+        {
+          "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+          "passed": false,
+          "evidence": "Multiple NFRs have no number at all. Availability (line 83): \"the broker itself must not be a single point of failure; no single-node design is acceptable\" \u2014 no percentage, RTO/RPO, or node count. Operability (line 89-90): \"minimize new categories of production incident and on-call load\" \u2014 purely qualitative. Cost (line 91-92): \"predictable and roughly proportional to actual usage; avoid large fixed cost\" \u2014 no dollar figure or ratio. Security (line 93-94): \"encryption in transit and at rest; least-privilege access\" \u2014 a binary control, not a quantified target. Observability (line 95-97): \"depth of the dead-letter queue and age of the oldest unprocessed message must be visible on a dashboard and alertable\" \u2014 names the metrics to watch but gives no numeric threshold (e.g., alert if DLQ depth > N or age > N minutes). 5 of 8 non-functional requirements fail the 'number with a unit' bar."
+        },
+        {
+          "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+          "passed": false,
+          "evidence": "No requirement in the '## Requirements' section (functional or non-functional, lines 59-98) includes a verification/proof method. There is no 'Verification' field or clause attached to any bullet, and no dedicated verification section anywhere in the document. Related activities exist elsewhere (a 'Chaos/load test' roadmap task, DLQ alarms) but they are not tied back to individual requirements as their stated proof of fulfilment."
+        },
+        {
+          "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+          "passed": true,
+          "evidence": "\"**Durability (business-critical, non-negotiable):** zero accepted-and-enqueued order may be lost due to a single-AZ outage, a broker node failure, or a crashed consumer.\" (lines 79-82). This operationalizes 'can't lose messages' into a zero-loss target against three named, concrete failure modes rather than leaving it as an unmeasurable slogan."
+        },
+        {
+          "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+          "passed": true,
+          "evidence": "Components are named and each tied to a requirement (Order Service, Fan-out layer, Per-consumer queue, DLQ, Idempotency check, Monitoring \u2014 lines 107-123). A static mermaid 'graph LR' component/topology diagram is included (lines 127-142) and a dynamic mermaid 'sequenceDiagram' covering the happy path and failure/DLQ path is included (lines 150-173)."
+        },
+        {
+          "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+          "passed": true,
+          "evidence": "The tradeoff table (lines 191-197) has a row for 'AWS SQS (Standard queues + SNS fan-out + per-queue DLQ)' and a row for 'Self-hosted RabbitMQ on the existing cluster (quorum queues...)', each with populated Pros and Cons columns."
+        },
+        {
+          "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+          "passed": true,
+          "evidence": "'Amazon MQ for RabbitMQ (managed RabbitMQ, active/standby, multi-AZ)' is added as a third full row in the tradeoff table (line 197) with its own pros, cons, and a complete risk entry \u2014 not something the user's prompt mentioned (user only named SQS and self-hosted RabbitMQ). Kafka/MSK is also discussed and reasoned about in 'Also considered' (lines 177-183), though outside the formal table."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+          "passed": true,
+          "evidence": "All 5 risk rows in the table (2 under AWS SQS, 2 under self-hosted RabbitMQ, 1 under Amazon MQ) have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. the quorum-queue risk row: Impact 'High', Probability 'Medium\u2013High, specifically because of [ASSUMPTION-OPS]...', Mitigation 'Dedicated node pool / resource quotas...', Contingency 'Fail over consumers to read from per-consumer local buffers is not viable... realistic contingency is an expedited cutover to Amazon MQ or SQS...' (line 195-196)."
+        },
+        {
+          "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+          "passed": true,
+          "evidence": "\"**Recommendation: AWS SQS Standard queues (FIFO where per-order ordering is required) with an SNS fan-out layer and a per-queue DLQ**, as diagrammed above.\" (lines 221-222) is an unambiguous, named choice, not left open."
+        },
+        {
+          "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+          "passed": false,
+          "evidence": "No dedicated 'Consequences' statement exists, and no explicit post-decision confirmation checkpoint (a scheduled metric/review to verify the decision was correct after launch) is stated. The closest material is pre-approval 'Open questions (block sign-off, not the RFC's circulation)' (lines 247-256) and a flip-condition on the recommendation itself (lines 234-240) plus 'Revisit this RFC if any open question resolves in a way that flips the recommendation' (launch strategy step 5, line 264) \u2014 these gate the decision before/during build, not confirm it after the fact. DLQ depth/age alarms are operational monitoring for the running system, not framed anywhere as a check on whether the SQS-vs-RabbitMQ decision itself was correct."
+        },
+        {
+          "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+          "passed": true,
+          "evidence": "Both a '## Launch strategy' (5-step sequenced rollout, lines 258-264) and a '## Tasks and roadmap' table with task/description/estimate columns (lines 266-276) are present."
+        },
+        {
+          "text": "Written entirely in English (matching the request language)",
+          "passed": true,
+          "evidence": "The entire document (headers, prose, table contents, diagrams) is written in English, matching the English-language prompt."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 182.2,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Context section covers the situation before, the motivations for the change, and the scope",
+          "passed": true,
+          "evidence": "document.md has `## Context` with three subsections: `### Prior situation` (\"previously ran as a single monolithic process, scheduled by cron, inside one pod\"), `### Motivations for the change`, and `### Scope` (\"In scope (as described)\" / \"Out of scope\")."
+        },
+        {
+          "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+          "passed": true,
+          "evidence": "The base fact (monolithic cron-in-a-pod) is presented as the confirmed input per the doc's own framing note (\"Treat unmarked statements as the confirmed input\"). Every elaboration beyond that input is explicitly tagged, e.g. the pains list is prefixed \"[inferred \u2014 confirm which of these actually motivated this migration, and add any that aren't listed]\", and Motivations is prefixed \"[inferred \u2014 confirm against the team's actual reasoning]\". No unmarked invented claim about the prior state was found."
+        },
+        {
+          "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+          "passed": true,
+          "evidence": "The `### Components` table lists Event producer(s), EventBridge event bus, EventBridge rule(s), Lambda \u2014 email/push/SMS handlers, Dead-letter queue(s), and Observability, each with a Responsibility cell (e.g. \"Route each event to exactly one target Lambda based on a notification-type attribute\")."
+        },
+        {
+          "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+          "passed": true,
+          "evidence": "\"Step by step, [inferred shape...]\" followed by a numbered list 1-5, from \"A producer service decides a user needs to be notified...\" through \"On failure, EventBridge/Lambda's built-in retry behavior applies...\"."
+        },
+        {
+          "text": "Has a risks-and-mitigations section",
+          "passed": true,
+          "evidence": "`## Risks and mitigations` contains a 5-row table with columns Risk | Impact | Probability | Mitigation | Contingency, e.g. the DLQ/silent-failure row and the provider-throttling row."
+        },
+        {
+          "text": "Has a lessons-learned section",
+          "passed": true,
+          "evidence": "`## Lessons learned` section exists, though its content is \"**Not filled in.**\" followed by an explanation and a list of prompts for the team to answer rather than actual retrospective content."
+        },
+        {
+          "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+          "passed": false,
+          "evidence": "No glossary section exists anywhere in the document. Several acronyms are introduced and used without expansion: \"likely via a provider such as Amazon SES\" (line 76), \"Amazon SNS, FCM, or APNs\" (line 77), and \"Amazon SNS or a carrier gateway like Twilio\" (line 78) \u2014 SES, SNS, FCM, and APNs are never spelled out anywhere in the document. DLQ is loosely inferable from the earlier \"Dead-letter queue(s)\" table row but is never explicitly tied to the abbreviation."
+        },
+        {
+          "text": "Includes a version-history table (version, date, author, description)",
+          "passed": true,
+          "evidence": "`## Version history` table with header `| Version | Date | Author | Description |` and one row: `| 1.0 | 2026-09-08 | Lucas Marques (drafted with Claude; not yet reviewed by the implementing team) | Initial draft from a verbal description... |`."
+        },
+        {
+          "text": "Written entirely in English",
+          "passed": true,
+          "evidence": "Both document.md and reply.md are written entirely in English; no non-English text found."
+        },
+        {
+          "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+          "passed": true,
+          "evidence": "Title is \"Notifications Service \u2014 From Cron-in-a-Pod to Event-Driven Lambda Fan-Out\"; the system is described as already migrated and \"already in production\" per the prompt, and the doc documents the resulting architecture rather than weighing competing designs. No alternatives-comparison section is present."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.4,
+        "passed": 4,
+        "failed": 6,
+        "total": 10,
+        "time_seconds": 333.7,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
+          "passed": false,
+          "evidence": "Kafka and AWS are named as givens in prose in the 'Context' section ('Two constraints are already fixed by decisions made outside this document: the event transport is Kafka ... and the service runs on AWS'), but all four items \u2014 including the API standard and the coverage gate \u2014 are then formally recorded as line items inside the Requirements section itself: 'NFR-1 \u2014 Standardized endpoints... follow the company API standard', 'NFR-4 \u2014 Automated test coverage > 90%. Kept as stated.', 'NFR-6 \u2014 Runs on AWS. Kept as a given constraint', 'NFR-7 \u2014 Kafka as transport. Kept as a given constraint'. There is no dedicated Constraints/Givens section distinct from Requirements; the API standard and coverage gate never receive any separate-section treatment at all, and even Kafka/AWS live as NFR entries in the same Requirements list as genuine system requirements."
+        },
+        {
+          "text": "Each constraint carries a source (who or what imposed it)",
+          "passed": false,
+          "evidence": "Kafka: sourced ('platform team decision'). AWS: loosely sourced ('existing platform footprint' / 'operational consistency with the rest of the platform'). But NFR-1 (API standard) gives no source beyond restating 'the company API standard', and NFR-4 (coverage) says only 'Kept as stated' with no attribution of who imposed the 90% figure. Two of the four constraints carry no source."
+        },
+        {
+          "text": "Each constraint carries an indication of the cost or difficulty of challenging it",
+          "passed": false,
+          "evidence": "No constraint anywhere states what it would cost or how hard it would be to challenge it. The closest language is dismissive rather than evaluative: 'Kafka and AWS are given constraints and are not re-analyzed as alternatives here' and 'Kafka and AWS were autocratic calls made upstream by the platform team and are treated as given here.' Neither sentence indicates difficulty/cost of challenging, only that challenging wasn't attempted. NFR-1 and NFR-4 have no such language at all."
+        },
+        {
+          "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+          "passed": true,
+          "evidence": "Listed only under 'Out of scope' ('The browsing UI. The requester flagged it explicitly as a nice-to-have, not a requirement') and as 'Phase 3 (nice-to-have, as flagged by the requester)' in Launch strategy. It is absent from both the Functional and Non-functional requirements lists."
+        },
+        {
+          "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+          "passed": true,
+          "evidence": "'NFR-2 \u2014 Ingestion lag. (Replaces \"must be fast,\" which hides a decision.) ... \u226430s at p95' and 'NFR-3 \u2014 Query latency ... \u22642s at p95; ... \u226410s at p95'. Both carry quantified metrics and targets, each explicitly marked 'Assumed target, pending confirmation.'"
+        },
+        {
+          "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+          "passed": false,
+          "evidence": "It is listed exactly as an NFR: 'NFR-4 \u2014 Automated test coverage > 90%. Kept as stated.' under the '### Non-functional' heading, alongside genuine runtime properties (endpoint standard, ingestion lag, query latency, AWS, Kafka). The accompanying critique ('a coverage percentage is a weak proxy for what this system actually needs to prove') argues coverage is insufficient on its own and recommends supplementary tests, but this is commentary layered on top of an NFR entry that is still formally kept in the NFR list describing the running system \u2014 the assertion is not satisfied."
+        },
+        {
+          "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+          "passed": true,
+          "evidence": "'FR-2 \u2014 Self-service query. The compliance team queries audit events by actor, action type, target resource/id, and time range through an API, with no dependency on engineering or shell access to production.' This is directly derived from 'they currently ask us to grep production logs by hand,' with the goal (self-service query, no engineering/shell dependency) explicitly stated. FR-1 (Completeness) is similarly traceable to the same pain."
+        },
+        {
+          "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+          "passed": true,
+          "evidence": "The Requirements preamble states: 'The requester's list mixed genuine constraints with some items that needed sharpening... Below is the reconciled set \u2014 what's kept as-is, what was made concrete, and what was added... Each change is called out inline.' Individual items are inline-flagged: 'FR-4 ... (added \u2014 not stated by the requester)', 'FR-5 \u2014 Immutability (added \u2014 not stated by the requester)', 'NFR-2 (Replaces \"must be fast,\" which hides a decision.)', 'NFR-5 (Added \u2014 not stated by the requester...)'. This is present in document.md itself, independent of reply.md."
+        },
+        {
+          "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+          "passed": false,
+          "evidence": "The Alternatives analysis table only evaluates three dimensions \u2014 [A - Capture], [B - Storage], [C - Compute] \u2014 none of which is the event-transport technology itself. The document is explicit that Kafka was never put up for comparison: 'Kafka and AWS are given constraints and are not re-analyzed as alternatives here.' No message-broker alternative (e.g. Kinesis, SNS/SQS, RabbitMQ, Pulsar) appears anywhere in the tradeoff table or elsewhere in the document. Per grading instructions, declaring Kafka a fixed constraint and analyzing nothing else is a fail."
+        },
+        {
+          "text": "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+          "passed": false,
+          "evidence": "The one place a stated constraint (Kafka) would have a genuine alternative to weigh, the document excludes the entire comparison up front ('not re-analyzed as alternatives here') rather than including a transport alternative in the table with its conflict-with-Kafka noted as a cost/risk. This is the opposite of what the assertion asks for: exclusion before analysis, not a recorded cost within an analyzed option. No other alternative in the table (OpenSearch, Aurora, S3/Athena, Lambda, Fargate, MSK Connect) actually conflicts with a stated constraint (all are AWS-compatible), so there is no instance anywhere of a constraint-conflicting alternative being analyzed with its conflict costed out."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 227.2,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+          "passed": true,
+          "evidence": "document.md Context section: 'the customer-facing dashboard endpoint, which shares the same database, has been observed at roughly 8 seconds p95, per the `api-latency` Grafana board, as of last month's data.' The source is stated in the same sentence as the figure, not as a detached footnote."
+        },
+        {
+          "text": "The location of the report queries is cited concretely (reports/queries.py)",
+          "passed": true,
+          "evidence": "Cited repeatedly and concretely, e.g. 'Reports are generated by queries in `reports/queries.py`, run against that same primary database' and again in Related documents, Design, and Tasks sections."
+        },
+        {
+          "text": "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
+          "passed": true,
+          "evidence": "'The claim that reporting is \"maybe 40% of database load\" is, by the requester's own account, an unmeasured guess, not a measurement.' Also captured in the Assumptions table: 'Reporting's actual share of DB load | Unknown; treated as \"material enough to warrant isolation,\" not as a sizing number'."
+        },
+        {
+          "text": "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+          "passed": true,
+          "evidence": "Design table: 'Native DB query-stats capture (e.g., `pg_stat_statements`-class tooling) on the primary, pre-cutover | Answers the Phase 0 measurement requirement'. Launch strategy Phase 0: 'Capture native query stats on the primary (e.g., `pg_stat_statements`-class tooling, adjusted to the actual engine once confirmed) tagged by workload (reporting vs. OLTP) to get a real load-share number in place of the ~40% guess.'"
+        },
+        {
+          "text": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+          "passed": true,
+          "evidence": "8s p95 -> 'per the `api-latency` Grafana board'; 300 tenants -> 'currently around 300 active tenants, approximate'; 40% -> labeled 'an unmeasured guess, not a measurement' throughout. All three numeric context claims carry a source or an explicit epistemic label."
+        },
+        {
+          "text": "At least one requirement traces explicitly back to a specific fact stated in the context",
+          "passed": true,
+          "evidence": "'Reporting must remain isolated per tenant: one tenant running a heavy report must not degrade another tenant's reports or the shared dashboard endpoint \u2014 non-negotiable in a ~300-tenant shared system' traces the isolation requirement to the stated 300-tenant fact. Similarly the p95 target requirement traces to 'the current ~8s'."
+        },
+        {
+          "text": "The reasoning can be followed without opening any linked or external resource",
+          "passed": true,
+          "evidence": "The document explains its own constraints inline rather than deferring to the linked resources: 'Not independently inspected while writing this RFC (not reachable from this session); treat that number as reported, not verified' and 'this document does not assume anything about its specific queries, indexes used, or how it opens connections.' The Context, Requirements, Design, and Decision sections are self-contained arguments built only from what was stated in the prompt plus flagged assumptions \u2014 none of the load-bearing reasoning requires opening the Grafana board or reports/queries.py to follow."
+        },
+        {
+          "text": "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top",
+          "passed": true,
+          "evidence": "Beyond the 'Related documents' list at the top, the Context section carries the citation inline at point of use: 'has been observed at roughly 8 seconds p95, per the `api-latency` Grafana board' and 'The request did not specify several things this design normally depends on' with each unresolved input attributed to 'Who should confirm' in the Assumptions table."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 197.5,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+          "passed": true,
+          "evidence": "Context, 'A note on scope and how this document was built': \"a requirement is a non-negotiable, checkable constraint on the *problem* ... \u2014 not a pre-selected technology. Naming a technology before the problem is pinned down is the specific failure mode this method is built to catch ... this RFC treats the five named technologies as **candidate solutions**, evaluated on their merits in the *Alternatives analysis* section.\""
+        },
+        {
+          "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+          "passed": true,
+          "evidence": "Grepped the '## Requirements' section (Functional + Non-functional bullets) for 'saga', 'microservice', 'redis', 'grpc', 'feature flag' \u2014 zero matches. The section instead lists atomicity/no-partial-state, durable failure attribution, deterministic retry/compensation, independent deployability, observability, a reliability target, no latency regression, blast-radius containment, and rollout safety \u2014 all framed as problem constraints, none naming a technology."
+        },
+        {
+          "text": "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+          "passed": true,
+          "evidence": "Non-functional: \"**Reliability target:** checkout failure rate is measured continuously (not estimated after the fact) and has an explicit target \u2014 proposed **\u2264 0.5% p95 weekly**, pending validation once real failure causes are known (some fraction of the current 2% may be external, e.g. a card decline, which is not a system defect and shouldn't be counted against this target).\" Target = \u22640.5% p95 weekly; goal (why it matters) is carried by the surrounding Context tying the 2% rate to abandoned/retried purchases and trust damage."
+        },
+        {
+          "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+          "passed": true,
+          "evidence": "Non-functional: \"**Observability:** every checkout attempt is traceable end-to-end with a single correlation ID across every step it touches, and step-level success/failure is visible on a dashboard within seconds of occurring \u2014 this is the requirement that most directly closes the stated gap.\" Also Functional: \"Every failed checkout attempt must produce a durable record identifying which step failed and the failure reason ... automatically.\" Both are measurable (correlation ID + seconds-latency dashboard visibility; a durable per-attempt record)."
+        },
+        {
+          "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+          "passed": true,
+          "evidence": "Alternatives analysis table has one row per named technology, each explicitly cross-referenced to a requirement: saga ('Matches the atomicity/compensation requirement directly'), microservices ('matches the \"blast radius\" requirement *if* done well ... does not by itself solve step attribution'), Redis ('No requirement above calls for a cache'), gRPC ('using synchronous RPC *between saga steps* couples their failure domains together, working against the atomicity/compensation requirement'), feature flags ('Directly satisfies the rollout-safety requirement')."
+        },
+        {
+          "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+          "passed": true,
+          "evidence": "'The decision' section: \"Redis caching and gRPC do not map to any stated requirement today and are **not recommended as part of this phase**\"; microservices split is deferred in favor of a modular monolith ('Large, essentially irreversible undertaking ... does not by itself solve step attribution')."
+        },
+        {
+          "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+          "passed": true,
+          "evidence": "'Assumptions made in the absence of system access' explicitly lists four labeled assumptions (2% rate/attribution gap taken as reported and unverified; checkout assumed monolithic; a specific 4-step flow assumed; no known SLO/runbook), each flagged 'for correction against the real system before any of this is acted on.'"
+        },
+        {
+          "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+          "passed": false,
+          "evidence": "Only the Reliability-target requirement gestures at a verification mechanism ('measured continuously'), and even that never names a source (which dashboard/query, what window). The other eight requirements/bullets (no-partial-state, durable failure record, deterministic retry/compensation, independent deployability, the correlation-ID/dashboard observability bullet, no-latency-regression, blast-radius containment, rollout safety) state a goal and sometimes a target, but none states how fulfilment would be demonstrated (a test, drill, audit, or measurement method) \u2014 e.g. 'a defect or outage in any single checkout step must not require a full rollback of the entire checkout flow to recover from' has no stated way to verify it holds. The skill's own reference (context-and-requirements.md) treats 'Proof' \u2014 'how fulfilment gets demonstrated when implementation ends' \u2014 as a mandatory field precisely because a requirement without it 'is not a requirement; it is a goal.' This document has no Proof field or equivalent for almost every requirement."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 239.8,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+          "passed": true,
+          "evidence": "Context section: 'Before naming a language, this document briefly checks that premise, because a rewrite is a large, hard-to-reverse investment and 12 seconds is a symptom, not a diagnosis.' Design section header '### Approach: rewrite vs. optimize in place' opens with: 'The requester asked to choose a rewrite language, but the prior question \u2014 rewrite at all, vs. fix the existing Python service \u2014 is the one that actually determines whether either Rust or Go pays off, so it is answered explicitly here rather than skipped.'"
+        },
+        {
+          "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+          "passed": true,
+          "evidence": "Related documents section: 'the \"~12s for a 40-page invoice\" figure is taken as given, not independently measured, and its p50/p95/p99 shape is unknown.' Launch strategy step 1: 'Profiling spike ... Instrument the current Python service ... to break the 12s down into data-fetch, render, and assemble/upload time, for the 40-page case.' This explicitly names a profile/breakdown-by-stage as the missing attribution."
+        },
+        {
+          "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+          "passed": true,
+          "evidence": "Tradeoff table's first row is '**[Approach] Keep Python, optimize in place**' with its own pros/cons/risk entries, distinct from the Go and Rust rewrite rows."
+        },
+        {
+          "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+          "passed": true,
+          "evidence": "Both '[Language] Rewrite in Go' and '[Language] Rewrite in Rust' rows list multiple pros and cons (e.g. Go: 'Goroutines fit a batch/burst rendering workload naturally...' vs 'Still garbage-collected \u2014 rare tail-latency risk...'; Rust: 'No GC \u2014 most predictable latency...' vs 'Steepest learning curve of any candidate...') plus 3 risk rows each."
+        },
+        {
+          "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+          "passed": true,
+          "evidence": "Non-functional requirements: 'Latency: generation of a representative 40-page invoice should complete in \u2264 3s at p95 on production-equivalent hardware, validated under load.' Unit (seconds/p95) and measurement method (validated under load on production-equivalent hardware) are both present, and the target is derived from the finance complaint ('Chosen as \"clearly no longer a complaint\" relative to the reported 12s') rather than from any language's characteristics -- the language choice is decided afterward, in a separate section, against this target."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+          "passed": true,
+          "evidence": "All 8 risk rows in the table have non-empty Impact/Probability/Mitigation/Contingency cells, e.g. 'GC pause spikes under concurrent batch generation | Low | Low | Tune GC target, use a bounded worker pool with backpressure, load-test at 2\u00d7 expected peak | Increase pod CPU/memory headroom, or shard the batch run across more instances' and 'Learning curve stalls delivery or produces hidden defects from inexperienced Rust use | High | High | Dedicate a senior engineer (or a contractor with Rust depth)... | If the POC's first milestone slips past the checkpoint, fall back to Go...'."
+        },
+        {
+          "text": "Reaches an explicit decision rather than only listing options",
+          "passed": true,
+          "evidence": "'The decision' section states: 'Decision: rewrite the invoice PDF generation service in Go.' with rationale and a stated condition that would flip it, not a hedge or a list of equally-weighted options."
+        },
+        {
+          "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+          "passed": true,
+          "evidence": "reply.md: 'I didn't take \"rewrite\" as settled before picking the language. The method this doc follows requires ruling out the prior question \u2014 is this actually a language problem, or is 12s coming from something a rewrite wouldn't fix...' This is a direct, plain statement of the framing challenge and its reason, also mirrored in document.md's Context section."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.93,
+        "passed": 13,
+        "failed": 1,
+        "total": 14,
+        "time_seconds": 476.2,
+        "tokens": 37762,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+          "passed": true,
+          "evidence": "'## Context' explains what public-search-api is, its current lack of controls ('a public-facing endpoint with, as of today, no rate limiting, throttling, or abuse controls of any kind'), stakeholders, constraints, and out-of-scope items, and a Glossary at the end defines terms like 'usage plan', 'fail open/closed', 'ingress/service mesh' for a reader with no prior context."
+        },
+        {
+          "text": "Requirements are present and explicitly split into functional and non-functional",
+          "passed": true,
+          "evidence": "Document has explicit '### Functional' (F1-F4) and '### Non-functional' (N1-N5) subsections under '## Requirements'."
+        },
+        {
+          "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+          "passed": true,
+          "evidence": "Both requirement tables have a dedicated 'Goal (why it matters)' column distinct from the requirement column, e.g. F2: 'One abusive caller must not be able to exhaust the budget shared by every other caller...' followed by the separate requirement text; N2: 'Trading a rare abuse incident for a guaranteed availability incident...' followed by the fail-open requirement."
+        },
+        {
+          "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+          "passed": false,
+          "evidence": "N4 explicitly fails to quantify: 'a specific ceiling could not be set without the current cost and traffic figures \u2014 see Assumptions) ... stays a minor fraction of the API's current hosting cost' \u2014 'a minor fraction' is an adjective/qualitative target, not a number with a unit, and the document itself says a number could not be set. N5's target ('live in production within days of this RFC being approved') also gives a vague unit ('days') rather than a specific numeric target. N1 (10 ms), N2 (1 minute), and N3 (15 minutes) are properly quantified, but the assertion requires EVERY non-functional requirement to carry a quantified metric, and N4 in particular is a clear miss."
+        },
+        {
+          "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+          "passed": true,
+          "evidence": "Both tables have a 'Proof' column filled for every row, e.g. F3: 'Test that drives traffic through the real multi-replica path and confirms the aggregate allowance observed matches the configured single-identity limit'; N4: 'Cloud cost report one month after launch, tagged to the new component'."
+        },
+        {
+          "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+          "passed": true,
+          "evidence": "No 'nice-to-have', 'optional', 'stretch', or 'wish' language appears in the F1-F4 / N1-N5 tables. The only forward-looking item (cross-API/cost-aware limiting) is explicitly kept out of Requirements and placed in 'Out of scope' and the roadmap table instead."
+        },
+        {
+          "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+          "passed": true,
+          "evidence": "Design lists named components (Identity resolution, Enforcement point, Response contract, Fail-open policy, Edge-level volumetric backstop, Observability), followed by an ASCII '### Static diagram' (client -> WAF -> Enforcement point -> pods -> datastore) and a numbered '### Dynamic diagram' with 7 request-flow steps."
+        },
+        {
+          "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+          "passed": true,
+          "evidence": "Table rows 'A \u2014 AWS API Gateway native throttling' and 'B \u2014 Redis-backed custom middleware on the existing Kubernetes cluster' each have populated Pros and Cons cells (e.g. A pros: 'Fully managed... globally consistent by construction'; B cons: 'The team takes on operating Redis reliably for every public request...')."
+        },
+        {
+          "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+          "passed": true,
+          "evidence": "Row 'C \u2014 Ingress/service-mesh rate limiting on the existing cluster ... \u2014 the credible alternative neither original option named', with its own pros/cons/risk analysis, plus a 'Do nothing (status quo)' baseline row."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+          "passed": true,
+          "evidence": "All risk rows (Option A x2, Option B x3, Option C x1, Do nothing x1) have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. Option B 'Redis... becomes unavailable': Impact=High, Probability=Medium, Mitigation='Managed Redis with multi-AZ replication...', Contingency='Automatic fail-open plus a page...'."
+        },
+        {
+          "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+          "passed": true,
+          "evidence": "'## The decision': 'Adopt AWS API Gateway native throttling (Option A) as the primary enforcement mechanism...' with Option B explicitly rejected and Option C recorded as fallback."
+        },
+        {
+          "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+          "passed": true,
+          "evidence": "'### Consequences' lists concrete downstream effects (new component to operate, thresholds become console/IaC-level, no new Redis dependency). '### Confirmation' lists concrete checks: WAF ship date vs RFC approval date for N5, F1 contract test as a CI release gate, N2/N3 drills before migration is 'done', one-month-later cost comparison against N4's modelled figure."
+        },
+        {
+          "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+          "passed": true,
+          "evidence": "Both present: '## Launch strategy' (two tracks: immediate WAF rule in days, primary API Gateway migration in shadow mode over weeks) and '## Tasks and roadmap' table with 7 tasks and estimates."
+        },
+        {
+          "text": "Written entirely in English (matching the request language)",
+          "passed": true,
+          "evidence": "The entire document.md and reply.md are in English; the eval prompt was in English."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.79,
+        "passed": 11,
+        "failed": 3,
+        "total": 14,
+        "time_seconds": 266.6,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+          "passed": true,
+          "evidence": "## Context section (lines 15-40) explains the pipeline shape from scratch: 'order creation will fan out into a sequence of steps handled by separate services... Doing this well requires services to communicate asynchronously rather than through direct, blocking calls.' It also states its own scope/assumptions ('Related documents: None available... it was written from the problem statement alone') and an explicit 'Out of scope' subsection, both newcomer-friendly framing devices."
+        },
+        {
+          "text": "Requirements are present and explicitly split into functional and non-functional",
+          "passed": true,
+          "evidence": "Document has '### Functional' (F1-F4) and '### Non-functional' (N1-N6) subsections under '## Requirements'."
+        },
+        {
+          "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+          "passed": false,
+          "evidence": "Most functional requirements carry rationale (e.g. F3: 'No mainstream durable queue... guarantees exactly-once delivery... so idempotent consumers are a requirement of the pipeline'). But several non-functional requirements are stated as bare requirement text with no separate goal/rationale clause: N1 Durability reads only 'A message acknowledged as received by the broker must survive a single broker-node crash and a single availability-zone failure without being lost' (no 'so that...'); N3 Operability reads only 'Ongoing operational load... must fit within the team's actual bandwidth'; N5 Security reads only 'Messages must be encrypted in transit and at rest; publish/consume access must be restricted per service (least privilege)'. None of these three add a rationale beyond restating the requirement, so 'every requirement' is not satisfied."
+        },
+        {
+          "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+          "passed": false,
+          "evidence": "None of N1-N6 contain a number+unit target. N1 Durability says 'survive a single broker-node crash and a single availability-zone failure' with no RPO/loss-rate/percentage. N2 Availability says 'must not be a single point of failure' with no uptime % or RTO. N3 says 'must fit within the team's actual bandwidth' (no metric). N4 Observability names dashboards/alerting but no target latency or threshold number. N5 Security has no metric. N6 Cost says only 'should scale with actual order volume' with no dollar figure or ratio. A grep of the whole document for '%|RPO|RTO|SLA|seconds|ms|minutes|hours' turns up only prose like 'high-SLA managed service' (an adjective) in the tradeoff table risk rows -- none in the Requirements section itself."
+        },
+        {
+          "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+          "passed": false,
+          "evidence": "No requirement in the Requirements section (F1-F4, N1-N6) states a verification method inline. The only verification-shaped item in the whole document is a single 'Chaos/failure test' row in the later 'Tasks and roadmap' table ('Kill a consumer mid-processing, verify redelivery and eventual DLQ, zero message loss'), which covers F2/N1 only and is not attached to the requirement statements themselves. F1, F3, F4, N2, N3, N4, N5, N6 have no stated verification method anywhere in the document."
+        },
+        {
+          "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+          "passed": true,
+          "evidence": "F2 replaces the slogan with a checkable invariant: 'Every message must end in one of exactly three states: successfully processed, currently retrying, or parked in a dead-letter destination for investigation. \"Lost with no trace\" must not be a reachable state.' This is reinforced by a concrete verification method in the Tasks table: 'Chaos/failure test... verify redelivery and eventual DLQ, zero message loss.'"
+        },
+        {
+          "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+          "passed": true,
+          "evidence": "Components are named and tied to requirements (Order Service, Message broker, Downstream consumers, Dead-letter destination, Observability). A static component diagram is given as a mermaid 'graph LR' ('Static diagram \u2014 components') and a dynamic diagram as a mermaid 'sequenceDiagram' ('Dynamic diagram \u2014 one order, happy path and failure path') showing publish/ack/retry/DLQ/alert flow."
+        },
+        {
+          "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+          "passed": true,
+          "evidence": "The tradeoff table has dedicated rows for 'AWS SQS (Standard, managed)' and 'RabbitMQ, self-hosted on existing cluster', each with populated Pros and Cons columns (e.g. SQS pros: 'Fully managed... usage-based pricing'; RabbitMQ cons: 'Team now owns broker operations end-to-end... durability is opt-in, not default')."
+        },
+        {
+          "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+          "passed": true,
+          "evidence": "A third full row, 'Amazon MQ for RabbitMQ (managed RabbitMQ, cluster deployment)', is analyzed with its own pros/cons/risk. Kafka and standalone EventBridge are also briefly considered and explicitly set aside with reasoning ('this pipeline's problem is durable work-queueing, not event replay/streaming')."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+          "passed": true,
+          "evidence": "All 7 risk rows in the table have non-empty Impact/Probability/Mitigation/Contingency cells, e.g. the RabbitMQ durability-misconfiguration risk: Impact 'High', Probability 'Medium (this is the most common RabbitMQ production misconfiguration industry-wide)', Mitigation 'Mandate durable + quorum queues... run a chaos test...', Contingency 'Producer-side outbox/audit log as a replay source of truth'. Two rows are weaker but still populated: the 'Region-wide SQS incident' row's contingency is 'None practical \u2014 cross-region SQS failover is rarely justified...' and the RabbitMQ 'operational-knowledge gap' row's probability is 'Unknown (team's RabbitMQ/K8s experience not stated)' -- both are present text, just low-content answers rather than missing fields."
+        },
+        {
+          "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+          "passed": true,
+          "evidence": "'## The decision' opens with 'Recommended: AWS SQS (Standard queues to start, with a redrive policy to a dead-letter queue; move to FIFO only if the ordering requirement in F4 is confirmed...)' -- an unambiguous single choice, not multiple options left dangling."
+        },
+        {
+          "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+          "passed": true,
+          "evidence": "The decision reasoning states the accepted tradeoff as a consequence ('\"Complex routing we might need later\" is the stated reason to prefer RabbitMQ, but it does not pass this document's own bar... Building the business-critical path around a speculative future requirement... is optimizing for a need that may never arrive' -- i.e. the team accepts no native complex routing for now, per the SQS row's own contingency of bolting on SNS/EventBridge later). Confirmation mechanisms are recorded in the Tasks table: 'Chaos/failure test... verify... zero message loss' and 'Re-evaluate FIFO/ordering | Only if F4 confirmed; otherwise close as not needed'."
+        },
+        {
+          "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+          "passed": true,
+          "evidence": "Both are present: '## Launch strategy' with four numbered phases (backbone, full pipeline, ordering-if-confirmed, deferred routing), and '## Tasks and roadmap' with a 7-row task/estimate table."
+        },
+        {
+          "text": "Written entirely in English (matching the request language)",
+          "passed": true,
+          "evidence": "The entire document.md and reply.md are in English; the eval prompt was in English."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8,
+        "passed": 8,
+        "failed": 2,
+        "total": 10,
+        "time_seconds": 180.7,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Context section covers the situation before, the motivations for the change, and the scope",
+          "passed": true,
+          "evidence": "document.md has '## Context' with three subsections: '### Prior situation' (describes the monolithic cron-pod design and its coupling/latency/scaling implications), '### Motivations for the change' (decoupling, near-real-time delivery, independent scaling, pay-per-invocation cost, independent deploys), and '### Scope' (in-scope: dispatch of email/push/SMS via EventBridge; out-of-scope: preference management, template authoring, digest notifications)."
+        },
+        {
+          "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+          "passed": true,
+          "evidence": "The cron-pod/monolith claim traces directly to the user's own prompt. Everything beyond that is explicitly flagged: 'Kubernetes/ECS \u2014 [CONFIRM]', and the bullet list of implications is prefaced with 'Presumed characteristics of that shape, to confirm against what actually shipped:'. The 'Motivations for the change' subsection heading itself is tagged '[ASSUMED \u2014 confirm with the team]' with the line 'replace with the team's actual reasons'. No prior-situation claim is presented as sourced fact without either tracing to the prompt or being tagged."
+        },
+        {
+          "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+          "passed": true,
+          "evidence": "'### Components' lists Producer service(s), EventBridge bus ('central entry point for notification-request events'), EventBridge rules ('one rule per notification type... routing to the corresponding Lambda target'), Lambda email/push/SMS handlers ('builds and sends email via [provider]', etc.), Failure path, and Observability, each with a one-line responsibility."
+        },
+        {
+          "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+          "passed": true,
+          "evidence": "'### Dynamic flow \u2014 request to delivery' is an 8-step numbered list (1. producer action ... 8. on-call alerting), tracing the event from trigger to delivery/failure handling."
+        },
+        {
+          "text": "Has a risks-and-mitigations section",
+          "passed": true,
+          "evidence": "'## Risks and mitigations' contains a 6-row table with columns Risk | Impact | Probability | Mitigation | Contingency, covering duplicate delivery, silent partial failure, provider outage, concurrency/cold starts, schema drift, and loss of ordering \u2014 each with genuine, specific mitigation and contingency text, not placeholders."
+        },
+        {
+          "text": "Has a lessons-learned section",
+          "passed": false,
+          "evidence": "'## Lessons learned' exists as a header but contains zero actual lessons. Its full content is a disclaimer ('nothing here is invented') followed by five open questions for the team to answer ('What broke first in production after the cutover, and why?', 'Did duplicate delivery or silent partial failure... actually show up?', etc.). This is a question template, not a record of anything learned. Contrast with the Risks section, which the author was willing to populate with generic-but-substantive pattern-level content under the same information constraints \u2014 here the author declined to do the equivalent for lessons, leaving the section functionally empty of content."
+        },
+        {
+          "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+          "passed": false,
+          "evidence": "No glossary section exists anywhere in the document (headings are: Sourcing note, Related documents, Context/Prior situation/Motivations/Scope, Architecture/Components/Static diagram/Dynamic flow/Alternatives considered, Risks and mitigations, Lessons learned, Improvement points, Version history \u2014 no 'Glossary'). Acronyms are used without expansion or explanation at first use: 'DLQ (SQS)' (line 77) never expands DLQ or SQS; 'IAM policies' (line 62) is never defined; 'FIFO queue' (line 142) is never defined; provider acronyms SES/SNS/FCM/APNs/Twilio (lines 72-76) are listed as bare bracketed options with no explanation of what they are. EventBridge and Lambda get functional role descriptions in the Components list, but that satisfies assertion 3 (component responsibilities), not a term/acronym definition."
+        },
+        {
+          "text": "Includes a version-history table (version, date, author, description)",
+          "passed": true,
+          "evidence": "'## Version history' has a table with columns Version | Date | Author | Description and one row: '1.0 | 2026-09-08 | Lucas Marques | Document created \u2014 retrospective scaffold, authored without direct access to the production system (see Sourcing note).' Date and author are also consistent with the session's actual date (2026-09-08) and git user (Lucas Marques)."
+        },
+        {
+          "text": "Written entirely in English",
+          "passed": true,
+          "evidence": "Both document.md and reply.md are written entirely in English throughout, with no non-English text found."
+        },
+        {
+          "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+          "passed": true,
+          "evidence": "Header states 'Status: documented, post-implementation (already running in production)'. The prior-situation and architecture sections describe what the cron pod did and what the EventBridge/Lambda system does in the present/past tense, not as options to choose from. Even '### Alternatives considered during the migration' is framed as a historical question ('Was a single Lambda handling all three channels considered...?') to confirm what was weighed during the actual migration, not a live decision for the reader to make now."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3,
+        "passed": 3,
+        "failed": 7,
+        "total": 10,
+        "time_seconds": 210.7,
+        "tokens": 25236,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
+          "passed": false,
+          "evidence": "Only Kafka and AWS get separate-section treatment, in Context: 'Two constraints are handed down, not decided here: Kafka is mandated by the platform team as the event transport... AWS is mandated as the deployment platform, consistent with the rest of the estate.' The company API standard and the coverage gate never receive equivalent treatment outside the Requirements section \u2014 the API standard appears only as 'Related documents' known-gap text and as functional requirement FR-4 ('Query endpoints follow the company API standard'), and the coverage gate appears only inside the Requirements section as 'NFR-6 (given): Automated test coverage > 90%...'. Two of the four required items are recorded as constraints separate from Requirements; two are not."
+        },
+        {
+          "text": "Each constraint carries a source (who or what imposed it)",
+          "passed": false,
+          "evidence": "Kafka has a clear source ('mandated by the platform team'). AWS does not name an actor \u2014 'mandated as the deployment platform, consistent with the rest of the estate' is a rationale, not a 'who'. The company API standard has no attributed source anywhere in the document. The coverage gate is attributed only to 'the requester was explicit about it' (NFR-6 intro text), which is not an organizational source. Source attribution is inconsistent and mostly absent across the four constraints."
+        },
+        {
+          "text": "Each constraint carries an indication of the cost or difficulty of challenging it",
+          "passed": false,
+          "evidence": "No constraint in the document states what it would cost or how hard it would be to challenge it. Kafka: 'This RFC does not evaluate alternatives to Kafka; it evaluates what sits around it' \u2014 declares it out of scope with no cost-of-challenging statement. AWS: 'Alternatives are chosen from AWS-native or AWS-compatible services only' \u2014 same, no cost statement. The API standard and coverage gate likewise carry no such indication."
+        },
+        {
+          "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+          "passed": false,
+          "evidence": "The UI is correctly identified as optional in prose ('Out of scope: A browsing UI for compliance. Requested as a \"nice to have.\"') but is then also given a formal requirement slot in the Requirements section itself: '**NFR-8 (nice to have, non-binding):** A UI for browsing audit logs.' It is numbered and formatted identically to the other seven non-functional requirements (NFR-1 through NFR-7) under the '### Non-functional' heading \u2014 i.e. it does appear in the enumerated requirements list, only annotated as non-binding rather than omitted from it."
+        },
+        {
+          "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+          "passed": true,
+          "evidence": "Split into two quantified, explicitly-flagged-as-assumed NFRs: 'NFR-3 (ingestion latency, assumed): ... Assumed budget: \u2264 10ms added to the admin request's critical path... Flagged assumption \u2014 confirm with whoever owns admin-panel latency SLAs.' and 'NFR-4 (query latency, assumed): ... Assumed budget: p95 \u2264 2s for a filtered query over the hot retention window... Flagged assumption \u2014 no traffic numbers were provided.'"
+        },
+        {
+          "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+          "passed": false,
+          "evidence": "It is listed verbatim as an NFR: '**NFR-6 (given):** Automated test coverage > 90% on the audit-emission and query-API code paths, including a contract test...' under the '### Non-functional' heading. The document's own intro text argues it 'is a testing target, not by itself an architectural requirement' and 'doesn't shape a component or a boundary,' but then keeps it as NFR-6 anyway 'because the requester was explicit about it' \u2014 the reasoning undercuts the classification but the document still lists it as a non-functional requirement."
+        },
+        {
+          "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+          "passed": true,
+          "evidence": "FR-1 and FR-2 are derived directly from it: 'FR-2: The compliance team can query audit records themselves via an API \u2014 filter by actor, action type, affected resource, and time range \u2014 without engineering involvement and without shell access to production systems or logs.' The Context section states the goal explicitly: 'every action taken in the admin panel must end up in a durable, structured record that the compliance team can query themselves \u2014 without shell access to production and without engineering in the loop.'"
+        },
+        {
+          "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+          "passed": true,
+          "evidence": "The Requirements section opens with: 'The requester's list mixed hard constraints, a vague quality bar, a code metric, and the actual functional driver into one flat list. Restated and separated below, with the reclassifications made explicit' followed by named reclassifications for 'It should be fast', 'Test coverage above 90%', and 'The compliance-queryability requirement, buried as a trailing sentence in the request, is promoted to the primary functional requirement' \u2014 each with a stated reason."
+        },
+        {
+          "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+          "passed": false,
+          "evidence": "The document states outright: 'Kafka and AWS are given, so they are not re-analyzed here' and earlier, 'This RFC does not evaluate alternatives to Kafka; it evaluates what sits around it (topic/schema design, ingestion pattern, downstream store).' The Alternatives analysis table covers only ingestion pattern (direct producer vs. outbox+CDC, both still using Kafka), audit store, and schema management \u2014 no messaging/streaming alternative to Kafka itself (e.g. Kinesis, SNS/SQS, RabbitMQ) is analyzed anywhere in the document. This is the exact anti-pattern the grading instructions flag as a fail: declaring Kafka a fixed constraint and analyzing nothing else."
+        },
+        {
+          "text": "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+          "passed": false,
+          "evidence": "The document does the opposite: it pre-filters options rather than analyzing and costing conflicts. 'Alternatives are chosen from AWS-native or AWS-compatible services only' excludes non-AWS options before they ever reach the tradeoff table, and 'This RFC does not evaluate alternatives to Kafka' excludes any non-Kafka transport before analysis. No row in the Alternatives analysis table presents an option that conflicts with a stated constraint (Kafka/AWS) alongside a recorded cost of that conflict \u2014 conflicting options are simply never listed."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 214.4,
+        "tokens": 25926,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+          "passed": true,
+          "evidence": "document.md, 'Evidence and open questions' section, item 1: '**\"p95 on the dashboard endpoint was ~8s last month, per the `api-latency` Grafana board.\"** Reported by the requester from memory, not pulled fresh from Grafana while writing this document.' The source is stated inline, directly attached to the figure."
+        },
+        {
+          "text": "The location of the report queries is cited concretely (reports/queries.py)",
+          "passed": true,
+          "evidence": "Cited repeatedly and concretely, e.g. Context: 'Reporting queries in this codebase live in `reports/queries.py`'; Related documents: '`reports/queries.py` \u2014 the application module that contains the reporting queries this RFC is about splitting off.'; also referenced in Requirements, Design, Tasks."
+        },
+        {
+          "text": "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
+          "passed": true,
+          "evidence": "'Evidence and open questions', item 2: '**\"Reporting is maybe 40% of database load.\"** Explicitly called out by the requester as an **unmeasured guess**. ... This RFC does not treat 40% as fact anywhere in the analysis below.'"
+        },
+        {
+          "text": "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+          "passed": true,
+          "evidence": "Requirements/Observability: 'query-level metrics that separate reporting load from transactional load on the primary (by tagging/labeling queries, e.g. `application_name` in Postgres or equivalent), so the 40% figure ... becomes a measured number instead of a guess.' Also Launch strategy Phase 0: 'Tag reporting queries (via `application_name` or equivalent) and measure their actual share of primary DB load over a representative period \u2014 replacing the guessed 40%.'"
+        },
+        {
+          "text": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+          "passed": true,
+          "evidence": "The two figures central to the decision are explicitly epistemically labeled: p95 is attributed to '`api-latency` Grafana board' / 'reported by the requester from memory'; 40% is labeled '**unmeasured guess**'. The tenant count ('roughly 300 active tenants as of today') carries only the soft qualifier 'roughly' without an explicit source/label statement like the other two figures get \u2014 this is a minor gap noted in eval_feedback, but it is not treated as a disputed or decision-driving number the way the other two are, so it does not by itself sink the assertion."
+        },
+        {
+          "text": "At least one requirement traces explicitly back to a specific fact stated in the context",
+          "passed": true,
+          "evidence": "Non-functional/Isolation: 'This is the requirement most directly in service of \"reports are slow and hurting the app\"'; Non-functional/Reporting latency: 'a numeric target ... is deliberately not set in this draft. Setting one now, off a self-reported and unverified 8s baseline, would be exactly the kind of unverified claim this document should not launder into a commitment.' Both explicitly trace back to specific context facts (the 'hurting the app' complaint and the 8s figure)."
+        },
+        {
+          "text": "The reasoning can be followed without opening any linked or external resource",
+          "passed": true,
+          "evidence": "The document explicitly states the Grafana board and reports/queries.py were 'Not reviewed while writing this document' and instead carries every needed fact and its epistemic status inline (Evidence and open questions section, Context section, Requirements). The argument for staged delivery (Phase 0 gating B/C/D) is fully self-contained and does not require opening any linked resource to follow."
+        },
+        {
+          "text": "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top",
+          "passed": true,
+          "evidence": "Beyond the 'Related documents' list at the top, a dedicated 'Evidence and open questions' section immediately follows it, giving inline provenance for each fact (source, who reported it, and its confidence level) rather than leaving provenance implicit in a document list."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 260.5,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+          "passed": true,
+          "evidence": "Context section: 'None of these is a requirement in the architectural sense \u2014 a requirement is a constraint on the *problem*... not a prescription of the *solution*.' And: 'This document treats those five items as candidate solutions to evaluate, not as given constraints \u2014 each is carried into the Design and Tradeoff analysis sections and judged against the requirements below, exactly like any other alternative.'"
+        },
+        {
+          "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+          "passed": true,
+          "evidence": "The Requirements section (FR1-FR4, NFR1-NFR4, lines 59-98) contains only problem-level statements (explicit steps, failure attribution, no stranded side effects, automatic recovery, 100% attribution, reduced defect rate, incremental/reversible delivery, no consistency regression). None of the five named technologies is used as a requirement; they are explicitly deferred to the Design and Tradeoff sections instead."
+        },
+        {
+          "text": "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+          "passed": false,
+          "evidence": "NFR2 is the requirement derived from the 2% figure ('Reduced defect-driven failure rate. The share of the ~2% failure rate attributable to system defects... should drop measurably after this refactor ships.') but the document explicitly withholds a target: 'No numeric target is set here because the cause breakdown of the current 2% is not available... Setting a target... before that breakdown exists would be a number nobody has verified.' A goal is present; a target is explicitly and deliberately absent, so the assertion's two-part bar (target AND goal) is not met by any requirement tied to the 2% figure."
+        },
+        {
+          "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+          "passed": true,
+          "evidence": "NFR1 \u2014 '100% attribution. Of checkout attempts that fail, 100% must be attributable to a specific step, within the existing observability toolchain, without a code change or ad hoc log-grepping. Today this is effectively 0%...' This gives both a measurable target (100%, vs. today's 0%) and is explicitly derived from the attribution problem."
+        },
+        {
+          "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+          "passed": true,
+          "evidence": "Design section maps each technology to a dimension tied to specific requirements: Dimension 1 ties the saga pattern to FR2/FR3/FR4; Dimension 2 ties microservices splitting to independent-scaling/ownership drivers (evaluated against the same FRs/NFRs); Dimension 3 ties gRPC to FR2/NFR1 ('Evaluated against FR2... and NFR1'); Dimension 4 ties Redis to the FR3 idempotency/state-store need; Dimension 5 ties feature flags to NFR3. Each also reappears as a labeled row in the Tradeoff table (e.g., '[Dim 3 \u2014 protocol, only if split] gRPC between services, as requested')."
+        },
+        {
+          "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+          "passed": true,
+          "evidence": "The decision explicitly defers three of the five: 'do **not** commit to a physical microservices split, gRPC, or Redis as part of this phase.' Redis is additionally shown not needed for its most literal reading: the 'Redis as a general checkout-time read cache' row states 'Not connected to FR2/FR3/FR4 (attribution/reliability) at all \u2014 solves a latency problem that was never stated as a requirement here.'"
+        },
+        {
+          "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+          "passed": true,
+          "evidence": "The 'Assumptions and open questions' section lists five explicit assumptions (e.g., 'Current checkout architecture is unknown... This document assumes checkout exists today as some form of single deployable...'), each with its implication stated. The Related documents section also lists what's missing and flags that 'several items below are stated as explicit assumptions rather than verified facts.'"
+        },
+        {
+          "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+          "passed": false,
+          "evidence": "Only NFR1 states an explicit verification method: 'Target should be validated by deliberately failing each step in a staging environment and confirming attribution works, not just estimated.' The other seven requirements state a goal but no verification method: FR1 ('Checkout must be modeled as an ordered sequence of named, individually observable steps') has no stated way to confirm it's met; FR3 ('Every side-effecting step must have a defined compensating action') has no stated proof procedure; FR4, NFR2, NFR3, and NFR4 likewise state only the goal/constraint with no accompanying verification method. The assertion requires this for 'every requirement,' and 7 of 8 lack it."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.875,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 161.1,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+          "passed": true,
+          "evidence": "Section 'A framing risk this RFC flags before going further' states: 'A rewrite in a faster language only fixes the problem if the 12 seconds is actually dominated by CPU-bound PDF rendering ... rather than by I/O.' And: 'If A1 is false ... neither Rust nor Go will meaningfully help, and the right fix is pipeline/query optimization or parallel fetching, not a language rewrite.' This is carried through: the launch strategy makes a profiling spike step 1 'before writing Go code,' and the decision section calls this 'the single largest risk to the value of this entire effort.' This is substantive engagement, not a token caveat -- it genuinely contests whether the language axis matters at all pending root-cause data."
+        },
+        {
+          "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+          "passed": true,
+          "evidence": "'No profiling data for the current service was available to this RFC's author, so this is stated as an assumption, not a verified fact.' Open verification item 1: 'Profile the current Python service on the 40-page case to confirm Assumption A1 (CPU-bound rendering vs. I/O-bound data fetch).' The dynamic diagram section also says: 'instrumenting the boundary between them [data assembly vs. render] ... is the cheapest way to de-risk this whole RFC' -- naming a stage breakdown explicitly."
+        },
+        {
+          "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+          "passed": false,
+          "evidence": "The 'Alternatives analysis (Tradeoff)' section opens with: 'Only one dimension is actually open in this RFC -- the implementation language -- since the rewrite itself and the general architecture above are treated as given by the request.' The tradeoff table has exactly two rows: 'Go' and 'Rust'. The document explicitly relegates the non-rewrite option to 'Out of scope': 'Whether to rewrite at all vs. optimize the existing Python service (the request already decided on a rewrite; this RFC only picks the language).' No third alternative (e.g., optimizing/parallelizing the existing Python service, swapping to a different PDF library, offloading the hot path via a native extension, using an off-the-shelf renderer) is ever analysed with pros/cons/risk in the tradeoff section itself."
+        },
+        {
+          "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+          "passed": true,
+          "evidence": "The table gives Go pros (compiled speedup, mature invoice-shaped PDF libraries, simple concurrency, fast iteration, possible ecosystem fit) and cons (GC pauses, less feature-complete PDF ecosystem for advanced typography) plus two risk rows. Rust gets symmetric treatment: pros (no GC, predictable tail latency, memory safety) and cons (smaller/less mature PDF ecosystem, steeper learning curve, no confirmed in-house experience) plus two risk rows. Neither side is analysed as a strawman; the write-up gives each a real edge case."
+        },
+        {
+          "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+          "passed": true,
+          "evidence": "Non-functional requirements: 'This RFC proposes p95 <= 2s for a 40-page invoice as a working target -- this number is not validated against finance's actual tolerance and should be confirmed with them before being treated as an SLO.' Unit (seconds) and measurement method (p95 percentile) are both present, and the target is framed around the finance-facing case, not any language's benchmark. Caveat noted in eval_feedback below: the actual number is invented/unconfirmed rather than derived from a real finance input."
+        },
+        {
+          "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+          "passed": true,
+          "evidence": "All four risk rows in the table are fully populated: 'GC pause spikes tail latency...' (Impact: Medium, Probability: Low-Medium, Mitigation: 'Tune GOGC / use a pooled-object pattern...', Contingency: 'Fall back to bounded worker-pool concurrency...'); the Go PDF-ecosystem gap risk (Medium/Medium, with diff-testing mitigation and patch/secondary-renderer contingency); the Rust learning-curve risk (High/High, with spike+pairing mitigation and 'fall back to Go mid-project' contingency); and the Rust PDF-library-gap risk (Medium/Medium, with a spike-evaluation mitigation and a wrap-a-mature-renderer contingency). No risk row is missing any of the four fields."
+        },
+        {
+          "text": "Reaches an explicit decision rather than only listing options",
+          "passed": true,
+          "evidence": "'## The decision \\n\\n**Decision: rewrite the PDF generation service in Go.**' followed by reasoning tied to each requirement -- an unambiguous single-language recommendation, not a menu of options."
+        },
+        {
+          "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+          "passed": true,
+          "evidence": "reply.md: 'Since you said \"pick one,\" I picked -- but a few things in your framing don't hold up as given, and I want to be upfront about them rather than bury the caveats,' followed by: 'I don't know whether that 12 seconds is actually CPU-bound rendering, or if it's dominated by data fetching ... if the bottleneck is I/O, rewriting in either Rust or Go won't fix it -- you'd be solving the wrong problem.' This states plainly, in the reply, that the framing was challenged and why."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.8107,
+        "stddev": 0.2094,
+        "min": 0.4,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 239.6714,
+        "stddev": 49.678,
+        "min": 182.2,
+        "max": 333.7
+      },
+      "tokens": {
+        "mean": 3271.8571,
+        "stddev": 8656.5203,
+        "min": 0,
+        "max": 22903
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.7779,
+        "stddev": 0.2279,
+        "min": 0.3,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 252.8857,
+        "stddev": 105.6815,
+        "min": 161.1,
+        "max": 476.2
+      },
+      "tokens": {
+        "mean": 12703.4286,
+        "stddev": 16357.1704,
+        "min": 0,
+        "max": 37762
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.03",
+      "time_seconds": "-13.2",
+      "tokens": "-9432"
+    }
+  },
+  "notes": []
+}

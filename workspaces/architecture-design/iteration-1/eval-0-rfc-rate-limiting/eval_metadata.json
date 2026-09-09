@@ -1,0 +1,21 @@
+{
+  "eval_id": 0,
+  "eval_name": "rfc-rate-limiting",
+  "prompt": "We need to decide how to implement rate limiting on our public API (public-search-api), which today has no controls at all and has already given us a few abuse scares. It's between using AWS API Gateway's native throttling or standing up our own middleware with Redis on our Kubernetes cluster. Write an RFC so we can settle it at the next architecture meeting.",
+  "assertions": [
+    "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+    "Requirements are present and explicitly split into functional and non-functional",
+    "Every requirement states the goal or rationale it serves, not just the requirement text",
+    "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+    "Every requirement names how its fulfilment will be proven or verified at the end",
+    "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+    "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+    "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+    "Tradeoff analysis includes at least one credible alternative the user did not propose",
+    "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+    "States an explicit decision (which alternative was chosen) rather than leaving it open",
+    "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+    "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+    "Written entirely in English (matching the request language)"
+  ]
+}

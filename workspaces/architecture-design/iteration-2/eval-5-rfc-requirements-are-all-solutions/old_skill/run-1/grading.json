@@ -1,0 +1,99 @@
+{
+  "expectations": [
+    {
+      "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+      "passed": true,
+      "evidence": "§1: \"Alongside the problem, a set of solutions has been proposed: adopt the saga pattern, split checkout into microservices, add Redis caching, use gRPC between services, and introduce a feature flag system. These arrived framed as requirements. They are not requirements - they are candidate designs, and §2.1 handles that reclassification explicitly.\" §2.1's table classifies four as \"Candidate solution\" and the fifth as \"Partly a real requirement\", restating it as the reversibility requirement rather than the platform. §2.1 also states the reason: \"The five items in the request describe *how*, not *what must be true*.\""
+    },
+    {
+      "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+      "passed": true,
+      "evidence": "The enumerated requirements are R1-R5 (per-step attribution, failure taxonomy, no inconsistent terminal state, idempotent retry, retrospective diagnosis) and NFR1-NFR5 (no degradation, reversibility, time to attribute, no sensitive data in telemetry, bounded cost). None is a saga, a service split, Redis, gRPC or a flag platform. The five items appear in the section only in the §2.1 reclassification table, routed to §4. NFR2 mentions the flag system but states the requirement as the capability: \"Every change introduced by this work is reversible in under 5 minutes without a code deploy. This is the real requirement behind 'feature flag system'.\" Noted against the assertion's wording: the §2.1 cell for the flag system reads \"Partly a real requirement\", the closest thing in either document to readmitting a listed item - but the requirement it implies is stated as reversibility, and §4.3/§5.1 evaluate the platform as one option among three and do not adopt it."
+    },
+    {
+      "text": "At least one requirement is derived from the 2% checkout failure rate, with a goal, and a target that is either derived from a stated fact or explicitly labelled as assumed",
+      "passed": false,
+      "evidence": "No requirement is traced to the failure rate. The 2% appears only in §1 Context, in §1.1 out of scope, in §4 risk cells, in §4.5's objection, in assumption A-1 and in the \"Baseline measurement\" task (\"Reproduce the 2% figure; record its query, window, and denominator\") - never in §2. §2 derives R1-R5 and NFR1-NFR5 from the diagnosability half of the problem only; §1 says so outright: \"That number on its own is not the problem this RFC exists to solve.\" No requirement bounds, baselines or targets the failure rate (no guardrail that it must not rise, no reduction goal), and §2.4 confirms the omission was deliberate: \"no latency target for checkout itself (none was given), no throughput or scaling ceiling\". The nearest candidates fail the assertion's other halves too: NFR1's \"≤ 20ms and ≤ 5% of current checkout p95\" is derived from instrumentation overhead rather than the 2%, and its 20 ms is neither derived from a stated fact nor labelled as assumed (current p95 is unknown - it is open question 6). R2's \"under 5% of failures\" target bounds the unclassified bucket, i.e. the diagnosability gap, not the rate. Requirements also carry no goal field."
+    },
+    {
+      "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+      "passed": true,
+      "evidence": "R1: \"For every checkout attempt, the system records which steps were entered, which completed, and which one failed, under a single identifier... Verifiable: given any failed attempt ID from the last 30 days, an engineer can name the failing step and its error in under 2 minutes, without reading raw application logs.\" §2.1 traces it to the problem statement row: \"'we don't know which step broke' | Requirement | R1, R2\". R2 adds a measurable taxonomy target (\"an 'unclassified' bucket that is itself alerted on and must trend to under 5% of failures\") and NFR3 a measurable attribution time (\"Median time from 'a failure alert fires' to 'we know which step and which category' ≤ 5 minutes\")."
+    },
+    {
+      "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+      "passed": true,
+      "evidence": "§2.1's table gives every item a \"The requirement it actually implies\" cell and a \"Where it is evaluated\" cell: saga → R3 (\"*If* checkout spans multiple systems that cannot share one transaction, then no attempt may leave money and order state inconsistent → R3\"), microservices → \"None identified from the stated problem. Decomposition is a means to team autonomy / independent scaling / independent deploys - none of which were stated as constraints\", Redis → \"None. Caching addresses latency or load; the stated problem is correctness/diagnosability\", gRPC → \"None. It presupposes the microservices split\", flags → NFR2. Each then gets a full pros/cons/risk row: saga at §4.2 B2, microservices at §4.2 B3 and §4.4 D3, Redis at §4.4 D1, gRPC at §4.4 D2, flag platform at §4.3 C-ii. §4.4 is headed \"proposals with no traceable requirement\" and each row names what would give it one (e.g. D1 returns \"If the measurement phase shows that the failure profile *is* dominated by dependency timeouts\")."
+    },
+    {
+      "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+      "passed": true,
+      "evidence": "§4.2: \"B3 traces to no requirement in §2 and is therefore rejected *as a solution to this problem*.\" §4.4 D1 on Redis: \"The premise is untested: no latency data, no timeout breakdown, no load ceiling, and no NFR in §2 that caching serves.\" §5.1: \"Defer, do not reject: microservices (B3), gRPC (D2), Redis (D1)\", and \"Reversibility via C-i. Minimal runtime kill switches... Not a feature-flag platform - that is a separate decision needing an org-level driver and owner.\""
+    },
+    {
+      "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+      "passed": true,
+      "evidence": "§8 tabulates A-1 to A-11 with a \"Changes the design if wrong?\" column, and the labels are used inline where the gap bites (A-1 on the 2%, A-7 on placeholder step names, A-8 on single-process/single-DB as \"most consequential\"). §9 lists ten focused questions, the first three flagged as decision-changing, and §5.2 attaches the consequence of each answer (\"Checkout already spans multiple services with separate databases (A-8 false) → B2 becomes mandatory immediately\"). The reply names the single question it most wants answered and states its own default: \"My design assumes the simpler case.\" The assertion's first branch (labelled assumptions) is amply met."
+    },
+    {
+      "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+      "passed": false,
+      "evidence": "No requirement carries a goal. The document has no goals section and no goal field or clause on any of R1-R5 or NFR1-NFR5; §3.4's traceability maps requirements to components, not to outcomes. Proof is also missing on several: R5 states only \"Minimum 30 days queryable (assumption A-3; longer if a finance or compliance retention rule applies)\" with no stated way to prove it; NFR2 states only \"Every change introduced by this work is reversible in under 5 minutes without a code deploy\" with no drill or measurement (and open question 7 concedes the current revert time is unknown); NFR4 states \"No full card numbers, CVV, or track data in traces, logs, or the step ledger; PII minimized to identifiers\" with no verification named in §2 (a schema review appears later, as a phase-2 gate); NFR5 explicitly has neither target nor proof - \"No target number is given here because the current traffic volume is unknown (A-6)\". R1-R4 and NFR1/NFR3 do carry a \"Verifiable:\" clause, so the failure is on the goal for all ten and on the proof for four."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 2,
+    "total": 8,
+    "pass_rate": 0.75
+  },
+  "execution_metrics": {
+    "output_chars": 49978
+  },
+  "timing": {
+    "total_tokens": 77533,
+    "duration_ms": 309521,
+    "total_duration_seconds": 309.5
+  },
+  "claims": [
+    {
+      "claim": "The author of the RFC is Lucas Marques",
+      "type": "factual",
+      "verified": false,
+      "evidence": "The header and §10 version history name a specific person as author. Nothing in the eval prompt supplies an author; this is invented attribution (presumably taken from the environment's git identity). Harmless here but it is an unsourced factual claim in a document whose own thesis is that unsourced facts must be labelled."
+    },
+    {
+      "claim": "No component in §3.1 lacks a requirement, and every requirement maps to a component",
+      "type": "quality",
+      "verified": true,
+      "evidence": "§3.4's two tables cover R1-R5 and NFR1-NFR5 and C1-C9 in both directions; spot-checking C7 → R3 and NFR5 → C4 sampling/C3 retention holds. The corollary the document draws is also consistent with §3.2: \"there is no cache, no RPC transport, no service split, and no saga orchestrator, because no requirement in §2 calls for one.\""
+    },
+    {
+      "claim": "NFR1's instrumentation budget is '≤ 20ms and ≤ 5% of current checkout p95'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "The second half cannot be evaluated: current checkout p95 is unknown and is itself open question 6. The 20 ms is stated without derivation and without an assumption label, unlike the document's own treatment of A-1 to A-11."
+    },
+    {
+      "claim": "Diagrams are to be produced as real images before approval",
+      "type": "process",
+      "verified": true,
+      "evidence": "§3.2 says so explicitly and the reply repeats it (\"Diagrams are Mermaid, described precisely enough to redraw. Replace with real images before approval\"). Both mermaid diagrams are present and render-plausible, so the caveat is a process note rather than a missing output."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "No codebase, dashboard or failure data; A-1 to A-11 record every factual gap",
+      "A-8 (single process, single database) is called the most consequential unknown and the design assumes the simpler case",
+      "Step names in C1 are invented placeholders",
+      "Estimates are unvalidated and to be re-done after Phase 0",
+      "The ~2% figure is the requester's and was not verified"
+    ],
+    "needs_review": [
+      "Three decision-changing open questions in §9; §5.2 lists what would overturn the decision"
+    ],
+    "workarounds": [
+      "Mermaid diagrams offered in place of the real images the RFC process is assumed to expect"
+    ]
+  }
+}

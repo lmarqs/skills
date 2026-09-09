@@ -1,0 +1,121 @@
+{
+  "expectations": [
+    {
+      "text": "The 20-year retention and the Brazil data-residency rule are recorded as constraints with the law and article (or the regulator's rule) named as their source, in a section separate from the requirements",
+      "passed": true,
+      "evidence": "Both are recorded in a dedicated '### Constraints (external, non-negotiable)' table - C1 'Consent records retained 20 years (A2)' and C2 'Records hosted in Brazil' - kept distinct from the requirement statements ('Split three ways... Constraints are imposed from outside and cannot be traded. Requirements are ours'). Note the table is nested under the '## Requirements' heading rather than in an independent section, which is a weaker satisfaction of the 'separate section' clause than a top-level split. Sourcing is named in Context rather than in the constraint rows: 'Brazil's data protection law (LGPD, Lei no 13.709/2018)... its art. 16 governs when personal data must be eliminated after processing ends - with an explicit exception for data retained to comply with a legal or regulatory obligation. The sector regulator's health-records rule supplies that obligation, and the period is 20 years.' For residency the document records the constraint and explicitly pursues its source instead of dropping it: 'Q2 (blocking) What instrument imposes hosting in Brazil? LGPD does not itself require data localization - art. 33 permits international transfer under stated conditions - so C2 most likely comes from the sector regulator, a contract, or internal policy', reinforced by assumption A2 and risk R-A2-1."
+    },
+    {
+      "text": "The platform team's Postgres and Kubernetes standardization is recorded as a prior decision, internal decision or given with its author and a cost to reverse, and is not presented as equivalent to the regulation",
+      "passed": true,
+      "evidence": "Filed as '### Preferences (strong internal defaults) - P1 Kubernetes for compute (2025 platform standard). P2 Managed Postgres as the primary store (2025 platform standard)', with the author named in Context: 'In 2025 the platform team standardized: new services run on Kubernetes and use managed Postgres.' Non-equivalence to the regulation is the document's stated organizing principle: 'These two things are not the same kind of statement... The Postgres-and-Kubernetes standard is an internal decision by a peer team: it is excellent default guidance, it is revisable by the people who made it, and if it ever collides with the legal obligations it is the standard that yields, not the law.' A cost to reverse is stated, though not in a dedicated field: option D1-e's cons are 'Contradicts P2; the platform team must operate a stateful workload it standardized away from; meeting NF3 needs operator-managed failover we would own', with mitigation 'agree ownership in writing before build', and the decision section makes deviation conditional on that negotiation ('with the operational burden negotiated with the platform team in writing')."
+    },
+    {
+      "text": "At least one alternative to the platform team's standardized stack (a different store or runtime) is analysed in the tradeoff table with pros, cons and risks, rather than excluded upfront",
+      "passed": true,
+      "evidence": "The tradeoff table analyses D1-a 'Keep blobs in the monolith's MySQL, put a REST API in front' with pros ('No migration risk; no new datastore; fastest to an API'), cons ('Fails C3... contradicts P2') and two full risk rows (impact / probability / mitigation / contingency); also D1-d 'Purpose-built immutable ledger database' and D1-e 'Self-managed Postgres on the existing Kubernetes, in Brazil', each with pros, cons and risk rows. The reclassification table states the reason they were not excluded upfront: 'Filing it as a requirement would have meant the analysis could not ask whether it satisfies C2, which is the one question that could disqualify it.'"
+    },
+    {
+      "text": "Any option excluded on the basis of the regulation cites the clause or rule that excludes it",
+      "passed": true,
+      "evidence": "Each regulation-based exclusion names the rule: D1-a 'Fails C3 - the table stays mutable by the whole monolith, so the record proves nothing'; D1-d risk 'Product unavailable in a Brazilian region... Disqualified by C2'; D4-d 'Disqualified by C2 if the second region is outside Brazil'; 'Multi-region active-active. Excluded by C2 under A3'; and in Out of scope, 'LGPD's anonymization off-ramp (art. 16, IV) is unavailable for this dataset', which cites the article directly. The cited rules are the document's own constraint records (C2's underlying instrument is admitted to be unidentified pending Q2), but no option is found excluded on regulatory grounds without naming the rule that excludes it."
+    },
+    {
+      "text": "The four items the user called objectives are not presented as goals; the document says which are requirements, prior decisions or design choices, and states goals as outcomes for a role without a feature, technology or system metric",
+      "passed": false,
+      "evidence": "The first two clauses hold: '### What the brief asked for, and how it is filed' reclassifies all four ('A REST API with versioning' -> F8 plus F4; 'Move to the managed Postgres...' -> 'P2 (a preference), not a requirement... This names a technology, so it is a candidate solution and belongs in the tradeoff analysis'; '99.9% availability' -> NF3 split three ways plus NF4; 'An audit trail' -> 'F1/F3 + F6 + platform logging - three different things'). The third clause fails outright: the document states no goals at all. The string 'goal' does not appear anywhere in document.md (0 matches), there is no goals section, and no outcome is stated for a role. The closest substitute is a problem statement - 'Decide where patient consent records live, how they are served, how they stay readable and provable for 20 years, and how we get 4M existing blobs out of the monolith' - which is a work statement, not an outcome for a role. Everything downstream is expressed as system capabilities (F1-F8) and system metrics (NF1-NF9)."
+    },
+    {
+      "text": "Every non-functional requirement's target states where its number comes from (a current measured value, an external reference, or a named stakeholder commitment) or is explicitly labelled assumed",
+      "passed": false,
+      "evidence": "Four NFR targets carry numbers with no provenance and no assumed label. NF3's sub-target: 'History/evidence endpoints - 99.5% is sufficient. These serve legal response, measured in hours, not request paths' - a rationale for why it can be lower, not a source for 99.5. NF4: 'A revocation must be reflected on the read path within 60 seconds, worst case, measured... it is a compliance-relevant commitment, not a tuning knob: pick it with legal' - the number is stated as the design's own choice and the commitment is still to be sought (Q6), i.e. no measured value, no external reference and no stakeholder who has committed. NF5: 'Read latency p95 <= 50 ms, p99 <= 150 ms at the service edge under 2x assumed peak (A5)' - A5 labels only the peak read rate as assumed; the 50 ms and 150 ms targets have no stated origin. NF9: 'Test coverage > 90% on the domain' - no source. (The 99.9% in NF3 does trace to the requester via assumption A8, so that one target is sourced; the assertion is an every-NFR check and the four above violate it.)"
+    },
+    {
+      "text": "The 4-million-row figure and the MySQL location carry a source or a label for how they are known",
+      "passed": false,
+      "evidence": "Both are asserted as plain fact. Context: 'Every one of those grants is recorded by the monolith and stored in the monolith's MySQL database as a JSON blob... There are roughly 4 million of these rows.' No source, origin or how-known label attaches to either, here or at any of the other twelve uses of the figure (lines 12, 61, 102, 206, 257, 453, 475, 529, 563, 585, 597). The eight-row labelled-assumptions table covers adjacent facts but not these: A6 labels only the blobs' completeness ('The existing 4M blobs are of unknown and uneven completeness'), A4 the growth rate, A7 that the monolith keeps writing. Task T1 profiles the blobs' field completeness, not the count. The reply likewise states the figure without provenance."
+    },
+    {
+      "text": "Reaches an explicit decision with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "'## The decision' is explicit: 'Chosen: a new Consent Service on Kubernetes (P1), with an append-only event model in managed Postgres in a Brazilian region, multi-AZ (P2, C2) as the system of record; a read-through cache with a 60-second bounded stale window... and migration by backfill plus CDC tail, reads before writes (D5-c).' Decider: 'Decision style: autocratic, by the service's tech lead, with mandatory consultation of the DPO/legal (C1-C4, NF4) and the platform team (A1, P1, P2).' Consequences are stated, though scattered rather than sectioned: the accepted risk R-C2-2 ('a regional event is a documented breach of the availability target, not a design defect', recorded for the DPO and SLO owner), the 60-second revocation staleness as 'a compliance-visible tradeoff, not a free win', and the 'Strongest objection to the recommendation' paragraph accounting for the components the decision adds. Confirmation is present as phase exit criteria and drills rather than a named section: 'Exit criteria: NF1 grant matrix test passes; an UPDATE/DELETE attempt is rejected on every path; NF9 coverage met'; 'first restore drill (NF8) executed before any caller depends on the service'; 'Exit criteria: 30 days at read SLO, staleness within NF4, CDC lag within SLO'; plus 'This document is not approved until Q1, Q2, Q3 and Q6 have written answers.'"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 3,
+    "total": 8,
+    "pass_rate": 0.63
+  },
+  "execution_metrics": {
+    "output_chars": 61615
+  },
+  "timing": {
+    "total_tokens": 108628,
+    "duration_ms": 684731,
+    "total_duration_seconds": 684.7
+  },
+  "claims": [
+    {
+      "claim": "0.9995 x 0.9995 = 0.99900, and 0.9995^3 = 0.99850, so 99.9% is not reachable by a synchronous chain of vendor-SLA components",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: 0.99900025 and 0.998500375. The conclusion follows from the stated inputs; the document flags the inputs themselves as unverified ('Managed-Postgres HA SLAs are typically 99.95%... confirm for the actual product, Q1')."
+    },
+    {
+      "claim": "99.9% monthly is 43.2 min/month and 8.76 h/year",
+      "type": "factual",
+      "verified": true,
+      "evidence": "0.001 x 30 x 24 x 60 = 43.2 min; 0.001 x 8760 h = 8.76 h."
+    },
+    {
+      "claim": "4M rows now, ~24M after 20 years at ~1M events/year, about 46 GiB at 2 KB/row",
+      "type": "factual",
+      "verified": true,
+      "evidence": "4e6 + 20 x 1e6 = 24e6; 24e6 x 2 KB = 4.8e7 KB = 45.8 GiB. Internally consistent with assumption A4."
+    },
+    {
+      "claim": "At 100 reads/s the access log is ~3.2 billion records/year, roughly 130x the consent data by row count",
+      "type": "factual",
+      "verified": true,
+      "evidence": "100 x 31,536,000 s = 3.15e9/year; 3.15e9 / 24e6 = 131x."
+    },
+    {
+      "claim": "Amazon QLDB reached end of support in 2025, so the obvious managed ledger option is unavailable",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Not verified here. The document flags it itself: '(verify - Q8)' and 'Q8 Confirm the QLDB end-of-support date cited in D1-d before publishing.' It is load-bearing for rejecting option D1-d, so the rejection rests on an unconfirmed fact."
+    },
+    {
+      "claim": "The legal citations (LGPD Lei 13.709/2018 arts. 16, 16 IV, 33) say what the document says they say",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Not checked - the grading brief instructs the grader not to research Brazilian law. The document flags its own limits: 'Legal citations are mine, not a lawyer's... I did not name the sector regulator's instrument in the document because I would be guessing at which one applies to consent records specifically.'"
+    },
+    {
+      "claim": "Every constraint and requirement lands somewhere; nothing in Components lacks a justification",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The Traceability table maps C1-C4, F1-F8, NF1-NF9 and P1/P2 to implementing elements, and every row of the Components table carries a 'Serves' cell with requirement IDs."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Four blocking open questions left unanswered (Q1 managed Postgres in a Brazilian region, Q2 the instrument imposing residency, Q3 the retention instrument and clock, Q6 fail-closed and the 60 s staleness window)",
+      "Eight labelled assumptions, three of them marked blocking (A1, A2, A3)",
+      "Vendor SLA figures stated as typical, not verified for the actual product; QLDB end-of-support date cited but unconfirmed",
+      "Legal reading is the author's own, not a lawyer's; the sector regulator's instrument is deliberately left unnamed"
+    ],
+    "needs_review": [
+      "The accepted risk R-C2-2: a full regional outage exceeds the availability budget and the standard remedy is unavailable - flagged for the DPO and the SLO owner",
+      "Do not set the archive retention lock from this document; set it from the legal opinion"
+    ],
+    "workarounds": [
+      "Data quality named as the biggest unquantified risk, handled by gating the schema on the T1 profiling spike and preserving every original blob verbatim"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Eval feedback is recorded in the with_skill run's grading.json, per the grading brief."
+  }
+}

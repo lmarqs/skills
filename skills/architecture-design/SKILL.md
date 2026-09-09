@@ -1,247 +1,308 @@
 ---
 name: architecture-design
 description: >-
-  Write a structured architecture decision document — an RFC / design doc / technical doc that
-  records *why* a non-trivial technical choice was made, not just what was built. Follows a six-part
-  method: contextualize for a newcomer, state the architecturally-relevant requirements, design
-  components against them with static + dynamic diagrams, weigh every alternative by pros / cons /
-  risks (each risk with impact, probability, mitigation, contingency), record the decision and how it
-  was made, then conclude and communicate. Writes in the language of the request. Reach for it
-  whenever someone is choosing between technical options or documenting one — "write an RFC", "design
-  doc", "architecture decision", "ADR", "tradeoff analysis", "technical documentation of an
-  implementation", "help me decide between X and Y" — even if they never say "RFC". Also fits the
-  retrospective variant: documenting an implementation after the fact (lessons learned, version
-  history).
+  Acts as the architect, not the scribe: challenges the inputs, then writes a structured architecture
+  decision document (RFC / design doc / ADR) recording why a technical choice was made.
+  Method: size the decision; contextualize with sourced evidence, usage roles and goals; keep external
+  constraints and prior decisions out of the requirements; give every requirement a goal, a scenario or
+  a derived metric, and a proof; design with embedded diagrams; weigh every option and the baseline
+  against the requirement IDs and by pros / cons / risks with mitigation and contingency; record the
+  decision, consequences and confirmation. Writes in the request's language. Use it whenever someone is
+  choosing between technical options or documenting one: "write an RFC", "design doc", "architecture
+  decision", "ADR", "tradeoff analysis", "technical documentation of an implementation", "help me
+  decide between X and Y", even if they never say "RFC". Also fits documenting an implementation
+  afterwards (lessons learned, version history).
 ---
 
 # Architecture decision document
 
-The real work is **structured thinking about a technical decision** — framing the problem, weighing the
-options against what actually matters, and committing with reasons. The written artifact is the *trace*
-that thinking leaves behind, so the next person — a new hire, a reviewer, your future self — can follow
-not just *what* was chosen but *why*, and could have reached the same conclusion from the same evidence.
-Keep that order of priority: a document that reads well but skips the thinking is worthless; treat the
-artifact as a consequence of the reasoning, never as the goal, or it curdles into bureaucracy. Code
-shows what was built; this record shows why it was built that way and what was rejected.
+The work is **structured thinking about a technical decision**: framing the problem, weighing the
+options against what matters, committing with reasons. The document is the trace that thinking leaves,
+so the next reader can follow not just what was chosen but why, and could reach the same conclusion
+from the same evidence. It sits on the spectrum between an RFC (a proposal before building) and an ADR
+(the terse record after); pick the depth the decision warrants. The reasoning behind every rule below
+is in `references/method.md`. Read it once; work from this file.
 
-This is deliberately a **pragmatic framework, not a fixed format.** It blends the two industry
-documents people usually keep apart: an **RFC** (a proposal floated *before* building, to weigh
-options and invite comment) and an **ADR** (a terse record kept *after*, capturing the decision and
-its consequences). Treat the distinction as a spectrum, not a fork — most real documents sit
-somewhere in between: a proposal that, once accepted, *becomes* the record. So don't agonize over
-"is this an RFC or an ADR?" Pick the depth the decision warrants and the sections that carry the
-reasoning; the goal is a useful artifact, not compliance with a template. Lean on the method below
-for *what to think about*, and let the situation set how heavy each part should be.
+Two shapes share the method. **Forward-looking** (RFC, design doc): you are deciding, and the heart is
+the tradeoff analysis. Model: `references/example-rfc.md`; skeleton: `assets/template.md`.
+**Retrospective** (ADR, technical documentation): you are recording something built, as context
+(situation before, motivations, scope), architecture (components and numbered flows), risks, lessons
+learned and a version history. Model: `references/example-technical-doc.md`. When unsure which, ask.
 
-Two things make these documents hard, and the method exists to counter both. First, it's tempting to
-follow hype or personal taste; decisions made without objective criteria cost the whole team later.
-Second, we tend to make things more complicated than they need to be — anyone can complicate, few can
-simplify, and simplifying is the real work. So: tie every choice back to a stated requirement, and
-cut anything that isn't pulling its weight.
+**Write in the language of the request and its source material**, headings included.
 
-## Sharpen the axe first
+## Be the architect, not the scribe
 
-> *"If I had eight hours to chop down a tree, I'd spend six sharpening the axe."* — attributed to
-> Abraham Lincoln.
+You are the architect on this decision, or the architect's pair, not the transcriber of someone else's.
+Whoever asked has already mixed constraints, goals, prior decisions and solutions into one list, and
+sorting that list is the job. Six habits, each with its long form in `references/method.md`:
 
-Architecture is the highest-leverage, hardest-to-reverse work in software. Get it wrong and no amount
-of clean code downstream saves the project — the wrong foundation sinks everything built on it. So
-this document always deserves your **highest effort and slowest thinking**. There is no "quick mode"
-here, and a fast, thin pass is itself a failure. **Thinking time is not the bottleneck** — a rushed
-plausible answer that's subtly wrong costs far more than the hours spent getting it right.
+- **Every input is a claim.** Verify what the code, the schema, the dashboards and the tickets can
+  answer before asking anyone. A question you could have answered yourself spends attention for nothing.
+- **The framing is a hypothesis.** "It is between X and Y" describes the asker's view of the option
+  space. Ask what goal makes those two the candidates, and add the options nobody proposed: change
+  nothing, the smallest thing that would work, buy instead of build.
+- **Ask why until you reach a goal in the user's world.** Why is more important than how (Richards &
+  Ford). An input with no goal behind it is an external constraint with a source, a prior decision with
+  an author, or an invention.
+- **Push back once, with evidence and an alternative, and record the outcome.** If the user reaffirms,
+  the item becomes a prior decision whose author is the user, and the document says so.
+- **Skepticism cuts both ways.** A requirement you add against the requester's wish names the role it
+  serves and that role's goal, and the requester's objection is recorded as a stakeholder conflict in
+  the Decision, never buried in the Design.
+- **Ask only what changes the design**, one question at a time, with your recommended answer attached.
+  Otherwise state the assumption inline, label it, and keep going.
 
-Spend the bulk of your effort *before* the conclusion — sharpening: genuinely understanding the
-context, pinning down the requirements that actually constrain the choice, and exploring the
-alternatives in earnest. The written document is the chips that fly; the real work is the cut you make
-in your head first. Concretely:
+### Working with a person
 
-- **Don't commit to the first design that seems to work.** Generate real alternatives — at least two
-  or three credible ones per dimension being decided — before you start narrowing. If you can only
-  think of one option, you haven't looked hard enough yet.
-- **Grill your own recommendation.** For the option you favor, write down its *strongest* objection,
-  not a strawman — and the specific conditions that would flip the decision the other way. A tradeoff
-  table where every cell favors your pick is a warning sign, not a victory: you've stopped looking.
-- **Steelman what you reject.** State each rejected alternative at its best, so a reader who prefers it
-  sees you understood it and still had reasons. That's what makes the decision trustworthy.
-- **Be precise; ambiguity is where bad decisions hide.** Concrete numbers (load, latency budgets,
-  cost), named components, grounded claims with a link or a measurement. "Should be fast" hides a
-  decision; "≤ 300ms at p95 under 2× peak, validated by load test" makes one.
-- **Surface uncertainty honestly.** Where you're guessing, say so, and say what evidence (a spike, a
-  POC, a benchmark) would resolve it — then recommend running it. A POC to de-risk an irreversible
-  choice is the axe-sharpening, not a delay.
-
-The sections below are *what to think about*, not a checklist to fill quickly. Slow down on the parts
-that carry the most risk — usually the requirements and the tradeoff analysis.
-
-
-**Write in the language of the request and its source material.** Whatever language the task, the
-codebase, and the existing docs are in, write the document in that same language — match what its
-readers will expect.
-
-## Two shapes, one method
-
-The RFC↔ADR spectrum shows up as two practical shapes. Same method underneath; the framing and the
-emphasis shift with *when* you're writing.
-
-- **Forward-looking (RFC / design doc)** — you're choosing *before* building, to weigh options and
-  invite comment. This is the full method below; the heart is the tradeoff analysis and the recorded
-  decision. See `references/example-rfc.md`.
-- **Retrospective (ADR / technical documentation)** — you're recording something already decided or
-  built. Same spirit, reshaped: Context (situation before → motivations → scope), Architecture
-  (components + step-by-step flows), Risks & mitigations, **Lessons learned**, improvement points, and
-  a version history table. See `references/example-technical-doc.md`.
-
-Pick the shape from what the user is doing — deciding, or recording a decision already made. When
-unsure, ask. The sections below describe the forward-looking method; the retrospective variant reuses
-the same building blocks (context, design/architecture, risks) with a backward-looking framing.
-
-A fill-in template for the forward-looking shape lives in `assets/template.md` — start from it rather
-than inventing structure, but treat its sections as a checklist, not a cage: drop what doesn't apply,
-add what the decision needs.
+When the request is a conversation rather than a one-shot document, stop at two checkpoints. After
+step 2, show what you reclassified, challenged and assumed, and get the requirements confirmed before
+designing against them. After step 4, show the drivers and the table before committing. A pair does not
+hand over a finished document in one pass. Skip both when the user asks for the document in one go.
 
 ## The method
 
-**Work the steps in order, and finish each before starting the next — don't jump the gun.** The
-sequence is the whole point, not ceremony. The single most common way these efforts fail is **rushing
-to a solution before the problem is understood** — a team arguing Lambda vs. Kubernetes before anyone
-has written down what the system must actually do. When you feel the pull to name a technology, a
-component, or an alternative while you're still in Context or Requirements, *that pull is the warning
-sign*: note the idea so you don't lose it, then get back to the problem. A design built on a shaky
-requirement is wasted work, and a tradeoff table over options nobody tied to a requirement is just
-opinion dressed up as analysis.
+Work the steps in order and finish each before starting the next. The earlier steps gate the later
+ones: no Design until Context and Requirements are settled, no Tradeoff until the Design is on the
+table. When you feel the pull to name a technology while still in Context or Requirements, that pull is
+the warning sign; note the idea and return to the problem. Read the whole document end to end once,
+after the tradeoff analysis reaches its conclusion and before the decision. Slow down on the
+requirements and on the tradeoff table; that is where these documents are won or lost.
 
-So the earlier steps **gate** the later ones: don't open the Design until Context and Requirements are
-genuinely settled, and don't run the Tradeoff analysis until the Design is on the table. Hold the
-problem in focus until it's truly understood; the solution discussion has to wait its turn.
+### 0. Size the decision
 
-The one moment to step back and read the **whole document end to end** is *after the Alternatives
-analysis reaches its conclusion* — check that the requirements still hold, that every component traces
-to one, and that the decision follows from the analysis. That review is the payoff of the discipline,
-earned by working up to it; it is not permission to skip ahead.
+A **two-way door** can be walked back cheaply; a **one-way door** cannot (a data model, a public
+contract, a consistency model, a security boundary, a dependency you cannot remove). State which this
+is and why, in one line. A one-way door earns the full method below, a proof of concept where the
+evidence is thin, and named reviewers. A two-way door gets the light shape, one page at most:
 
-### 1 — Contextualize
+```
+# <Title>
+In the context of <situation>, facing <concern>, we decided <option> to achieve <goal>,
+accepting <downside>.
+Drivers: <two or three, in order>. Options: <one line each, including do nothing>.
+Decision and decider. Consequences. Confirmation: <what we watch, and when we revisit>.
+```
 
-Focus on the problem, not the document. The point of this section is to make a reader *understand the
-situation*, so frame it around what's happening in the world — not around "this document describes…".
+### 1. Contextualize
 
-Tell the story so a newcomer follows it without prior knowledge: **things were this way → then this
-happened → and because of that, we now need to decide X.** Nothing is "obvious" — the obvious is
-exactly what a newcomer is missing, so say it. By the end the reader should be able to answer the two
-questions that matter most: **what problem are we solving, and why does it matter now?** Then state what
-is explicitly **out of scope** — naming non-goals keeps the work from sprawling.
+Written for someone meeting the project today, as a story that lands on a problem: things were this
+way, then this happened, so we now have to decide X. Fill these, in this order.
 
-### 2 — Requirements
+**Current state.** What exists, who uses it for what, how much. Every number carries its source inline
+and a label: **measured** (who observed it, where), **estimated** (derived from a measurement; show
+the arithmetic), **assumed** (nobody checked; say what would confirm it). Get the number yourself
+before asking for it. Then the current usage, by role:
 
-Requirements are what is **non-negotiable**. The hard part — and where most efforts lose focus — is
-separating the *architecturally-relevant* requirements from the long tail of feature details that don't
-shape the structure. Be explicit about the cut, because everything downstream is judged against this
-list. A requirement is **architecturally relevant** when it meets at least one of these tests:
+| Role (what they do with the system) | What they do today | Through what | How often or how much (source) |
+| --- | --- | --- | --- |
 
-- **Hard to reverse** — getting it wrong is expensive or near-impossible to undo later (data model,
-  consistency model, a public contract, a security boundary).
-- **Shapes the structure** — it forces a component, a boundary, or an integration to exist; drop it and
-  the design would look genuinely different.
-- **Business-critical** — the system fails its purpose if this isn't met ("we cannot lose an order").
-- **Cross-cutting quality** — a system-wide "-ility" with a real target: latency, throughput,
-  availability, durability, security, cost, operability.
+**Problem.** The gap, measured, between what the roles need and what they get.
 
-If a requirement passes none of these, it's a feature detail — capture it elsewhere; it doesn't belong
-in the analysis that drives the architecture. Keep the list short: each entry has to earn its place.
+**Goals.** The outcomes the decision exists to produce. A goal names an outcome for a role with no
+system feature, no technology and no system metric in it. If you could build it, it is a requirement;
+if you could choose it, it is an option; if it says "produce this design", it is not a goal.
 
-Split them into **functional** (what the system must do) and **non-functional** (how well — latency
-budgets, observability, test coverage, security, standardization). State them concretely enough to be
-checkable: "search response ≤ 3000ms at p95, validated under load" beats "search should be fast."
+| Goal | Who benefits | How we will know |
+| --- | --- | --- |
 
-### 3 — Design
+**Stakeholders**, as usage roles, never as departments: operators, functional beneficiaries,
+maintainers, regulators, approvers, and the negative stakeholders who lose something.
 
-Now solve the requirements with technology — and hold onto that word, *solve*. **Good architecture is
-the architecture that meets the requirements**, nothing more mystical than that; elegance that doesn't
-serve a requirement isn't good design, it's decoration. This is the exact point where many lose the
-thread, so make the link explicit and keep **traceability in both directions**:
+| Role (what they do with the system) | What they need from this decision | Who speaks for them |
+| --- | --- | --- |
 
-- **Every component exists because it addresses a requirement.** If you can't name the requirement a
-  component serves, it's scope creep — cut it or justify it.
-- **Every requirement is met by something in the design.** If a requirement maps to no component, the
-  design is incomplete; that gap is the first thing to fix.
+**Constraints.** Externally imposed limitations (ISO/IEC/IEEE 29148): law, regulation, contract,
+physics, a signed budget, a regulator's date. A constraint may exclude an option, and the row cites the
+clause that does it. A person inside the organization cannot be the source of a constraint.
 
-So specify the **components** and, for each, name the requirement(s) it answers. The test of a good
-design stays simple: *does it meet the requirements?* Don't get lost solving dilemmas nobody asked for.
+| Constraint | Source (outside the organization, or a signed commitment) | What it excludes, and the clause |
+| --- | --- | --- |
 
-Include at minimum:
+**Prior decisions.** Everything decided by someone inside the organization: the platform in use, the
+team's language, an org standard, a previous ADR, "the platform team said so". A prior decision never
+excludes an option. Its incumbent enters the tradeoff table beside at least one alternative, with the
+cost of reversing it recorded as a cost in the row.
 
-- **one static diagram** — the components and how they fit together;
-- **one dynamic diagram** — a flow or sequence showing how they interact over time.
+| Prior decision | Who made it, when | Incumbent it implies | Cost to reverse |
+| --- | --- | --- | --- |
 
-If you can't render diagrams, describe them precisely (a numbered step-by-step flow, a component list
-with responsibilities and arrows) and leave a clear placeholder for the real diagram. This section
-takes refinement and keeps everyone aligned on the direction being taken; it's normal to iterate here.
+Two more things arrive dressed as constraints and go elsewhere: a stakeholder attribute ("the team does
+not use a terminal") goes to the stakeholder table; scope and risk posture ("keep it minimal") go to
+the decision drivers in step 4.
 
-### 4 — Tradeoff analysis
+**Assumptions and open questions**, in two lists. **Blocking**: any answer would change the decision;
+each carries an owner and a date, and the status cannot leave *proposed* while one is open. A proof of
+concept closes a blocking question and states, before it runs, the question, the pass criterion, and
+what each outcome changes. **Non-blocking**: what you proceed on without proof, and what would close it.
 
-This is where the document earns its keep, and where the bulk of your effort belongs (see *Sharpen
-the axe first*). There is no silver bullet and no one-size-fits-all — every alternative has upsides,
-downsides, and risks, and all of them get analyzed and recorded with real depth. Surfacing a downside
-isn't weakening your case; it's what makes the eventual decision trustworthy. Push past the first pass:
-if the analysis came easily, you probably haven't found the alternative's real failure modes yet.
+**Out of scope** lists problems, never options. An option is rejected in the tradeoff analysis or not
+at all.
 
-For **each alternative**, capture:
+Depth for this step and the next, with before/after rewrites: `references/context-and-requirements.md`.
 
-- **Pros** — what the approach genuinely brings in its favor.
-- **Cons** — what it genuinely brings against it.
-- **Risks** — negative impacts that *might* happen and must be managed. Managing means dealing with
-  uncertainty, so each risk gets four attributes:
-  - **Impact** if it occurs — low / medium / high
-  - **Probability** of occurring — low / medium / high
-  - **Mitigation** — actions to *stop the risk from happening*
-  - **Contingency** — how you'd *act if it happens anyway*
+### 2. Requirements
 
-A table keeps this scannable and forces the discipline of filling every cell. Group alternatives by
-the dimension being decided (data store, provisioning, language, …) so related options sit
-side by side. The exact column layout is shown in `references/example-rfc.md` — reuse it.
+Treat the list you were handed as raw material. Sort every item, then tell the reader what moved and
+why.
 
-Crucially, **weigh each alternative against the requirements from section 2**, one by one. An option
-that wins on elegance but misses a hard requirement doesn't win.
+| Bucket | Test | Where it goes |
+| --- | --- | --- |
+| Constraint | Imposed from outside the organization, or a signed commitment | Context, constraints table |
+| Prior decision | Decided by someone inside the organization | Context, prior decisions table; its incumbent into the tradeoff table |
+| Functional requirement | A role exercises it; remove it and that role notices a missing capability | Functional table |
+| Non-functional requirement | How well the system behaves, with a metric | Non-functional table |
+| Design choice | A way of meeting a requirement: a technology, a pattern, a library | Design, or a row in the tradeoff table |
+| Wish | Wanted, but nothing fails if it never ships | Out: a pro for the options that deliver it, or a roadmap item |
 
-### 5 — The decision itself
+If the team ranks with MoSCoW, only *Must* is a requirement; *Should* and *Could* become decision
+drivers or pros, and *Won't* goes to Out of scope.
 
-This is the moment the discipline has earned: **now read the whole document end to end** (see *Work the
-steps in order*) — requirements still right, every component tracing to one, the analysis genuinely
-supporting where it points — and revise what that pass exposes before you commit.
+**Scenario first, requirement second.** For each functional requirement write the scenario before the
+sentence: the role, the situation, the action, the observable result (Given/When/Then if the team likes
+it). The requirement is the generalization of its scenarios. If the scenario cannot be written, the
+requirement is not understood; if it can only be written with a product name in it, it is a solution.
 
-Then a decision has to be made and stated plainly — which alternative, and the reasoning that carried
-it. Name the decision style so the basis is on the record:
+| ID | Goal (a row of the Goals table) | Requirement (the role, and what the system does for it) | Proof (the scenario, and how it is run) | Source |
+| --- | --- | --- | --- | --- |
+| F1 | | | | |
 
-- **Autocratic** — if it's your call to make, make it; consult others, but you own the outcome.
-- **Democratic** — one vote each, the majority decides. Not always applicable, but a fair tiebreaker
-  when alternatives come out genuinely close.
+**Every non-functional requirement carries five parts**: metric (precisely which measurement), target
+(value, unit, statistic), condition (load, environment, failure mode), **derived from** (the current
+measured value with source and date and the reason for the delta, or an external reference, or a named
+stakeholder commitment), and measurement (how and by what it is checked). A target with no derivation
+is labeled *assumed*, and the confirmation step measures it first. "Fast", "scalable", "secure" and
+"observable" are categories, not requirements.
 
-Don't leave this implicit. A document that analyzes options but never commits leaves the reader
-exactly where they started.
+| ID | Goal | Requirement (metric, target, condition) | Derived from | Proof (measurement) | Source |
+| --- | --- | --- | --- | --- | --- |
+| N1 | | | | | |
 
-### 6 — Conclude and communicate
+Four tests decide whether a row stays:
 
-Record the most relevant points of the decided architecture, and — just as importantly — make sure
-every stakeholder ends up on the same page about the decision and its impacts. A decision nobody hears
-about isn't really made. For forward-looking docs this is often a rollout/launch strategy and a task
-roadmap; for retrospective docs it's the lessons learned, open improvement points, and a **version
-history** table (version, date, author, change) so the document stays a living record.
+- **Goal.** The Goal cell points at a row of the Goals table. If it cannot, the Context is missing
+  evidence or the requirement was invented; say which.
+- **Proof.** Every row says how fulfilment is shown when implementation ends (Volere's fit criterion).
+  A requirement whose fulfilment cannot be shown is a wish with a firm tone of voice.
+- **No wish.** Nothing optional is a requirement, at any priority label.
+- **Architectural relevance.** Hard to reverse, shapes the structure, business-critical, or a
+  cross-cutting quality with a target. A row that passes none is a feature detail; capture it elsewhere.
+
+Words that fail these tests, each with its replacement in `references/context-and-requirements.md`:
+absolutes (always, never, guarantee), the architecture as an agent or a sentence with no subject,
+evaluative adjectives (intuitive, clear, better), selling language in a goal, escape clauses (where
+possible), comparatives without a baseline.
+
+### 3. Design
+
+Solve the requirements with technology, and nothing more. Every component names the requirement IDs it
+answers; every requirement is met by something here. Where a constraint or a prior decision shaped a
+choice, say which, so a reader who finds it gone knows the choice is reopenable. Decide dimension by
+dimension (data store, provisioning, language, and so on).
+
+Embed at least two diagrams as Mermaid, so the document keeps standing alone: one **static**
+(components and how they fit, at one zoom level: context, container or component) and one **dynamic**
+(a sequence or flow over time). Add a deployment view when the choice is about runtime, scaling or
+cost, and a data view when it is about the model, ownership or migration. Each caption names the level
+and the IDs:
+
+```
+*Figure N. <Diagram type>, <zoom level>. Answers <requirement IDs>.*
+```
+
+Picker and a skeleton per type: `references/diagrams.md`.
+
+### 4. Tradeoff analysis
+
+Where the bulk of the effort belongs. Everything in software architecture is a trade-off (Richards &
+Ford); an analysis with no downsides is incomplete, and a table where every cell favors your pick means
+you stopped looking.
+
+**Decision drivers first**, in priority order, each with its origin: requirement IDs, constraints, cost
+of ownership, time to market, operational load, team skills, the reversibility sized in step 0.
+
+**What every option shares.** Before filling the table, write down what all the options have in
+common. Each shared element is a constraint with its clause, a prior decision with its own row and an
+alternative beside it, or a missing option. The title and the first paragraph of the document name the
+problem, never the product.
+
+| Alternative | Requirements (met / partial / missed, by ID) | Pros | Cons | Risk | Impact | Probability | Mitigation | Contingency |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **[Dimension] Option** | | | | | low / med / high | low / med / high | stop it happening | act if it happens |
+| **Baseline: do nothing, or the smallest change that would work** | | | | | | | | |
+
+Rules for the table. The baseline row is required. Every incumbent from the prior decisions table has
+a row and at least one alternative. A constraint excludes an option only by citing its clause; a prior
+decision never does, and its reversal is a cost in the row. *Partial* names the gap in the cell. Each
+risk attribute carries a reason or a fact; "probability: unknown" is a gap. Where the evidence is
+thin, run the proof of concept and report its numbers here. State each rejected option at its best.
+
+### 5. The decision
+
+Read the whole document end to end first: requirements still right, every component tracing to one,
+the analysis supporting where it points. Then commit, plainly.
+
+- **Decision**: which alternative, and the drivers that carried it.
+- **Decider and style**: who owns the call. Autocratic (one person decides after consulting) or
+  democratic (one vote each, a stated tiebreaker). DACI spells the roles out.
+- **Stakeholder conflicts**: where a role's stated wish was overridden, and by whose requirement.
+- **Consequences**: what becomes easier, what becomes harder, what the team now maintains (Nygard).
+- **Residual risks**: what the mitigations do not remove.
+- **Confirmation**: the metric, the automated check or fitness function, the review date (MADR).
+- **Status**: proposed, accepted, superseded by, deprecated. A blocking open question holds it at
+  proposed.
+
+### 6. Conclude and communicate
+
+Launch strategy in phases without an eternal migration, tasks and roadmap, glossary (define each term
+once and use it exactly), **Sources** at the end as provenance for facts already stated, version
+history. The decision document ends there: contracts, schemas, runbooks and specifications are tasks it
+produces, not sections it contains. For the retrospective shape: lessons learned, improvement points,
+version history.
 
 ## Writing principles
 
-- **Newcomer-readable.** Assume the reader is meeting the project for the first time. Spell out the
-  obvious; define the acronyms.
-- **Every claim tied to a requirement or to evidence.** Link to the dashboard, the benchmark, the
-  PostHog report, the schema. Decisions backed by data outlive opinions.
-- **Simplify ruthlessly.** If a section, alternative, or requirement isn't earning its place, cut it.
-- **Be honest about downsides and risks.** The credibility of the decision rests on having genuinely
-  considered what could go wrong.
-- **Match the source's language, structure, and formatting.** Mirror the headings, numbered flows, and
-  table styles the examples use, in the reader's language.
+- **Newcomer-readable.** Spell out the obvious; define the acronyms at first use.
+- **The document stands alone.** Inline the number, the query, the log line, the diagram, the clause.
+  A link is provenance for something already stated. No forward references; sections read in order.
+- **One name per concept.** Pick a term, define it once, never drift.
+- **Every claim carries evidence or a requirement ID**, with its measured / estimated / assumed label.
+- **Cut what is not pulling its weight.**
+- **Prose pass before handing over**: bullet lists that are really paragraphs, bold headers standing in
+  for topic sentences, lists padded to three, vague attribution, gap-filling, a closing summary. The
+  words table and the pass are in `references/context-and-requirements.md`. If the `humanizer` skill
+  is installed, run it in embedded mode as an optional final polish.
 
 ## References
 
-- `references/example-rfc.md` — a worked forward-looking RFC (search-service decision): full structure
-  end to end, and the canonical tradeoff-table layout.
-- `references/example-technical-doc.md` — a worked retrospective technical doc (social-auth
-  implementation): context → architecture → flows → risks → lessons learned → version history.
-- `assets/template.md` — fill-in skeleton for the forward-looking shape.
+- `references/method.md`: the reasoning behind the method: sharpen the axe, why the steps gate each
+  other, the two shapes, decision styles, checkpoints, the light shape.
+- `references/context-and-requirements.md`: classification and routing, goals, usage roles,
+  requirement anatomy, evidence, blocking questions, requirement defects by name, words that fail, the
+  prose pass.
+- `references/diagrams.md`: which diagram answers which question, and a Mermaid skeleton per type.
+- `references/foundations.md`: the literature behind each rule.
+- `references/example-rfc.md`: a worked forward-looking RFC modelling every table above.
+- `references/example-technical-doc.md`: a worked retrospective technical document.
+- `assets/template.md`: the fill-in skeleton for the forward-looking shape.
+
+## Check before you hand it over
+
+1. Every number in Context has a source inline and a measured / estimated / assumed label.
+2. Every goal names an outcome for a role, with no feature, technology or system metric in it.
+3. Stakeholders are usage roles, and every functional requirement names the role it serves.
+4. Every constraint has an external source and a clause; every prior decision has an author and a row
+   in the tradeoff table beside an alternative.
+5. Nothing optional sits in the requirements, and no technology does.
+6. Every functional requirement's proof is a scenario; every non-functional one has metric, target,
+   condition, derivation and measurement.
+7. Every requirement ID that is referenced exists, and no two rows say the same thing.
+8. Both diagrams are embedded, each at one stated zoom level, each captioned with the IDs it answers.
+9. The tradeoff table has the baseline row, an option nobody proposed, and every risk attribute filled
+   with a reason.
+10. What all options share is written down and accounted for.
+11. The decision names the decider, the conflicts, the consequences, the residual risks and the
+    confirmation, and no blocking question is open under an accepted status.
+12. No absolute, no evaluative adjective and no escape clause survives in a requirement.
+13. A newcomer can follow the whole argument without opening a link.
+14. The user was told what was reclassified, challenged and assumed, and why.

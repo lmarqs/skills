@@ -1,0 +1,93 @@
+{
+  "expectations": [
+    {
+      "text": "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+      "passed": true,
+      "evidence": "document.md, 'Evidence and open questions' section, item 1: '**\"p95 on the dashboard endpoint was ~8s last month, per the `api-latency` Grafana board.\"** Reported by the requester from memory, not pulled fresh from Grafana while writing this document.' The source is stated inline, directly attached to the figure."
+    },
+    {
+      "text": "The location of the report queries is cited concretely (reports/queries.py)",
+      "passed": true,
+      "evidence": "Cited repeatedly and concretely, e.g. Context: 'Reporting queries in this codebase live in `reports/queries.py`'; Related documents: '`reports/queries.py` — the application module that contains the reporting queries this RFC is about splitting off.'; also referenced in Requirements, Design, Tasks."
+    },
+    {
+      "text": "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
+      "passed": true,
+      "evidence": "'Evidence and open questions', item 2: '**\"Reporting is maybe 40% of database load.\"** Explicitly called out by the requester as an **unmeasured guess**. ... This RFC does not treat 40% as fact anywhere in the analysis below.'"
+    },
+    {
+      "text": "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+      "passed": true,
+      "evidence": "Requirements/Observability: 'query-level metrics that separate reporting load from transactional load on the primary (by tagging/labeling queries, e.g. `application_name` in Postgres or equivalent), so the 40% figure ... becomes a measured number instead of a guess.' Also Launch strategy Phase 0: 'Tag reporting queries (via `application_name` or equivalent) and measure their actual share of primary DB load over a representative period — replacing the guessed 40%.'"
+    },
+    {
+      "text": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+      "passed": true,
+      "evidence": "The two figures central to the decision are explicitly epistemically labeled: p95 is attributed to '`api-latency` Grafana board' / 'reported by the requester from memory'; 40% is labeled '**unmeasured guess**'. The tenant count ('roughly 300 active tenants as of today') carries only the soft qualifier 'roughly' without an explicit source/label statement like the other two figures get — this is a minor gap noted in eval_feedback, but it is not treated as a disputed or decision-driving number the way the other two are, so it does not by itself sink the assertion."
+    },
+    {
+      "text": "At least one requirement traces explicitly back to a specific fact stated in the context",
+      "passed": true,
+      "evidence": "Non-functional/Isolation: 'This is the requirement most directly in service of \"reports are slow and hurting the app\"'; Non-functional/Reporting latency: 'a numeric target ... is deliberately not set in this draft. Setting one now, off a self-reported and unverified 8s baseline, would be exactly the kind of unverified claim this document should not launder into a commitment.' Both explicitly trace back to specific context facts (the 'hurting the app' complaint and the 8s figure)."
+    },
+    {
+      "text": "The reasoning can be followed without opening any linked or external resource",
+      "passed": true,
+      "evidence": "The document explicitly states the Grafana board and reports/queries.py were 'Not reviewed while writing this document' and instead carries every needed fact and its epistemic status inline (Evidence and open questions section, Context section, Requirements). The argument for staged delivery (Phase 0 gating B/C/D) is fully self-contained and does not require opening any linked resource to follow."
+    },
+    {
+      "text": "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top",
+      "passed": true,
+      "evidence": "Beyond the 'Related documents' list at the top, a dedicated 'Evidence and open questions' section immediately follows it, giving inline provenance for each fact (source, who reported it, and its confidence level) rather than leaving provenance implicit in a document list."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 25926,
+    "transcript_chars": null,
+    "note": "No transcript available for this run; graded from outputs alone per instructions. No metrics.json present in outputs/."
+  },
+  "timing": {
+    "total_duration_seconds": 214.4
+  },
+  "claims": [
+    {
+      "claim": "The 8s p95 figure is carried as unverified, not as a measured baseline",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Document explicitly avoids setting a numeric latency target off this figure: 'a numeric target ... is deliberately not set in this draft. Setting one now, off a self-reported and unverified 8s baseline, would be exactly the kind of unverified claim this document should not launder into a commitment.'"
+    },
+    {
+      "claim": "The 40% figure does not drive the recommended alternative",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The recommended alternative is B (read replica), justified independently of the 40% figure: 'B is the smallest structural change that directly answers \"reports are hurting the app\" ... and is cheap to reverse.' Alternative D, the one whose justification would rest on 40%, is explicitly deferred: 'should not be started on the strength of a guess.'"
+    },
+    {
+      "claim": "Reply.md accurately summarizes what the document does and does not verify",
+      "type": "process",
+      "verified": true,
+      "evidence": "reply.md states the same three caveats (8s p95 unverified, 40% unmeasured guess, reports/queries.py not accessible) that are documented in document.md's 'Evidence and open questions' section, consistent with the document rather than overstating confidence."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "user_notes.md not present in outputs/; skipped per instructions."
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+        "reason": "The document handles the two contested figures (8s p95, 40% load) with rigorous epistemic labeling, but the third quantitative context fact ('roughly 300 active tenants') carries only the soft qualifier 'roughly' with no explicit source or verification label. A document that labeled 300 tenants the same way could pass this assertion trivially more convincingly; as written, this run passes on the strength of the two headline figures rather than full coverage of every number in context. Consider either scoping the assertion explicitly to 'the two figures the requester flagged as uncertain' or adding a sub-check for the tenant count specifically, so a future run that also leaves the tenant count unlabeled doesn't pass by omission."
+      }
+    ],
+    "overall": "This is an unusually strong, discriminating output: every headline evidentiary assertion is satisfied with substantive, quoted text rather than surface compliance — the document builds an entire 'Evidence and open questions' section and stages the whole design/decision (Phase 0 gating) around not treating unverified numbers as settled facts. The one soft spot is the untagged tenant count, which is a minor and arguably out-of-scope gap given the user themselves did not flag it as uncertain. No assertion here would pass for a clearly bad or generic RFC — each requires the specific evidentiary discipline this run actually demonstrates."
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "expectations": [
+    {
+      "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+      "passed": true,
+      "evidence": "Header note: \"The request arrived as five requirements: use the saga pattern, split checkout into microservices, add Redis caching, use gRPC between the services, and introduce a feature flag system. None of the five is a requirement. Each is a design choice, a way of meeting a requirement.\" Repeated in the Requirements section's reclassification table, which assigns every item the bucket \"Design choice: ...\"."
+    },
+    {
+      "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+      "passed": true,
+      "evidence": "The enumerated requirements are F1-F3 (step-level record visible to on-call; per-step side-effect visibility for support/reconciliation; revert the checkout path without a deploy) and N1-N4 (attribution coverage, guardrail, diagnosis time, retention). None names a saga, a service split, Redis, gRPC or a flag platform. The five items appear in that section only inside the \"What was reclassified, and why\" table, where each is bucketed as a design choice and routed to a tradeoff row - e.g. \"'Add Redis caching' | Design choice: a technology. It answers no requirement in this document\". F3 is the capability (\"changing one setting\"), not a flag system: \"The switch of F3 is a configuration value read per attempt, not a build flag and not a platform client.\""
+    },
+    {
+      "text": "At least one requirement is derived from the 2% checkout failure rate, with a goal, and a target that is either derived from a stated fact or explicitly labelled as assumed",
+      "passed": true,
+      "evidence": "N2, goal G1: \"Guardrail: after the instrumented path is enabled, the checkout failure rate is no higher than the phase-0 baseline, and p95 of the checkout flow rises by no more than 30 ms\". Its \"Derived from\" cell ties it to the 2% and labels the invented half: \"The baseline is the ~2% the requester reports, which phase 0 replaces with a measured value (blocking question Q2). The 30 ms is *assumed*: it is the on-call rotation's tolerance rather than a derived figure\". The reclassification table also records \"'Checkout fails about 2% of the time' | A measurement of the current state (unsourced, so *assumed*) | Context, and the derivation of N2's guardrail\". Proof column: the phase-0 dashboard compared for two weeks."
+    },
+    {
+      "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+      "passed": true,
+      "evidence": "N1, goal G2: \"Step attribution coverage: for at least 99% of checkout attempts that end in failure, the persisted record names the step that failed and its error class, measured over a rolling 7 days in production\", derived from \"Today the coverage is effectively zero: the requester reports the failing step cannot be identified\", with the measurement stated (\"One query over the attempt records, on a weekly schedule, counting failed attempts with a non-null failing step over all failed attempts\"). N3 adds a second measurable one (failing step named for 9 of 10 failures within 15 minutes)."
+    },
+    {
+      "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+      "passed": true,
+      "evidence": "All five have tradeoff rows with an explicit requirement column: \"[Consistency] Saga with orchestrated compensations\" (\"met: none in this document; partial: F2 ... missed: F1, N1, N3\"; the reclassification table names G3 as the requirement it would serve, premise = Q1); \"[Topology] Split checkout into separate services\" (\"met: none in this document; missed: F1, F2, N1, N3 (a split does not by itself record anything)\"); \"[Transport] gRPC between the services\" (\"met: none; missed: all. It presupposes the [Topology] row\"); \"[Caching] Redis in front of checkout reads\" (\"missed: none, because there is no requirement to miss ... Revisit if a p95 measurement of the checkout flow shows a latency problem, with the measurement as the requirement's derivation\"); \"[Rollout] Feature flag platform\" (\"met: F3\"). Where an item serves no requirement in the document, that is stated with the requirement that would have to exist first."
+    },
+    {
+      "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+      "passed": true,
+      "evidence": "Redis is rejected outright: \"The Redis row is the only one rejected outright, and it is rejected for having no requirement rather than for being a bad piece of technology\". The other four are deferred by the decision: \"Do not split checkout, do not build a saga, do not add gRPC, do not add caching, and do not adopt a flag platform today.\" The saga's premise is questioned via Q1 (\"If no: G3 drops to a watch item, and the saga option loses the only requirement it answers\")."
+    },
+    {
+      "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+      "passed": true,
+      "evidence": "Assumptions are labelled inline throughout with the lookup that would settle them (e.g. \"The 2% is *assumed*: it came from the requester with no board, query or date attached\"; \"That checkout latency is acceptable today is *assumed*\"). Three blocking questions carry owner, date, and both branches (Q1 sampling 50 failed attempts; Q2 one 30-day query plus a finance figure; Q3 reading the payment step's request construction). The reply attaches recommended answers to the checkpoint questions it did not ask (\"My recommendation: accept it\"; \"My recommendation: it is the veto\"). Sources section states the gap plainly: \"No codebase, schema, dashboard, cost report, incident record or ticket was available\"."
+    },
+    {
+      "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+      "passed": true,
+      "evidence": "Both requirement tables have explicit Goal and Proof columns and every row fills both. F1 (G2, fault-injection end-to-end test per step plus the N1 drill), F2 (G3, same fault-injection suite asserting side-effect flags), F3 (G1, staging drill then one production exercise), N1 (G2, weekly coverage query), N2 (G1, two-week dashboard comparison), N3 (G2, a drill over 10 failures from the previous week), N4 (G2, \"A query for the oldest retrievable attempt record, checked monthly against the 90-day floor\"). No requirement row has an empty goal or an empty proof."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 61384
+  },
+  "timing": {
+    "total_tokens": 115437,
+    "duration_ms": 474837,
+    "total_duration_seconds": 474.8
+  },
+  "claims": [
+    {
+      "claim": "A failure mode occurring in 1 attempt per 10,000 needs on the order of 100,000 attempts in the window to appear about 10 times (N4's derivation)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "100,000 x 1/10,000 = 10. The arithmetic holds, and the document flags that whether 90 days yields 100,000 attempts is unknown ('*estimated* from an assumed rate; blocking question Q2 supplies the volume')."
+    },
+    {
+      "claim": "The gate's pass criterion is 'at least 90% of failed attempts attributed to a named step (that is N1, measured)'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Internally inconsistent with N1, whose target is 99% coverage over a rolling 7 days, and with the phase-1 end condition ('Ends when N1 clears 99%'). The gate calls 90% 'that is N1'. No assertion touches this; it does not change any verdict."
+    },
+    {
+      "claim": "The document decides only a reversible change and defers the irreversible ones",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The decision adopts only wrapper + ledger + config switch + retention, and the Reversibility section, the Consequences and the phase-2 gate all consistently defer topology, consistency, transport and rollout-platform to a named follow-on RFC that re-runs those tradeoff rows."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "No codebase, schema, dashboard, incident record or ticket was available; every current-state claim is labelled assumed",
+      "N2's 30 ms and N3's 15 minutes are commitments rather than deltas from a measured value",
+      "The step list in the diagrams is an invented placeholder, to be redrawn from phase 0"
+    ],
+    "needs_review": [
+      "Three blocking questions (Q1 inconsistent outcomes, Q2 volume/outcome/value, Q3 cardholder-data scope) keep the status at proposed"
+    ],
+    "workarounds": [
+      "Stated assumptions inline instead of stopping to ask, because the document was requested in one go"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+        "reason": "Non-discriminating as worded: both configurations satisfy it, and both do so partly by writing 'serves no requirement in this document' for microservices, gRPC and Redis. That is the right answer, but the assertion's words ('tied to the requirement it would serve') are then satisfied by the absence of a tie. Consider requiring, for each of the five, either a named requirement ID or an explicit statement that no requirement in this document is served plus the measurement or condition that would create one - which is what separates a real analysis from a list of deferrals."
+      },
+      {
+        "assertion": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+        "reason": "The wording is loose about what counts as 'appearing as a requirement'. Both documents name all five inside their requirements section (in a reclassification table), and old_skill's table classifies 'Feature flag system' as 'Partly a real requirement' there, yet its enumerated requirements contain no flag system. I passed both on the enumerated list. Consider scoping the assertion to the enumerated requirement entries, and adding a separate assertion for the reclassification table, so a document that quietly readmits an item as a requirement cannot hide behind the table."
+      },
+      {
+        "assertion": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+        "reason": "Trivially satisfied - a document that defers everything for no stated reason passes. Redis is the one item with no plausible requirement behind it in this prompt; requiring specifically that Redis be shown to serve no stated requirement (and that the deferral of the rest name the evidence that would revive them) would test the actual skill."
+      },
+      {
+        "reason": "Both configurations passed assertions 1, 2, 4, 5, 6 and 7. Only 3 and 8 discriminated. Nothing asserts that the decision the document reaches actually addresses the diagnosability problem it derived, or that each design element traces to a requirement - a document could reclassify the five items perfectly and then design something unrelated and still score 8/8. Both runs happened to do this well (with_skill: 'The Design solves F1, F2, F3 and N1 to N4, and nothing else'; old_skill has a bidirectional traceability table), so the gap is untested rather than harmless."
+      }
+    ],
+    "overall": "The iteration-1 tension between assertions 3 and 7 is resolved. with_skill satisfies both simultaneously and without strain: N2's baseline is the reported 2% and its 30 ms tolerance is explicitly labelled *assumed* with the phase-0 measurement that replaces it, which is exactly the escape hatch the rewording added, while the same document labels assumptions everywhere else for assertion 7. old_skill's failure on 3 is not the old tension either - it does not decline to invent a number, it simply traces no requirement to the 2% at all (§2.4 records that no such target was assumed) and puts the figure only in Context, an assumption ID and a 'baseline measurement' task. So a run can now pass 3 without fabricating an unverifiable target. Assertion 8 is the sharpest discriminator: it fails any document whose requirements are a bulleted list without an explicit goal per requirement, which is precisely where the two runs diverge."
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "expectations": [
+    {
+      "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
+      "passed": false,
+      "evidence": "Kafka and AWS are named as givens in prose in the 'Context' section ('Two constraints are already fixed by decisions made outside this document: the event transport is Kafka ... and the service runs on AWS'), but all four items — including the API standard and the coverage gate — are then formally recorded as line items inside the Requirements section itself: 'NFR-1 — Standardized endpoints... follow the company API standard', 'NFR-4 — Automated test coverage > 90%. Kept as stated.', 'NFR-6 — Runs on AWS. Kept as a given constraint', 'NFR-7 — Kafka as transport. Kept as a given constraint'. There is no dedicated Constraints/Givens section distinct from Requirements; the API standard and coverage gate never receive any separate-section treatment at all, and even Kafka/AWS live as NFR entries in the same Requirements list as genuine system requirements."
+    },
+    {
+      "text": "Each constraint carries a source (who or what imposed it)",
+      "passed": false,
+      "evidence": "Kafka: sourced ('platform team decision'). AWS: loosely sourced ('existing platform footprint' / 'operational consistency with the rest of the platform'). But NFR-1 (API standard) gives no source beyond restating 'the company API standard', and NFR-4 (coverage) says only 'Kept as stated' with no attribution of who imposed the 90% figure. Two of the four constraints carry no source."
+    },
+    {
+      "text": "Each constraint carries an indication of the cost or difficulty of challenging it",
+      "passed": false,
+      "evidence": "No constraint anywhere states what it would cost or how hard it would be to challenge it. The closest language is dismissive rather than evaluative: 'Kafka and AWS are given constraints and are not re-analyzed as alternatives here' and 'Kafka and AWS were autocratic calls made upstream by the platform team and are treated as given here.' Neither sentence indicates difficulty/cost of challenging, only that challenging wasn't attempted. NFR-1 and NFR-4 have no such language at all."
+    },
+    {
+      "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+      "passed": true,
+      "evidence": "Listed only under 'Out of scope' ('The browsing UI. The requester flagged it explicitly as a nice-to-have, not a requirement') and as 'Phase 3 (nice-to-have, as flagged by the requester)' in Launch strategy. It is absent from both the Functional and Non-functional requirements lists."
+    },
+    {
+      "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+      "passed": true,
+      "evidence": "'NFR-2 — Ingestion lag. (Replaces \"must be fast,\" which hides a decision.) ... ≤30s at p95' and 'NFR-3 — Query latency ... ≤2s at p95; ... ≤10s at p95'. Both carry quantified metrics and targets, each explicitly marked 'Assumed target, pending confirmation.'"
+    },
+    {
+      "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+      "passed": false,
+      "evidence": "It is listed exactly as an NFR: 'NFR-4 — Automated test coverage > 90%. Kept as stated.' under the '### Non-functional' heading, alongside genuine runtime properties (endpoint standard, ingestion lag, query latency, AWS, Kafka). The accompanying critique ('a coverage percentage is a weak proxy for what this system actually needs to prove') argues coverage is insufficient on its own and recommends supplementary tests, but this is commentary layered on top of an NFR entry that is still formally kept in the NFR list describing the running system — the assertion is not satisfied."
+    },
+    {
+      "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+      "passed": true,
+      "evidence": "'FR-2 — Self-service query. The compliance team queries audit events by actor, action type, target resource/id, and time range through an API, with no dependency on engineering or shell access to production.' This is directly derived from 'they currently ask us to grep production logs by hand,' with the goal (self-service query, no engineering/shell dependency) explicitly stated. FR-1 (Completeness) is similarly traceable to the same pain."
+    },
+    {
+      "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+      "passed": true,
+      "evidence": "The Requirements preamble states: 'The requester's list mixed genuine constraints with some items that needed sharpening... Below is the reconciled set — what's kept as-is, what was made concrete, and what was added... Each change is called out inline.' Individual items are inline-flagged: 'FR-4 ... (added — not stated by the requester)', 'FR-5 — Immutability (added — not stated by the requester)', 'NFR-2 (Replaces \"must be fast,\" which hides a decision.)', 'NFR-5 (Added — not stated by the requester...)'. This is present in document.md itself, independent of reply.md."
+    },
+    {
+      "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+      "passed": false,
+      "evidence": "The Alternatives analysis table only evaluates three dimensions — [A - Capture], [B - Storage], [C - Compute] — none of which is the event-transport technology itself. The document is explicit that Kafka was never put up for comparison: 'Kafka and AWS are given constraints and are not re-analyzed as alternatives here.' No message-broker alternative (e.g. Kinesis, SNS/SQS, RabbitMQ, Pulsar) appears anywhere in the tradeoff table or elsewhere in the document. Per grading instructions, declaring Kafka a fixed constraint and analyzing nothing else is a fail."
+    },
+    {
+      "text": "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+      "passed": false,
+      "evidence": "The one place a stated constraint (Kafka) would have a genuine alternative to weigh, the document excludes the entire comparison up front ('not re-analyzed as alternatives here') rather than including a transport alternative in the table with its conflict-with-Kafka noted as a cost/risk. This is the opposite of what the assertion asks for: exclusion before analysis, not a recorded cost within an analyzed option. No other alternative in the table (OpenSearch, Aurora, S3/Athena, Lambda, Fargate, MSK Connect) actually conflicts with a stated constraint (all are AWS-compatible), so there is no instance anywhere of a constraint-conflicting alternative being analyzed with its conflict costed out."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 6,
+    "total": 10,
+    "pass_rate": 0.4
+  },
+  "timing": {
+    "total_duration_seconds": 333.7
+  },
+  "claims": [
+    {
+      "claim": "The consumer must dedupe by idempotency key because Kafka's default delivery guarantee is at-least-once",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct and consistently carried through the design (NFR-7, the static/dynamic diagrams, and the event schema's event_id/correlation_id fields)."
+    },
+    {
+      "claim": "The RFC's recommended design (outbox + CDC, two-tier store, Lambda compute) genuinely resolves the stated NFRs",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The Design and Alternatives sections give a coherent, internally consistent argument connecting FR-1/NFR-3/NFR-5 to the chosen two-tier store and outbox pattern; the risk table's mitigations and contingencies are concrete and specific rather than generic (e.g. 'replication-slot-size alarm', 'revoke UPDATE/DELETE on the audit table')."
+    },
+    {
+      "claim": "Referenced source documents (company API standard, platform team's Kafka ADR, admin panel action inventory, retention policy) were unavailable in this environment",
+      "type": "process",
+      "verified": true,
+      "evidence": "Consistent with there being no transcript/tool access in this eval — the document flags these transparently in 'Related documents' rather than fabricating their contents, which is appropriate given the eval provides no such source material."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The 'nice to have' log-browsing UI does not appear as a requirement",
+        "reason": "This is a fairly easy assertion to satisfy by omission alone — a document that never engaged with the UI item at all (just silently dropped it) would also pass. It doesn't by itself confirm the document reasoned about why the UI isn't a requirement, only that the phrase isn't in the requirements list. This run happens to also reason about it well (Out of scope + Phase 3), but the assertion wouldn't have caught a run that simply forgot the UI entirely."
+      },
+      {
+        "reason": "No assertion checks whether the risk entries in the tradeoff table actually carry impact/probability/mitigation/contingency, which is a core structural requirement of the skill's method. This run does include all four for every risk row, which is a real strength that goes completely unverified by the assertion list."
+      },
+      {
+        "reason": "No assertion checks that assumed/placeholder values (retention period, latency targets, API standard shape) are clearly marked as unconfirmed versus stated as fact. This run is careful about this throughout, but a run that quietly asserted a fabricated 13-month retention period or a fabricated API standard as settled fact would not be caught by any current assertion."
+      }
+    ],
+    "overall": "Assertions 1-3 and 9-10 are well-designed and correctly catch a real, substantive failure: the document never builds a dedicated constraints/givens section with source + cost-of-challenge metadata, and it explicitly declines to analyze any alternative to Kafka, both stated outright in the document's own prose ('not re-analyzed as alternatives here'). Assertion 6 also catches a genuine miss — test coverage is kept as a formal NFR of the running system despite being a test-process metric, only with defensive commentary layered on top. These are discriminating, hard-to-game assertions. The four that passed (4, 5, 7, 8) reflect real, non-trivial work by the document — quantifying 'fast' into two separate latency budgets, deriving FR-1/FR-2 from the compliance pain point with explicit goals, and inline-flagging every reclassification — though assertion 4 alone could be satisfied by a document that simply omitted the UI without any reasoning."
+  }
+}

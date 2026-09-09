@@ -1,0 +1,131 @@
+{
+  "expectations": [
+    {
+      "text": "Context section covers the situation before, the motivations for the change, and the scope",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a section named Context (or equivalent) must contain all three of prior state, motivation, scope as identifiable content. Met: '## Context' contains '### The situation before: one scheduled process' (five properties of the old cron), '### Why it changed' (three motivations: deliver on the event not the tick, isolate the channels, scale and deploy each channel independently), and '### Scope' (in scope: routing a notification-worthy event to a channel and sending it, three channels; out of scope: deciding whether to notify, content authoring, in-app surfaces, whatever else the old cron did)."
+    },
+    {
+      "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+      "passed": false,
+      "evidence": "STANDARD (applied to both runs, read as universal per the eval instruction): every specific factual claim about the pre-migration system that the user did not supply and that does not follow from the described topology must carry a source or an explicit uncertainty label. The before-state narrative does this well - all five properties carry [inferred] or [assumed - Q2], and the document sets its own rule: 'Each is labelled inline, every time'. The 'Who uses it' table breaks it. Violating instances, both in the Before column: 'On-call engineer during a delivery failure | Read the pod's logs; restarted or re-ran the schedule' (an unsupplied claim about prior on-call practice, no label, no source) and 'Platform or cost owner | One pod's cost, constant whether or not anything was sent' (a claim about the old pod's cost profile, unlabelled, while the document elsewhere admits 'Pod cost not supplied (Q11)'). The closing Sources note - 'There is deliberately no third category of unsourced claim' - is contradicted by the document itself. Symmetry note: the old_skill run fails on the same class of claim ('The pod was sized for the worst tick and paid for around the clock'), so this verdict is identical for both."
+    },
+    {
+      "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a components list or set of component sections naming each part and what it is responsible for. Met: '## Architecture' -> '### Components' lists Producer service ('Owns the decision that a notification is warranted. Publishes one event per notification...'), Notifications event bus (custom EventBridge bus), One rule per notification type ('Matches on the event's type field and invokes the function for that channel'), notify-email / notify-push / notify-sms ('Each parses the event, builds the message, calls its provider, and records the outcome'), Delivery providers, Dead-letter queues, Send-record store, and the retired scheduled pod. Every entry carries a responsibility rather than only a name, and Figure 1 (Mermaid container view) matches the list."
+    },
+    {
+      "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): at least one ordered, numbered walk-through of the runtime event path. Met: '### The send flow, step by step' gives 8 numbered steps, from '1. A fact happens' and '2. The producer publishes' (one PutEvents call) through '4. Rules match', '5. The function is invoked asynchronously', '6. The function sends', to '8. The provider delivers'. Supported by a Mermaid sequence diagram (Figure 2) and a loss-path flowchart (Figure 3)."
+    },
+    {
+      "text": "Has a risks-and-mitigations section",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a dedicated section pairing risks with mitigations. Met: '## Risks and mitigations' is a table with columns Risk | Impact | Probability | Mitigation | Contingency and 8 rows (duplicate delivery, notification discarded with no record, provider outage exhausting the retry window, new type with no matching rule, throttling drops from the async queue, payload outgrowing the bus, sending without a consent check, second runtime cost). Every row has a populated mitigation and contingency; unmeasured probabilities say so and name the metric that would settle them."
+    },
+    {
+      "text": "Has a lessons-learned section containing at least one concrete lesson discovered by doing the work, not only a heading or generic advice",
+      "passed": false,
+      "evidence": "STANDARD (applied to both runs, and the point on which iteration 1's judges split): the section must contain at least one lesson that is both concrete and presented as learned by doing this work; a heading alone, generic advice, or lessons derived from documentation or from the architecture's structure do not satisfy it. The section here is titled 'Lessons the platform teaches' and opens by explicitly disclaiming the required content: 'The team's own lessons, what surprised them, what cost a week, what they would not repeat, cannot be written by anyone who was not there. Q23 lists the questions that produce them, and this section should be replaced by their answers.' The four lessons that follow are concrete and non-generic ('An HTTP 200 from the publish call is not an accepted event') but the section states 'All [platform]' - read from AWS documentation on 2026-09-08, not discovered by doing the work. reply.md confirms the intent: 'The section titled Lessons the platform teaches is deliberately not called Lessons learned.' Symmetry note: old_skill fails on the same ground - its section says the lessons are 'derived from its structure rather than collected from the team'."
+    },
+    {
+      "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): the domain vocabulary the document leans on must be defined, by glossary or where the term is introduced; industry-standard abbreviations the stated audience (an engineer joining an AWS team) is expected to know - SQS, HTTP/HTTPS, MB, p95 - need not be expanded. Met: '## Glossary' defines 13 terms - notification, notification type, channel, event, producer, event bus, rule, target, asynchronous invocation, dead-letter queue, at-least-once, idempotency key, scheduled monolith. Platform metric names are explained where used ('publishing the FailedInvocations metric when it gives up'). Below the bar, and the same latitude was given to old_skill: the N-/F- requirement ID prefixes are never spelled out, and SQS and p95 are used unexpanded."
+    },
+    {
+      "text": "Includes a version-history table (version, date, author, description)",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): a table under a version-history heading carrying all four columns. Met: '## Version history' with header '| Version | Date | Author | Description |' and one row - '0.1 | 2026-09-08 | Drafted from the team's description | Created. Structure and platform semantics complete; all system-specific numbers and names, and the team's own lessons, are open questions Q1 to Q23.' Noted but not failed: the Author cell holds a provenance note rather than a person or an explicit placeholder."
+    },
+    {
+      "text": "Written entirely in English",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): no non-English prose anywhere, including headings, tables, Mermaid labels and figure captions. Met: verified by reading all 577 lines and by grepping for Portuguese function words and non-ASCII characters - the only non-ASCII hits are em dashes, arrows and typographic punctuation. Diagram labels and captions are English."
+    },
+    {
+      "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+      "passed": true,
+      "evidence": "STANDARD (applied to both runs): the frame must be a record of a shipped system; an alternatives comparison is permitted only if explicitly retrospective and not putting a choice to the reader. Met: the header states 'Shape: retrospective technical documentation. The system is already in production, so this records what was built' and 'Status: accepted, in production.' The comparison section is titled 'What this shape costs and what it buys' and opens 'The decision has been made and shipped, so this is not a proposal', with the deployed option labelled 'What was built: bus, rule per type, function per type'. Improvement points are follow-up work on the running system, not a pending decision."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 2,
+    "total": 10,
+    "pass_rate": 0.8
+  },
+  "execution_metrics": {
+    "output_chars": 57694
+  },
+  "timing": {
+    "total_tokens": 144514,
+    "duration_ms": 697585,
+    "total_duration_seconds": 697.6
+  },
+  "claims": [
+    {
+      "claim": "EventBridge attempts delivery to a target for up to 24 hours, publishes FailedInvocations when it gives up, and may stop retrying if the target is throttled for a prolonged period",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches documented EventBridge behaviour; cited to the EventBridge troubleshooting page under Sources, with the read dated 2026-09-08."
+    },
+    {
+      "claim": "Lambda retries a function error twice (1 minute, then 2 minutes); throttling and system errors go back on the queue for up to 6 hours by default with backoff from 1s to a 5-minute ceiling; expired or exhausted events are discarded, and events can be deleted from the queue without reaching the function",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented asynchronous-invocation error handling for Lambda; cited to the Lambda Developer Guide under Sources."
+    },
+    {
+      "claim": "PutEvents allows up to 10 entries per request with the total request under 1 MB, per-entry failures must be detected via FailedEntryCount, and an event published to a non-existent bus is dropped with HTTP 200",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the documented PutEvents contract; cited under Sources."
+    },
+    {
+      "claim": "'No claim in this document is labelled [measured] yet' and 'There is deliberately no third category of unsourced claim'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The first half holds - no [measured] label appears anywhere. The second does not: the 'Who uses it' table's Before column carries unlabelled, unsourced claims about the old system ('One pod's cost, constant whether or not anything was sent'; 'Read the pod's logs; restarted or re-ran the schedule'). This is the basis for the assertion-2 failure."
+    },
+    {
+      "claim": "No system-specific numbers were invented (volume, latency, schedule interval, cost)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Requirement rows read 'Target not set' with the reason; the before-state section states 'Nobody supplied the volume, the schedule interval, the failure rate, or the delivery latency of the old system, so none of them appear here as numbers.' No fabricated figure about this system appears in the document."
+    },
+    {
+      "claim": "Process claim in reply.md: platform behaviour was checked against current AWS documentation rather than written from memory",
+      "type": "process",
+      "verified": false,
+      "evidence": "Cannot be verified - no execution transcript was available for this grading, so the retrieval itself is unobservable. The cited facts are individually correct and the Sources section names the specific pages and a read date, which is consistent with the claim but does not establish it."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Has a lessons-learned section containing at least one concrete lesson discovered by doing the work, not only a heading or generic advice",
+        "reason": "As worded, this assertion is unsatisfiable without fabrication in this eval. The prompt supplies one paragraph and no repo, tickets, dashboards or team access, so no lesson can honestly be 'discovered by doing the work'. Both runs did the defensible thing - kept the section, wrote concrete architecture-specific lessons, and labelled them as derived rather than reported - and both therefore fail. This is precisely where iteration 1's two judges split on identical section shapes. Reword to something achievable and still discriminating: 'the lessons section contains at least one lesson specific to this migration (not generic advice and not restated platform documentation), and states whether it was reported by the team or derived by the author'. That separates an honest reconstruction from a bare heading or from invented team anecdotes."
+      },
+      {
+        "assertion": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+        "reason": "Both runs fail this for the same reason in the same kind of place: the main before-state narrative is labelled, but a secondary structure leaks unlabelled claims about the old pod's sizing and cost (with_skill's 'Who uses it' Before column; old_skill's numbered list of the cron's four problems). Non-discriminating as written. It would discriminate if it named the claim classes and the whole surface: 'no claim about the prior system's volume, latency, schedule interval, sizing or cost appears without a source or an inline uncertainty label, anywhere in the document including tables and diagram labels'."
+      },
+      {
+        "reason": "This eval does not discriminate between the two configurations: assertions 1, 3, 4, 5, 7, 8, 9 and 10 pass for both, and 2 and 6 fail for both - 8/10 each. Every assertion is a section-presence or framing check that both documents satisfy comfortably, and none tests the qualities that actually differ. Two candidates that would: (a) per-claim traceability - 'every unverified claim about this specific system is traceable to a numbered assumption or open question' (with_skill labels each claim inline with one of four labels and routes it to a numbered question; old_skill collects 14 [A-n] items in a register); (b) maintainer-facing operations - 'includes a procedure a maintainer can follow when a notification was not delivered' (old_skill has a triage order, a DLQ redrive procedure and an archive replay procedure; with_skill has none, only a first-week onboarding list). Since the prompt's stated goal is 'so new folks can understand and maintain it', (b) tests the requested outcome and is currently uncovered."
+      },
+      {
+        "assertion": "Includes a version-history table (version, date, author, description)",
+        "reason": "Trivially satisfiable, and satisfied by both. with_skill passes with the Author cell holding 'Drafted from the team's description' - a provenance note, so the column is present but not doing its job. If the intent is a usable change record, say so: 'the version-history row identifies an author (or an explicit placeholder) and describes what changed in that version'."
+      }
+    ],
+    "overall": "The assertions are structurally sound but uniformly presence-based, so they cannot separate these two configurations: identical 8/10, with the same two failures in the same positions. Assertion 6 needs rewording because the eval prompt makes its literal requirement impossible to satisfy without fabrication, and assertion 2 needs to name the claim classes and cover tables rather than only the narrative. Adding assertions on per-claim traceability and on a maintainer-facing operational procedure would make this eval discriminating."
+  }
+}

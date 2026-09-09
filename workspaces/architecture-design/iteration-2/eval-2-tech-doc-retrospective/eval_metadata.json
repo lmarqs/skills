@@ -1,0 +1,17 @@
+{
+  "eval_id": 2,
+  "eval_name": "tech-doc-retrospective",
+  "prompt": "We just finished migrating our notifications service: it went from a monolithic cron running in a pod to an event-driven flow with EventBridge triggering Lambdas per notification type (email, push, sms). It's already in production. I need to document technically how it turned out so new folks on the team can understand the architecture and maintain it.",
+  "assertions": [
+    "Context section covers the situation before, the motivations for the change, and the scope",
+    "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+    "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+    "Includes at least one step-by-step numbered flow of the event-driven process",
+    "Has a risks-and-mitigations section",
+    "Has a lessons-learned section containing at least one concrete lesson discovered by doing the work, not only a heading or generic advice",
+    "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+    "Includes a version-history table (version, date, author, description)",
+    "Written entirely in English",
+    "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives"
+  ]
+}
