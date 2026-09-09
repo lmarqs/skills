@@ -14,7 +14,9 @@ definition and to re-read any assertion whose two verdicts differed before writi
 ## Result
 
 The rebuild is ahead of the version it replaces: **96.1% against 68.6%** (98 and 70 of 102 assertions).
-Iteration 1 was 77.8% against 81.1%.
+Iteration 1 ran 72 assertions and the rebuild was behind on both readings of them: 56 against 57
+assertion for assertion (77.8% and 79.2%), or 77.8% against 81.1% as a mean of the per-eval pass rates,
+which is what `benchmark.md` reports and what iteration 1's analysis quoted.
 
 | Eval | with_skill | old_skill |
 | --- | --- | --- |
