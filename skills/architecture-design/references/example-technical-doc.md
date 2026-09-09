@@ -3,9 +3,9 @@
 A condensed technical document written *after* an implementation (social login via an external
 identity provider and a managed authorization server). Use it as a model for the retrospective shape:
 it documents what was built and why, the flows in detail, and, distinctively, the **lessons learned**
-and a **version history**. Product names appear only for the components that were the decision. Links
-and images from the original are elided. (The skill writes in the language of the request; this
-example is in English, and the same structure applies in any language.)
+and a **version history**. Links, images and internal tooling names from the original are elided
+because this file ships in a public repository; a real document keeps them. (The skill writes in the
+language of the request; this example is in English, and the same structure applies in any language.)
 
 ---
 

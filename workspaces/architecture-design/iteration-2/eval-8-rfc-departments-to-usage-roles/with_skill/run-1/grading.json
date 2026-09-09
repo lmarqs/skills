@@ -1,0 +1,120 @@
+{
+  "expectations": [
+    {
+      "text": "Stakeholders are described as usage roles stating what each does with the system (for example an analyst publishing a page, a colleague reading one, an operator answering who changed a file), not only as department or title names",
+      "passed": true,
+      "evidence": "The Stakeholders table's first column is headed 'Role (what they do with the system)' and every row is an activity-phrased role: 'Analyst authoring and publishing an analysis page', 'Colleague who needs a change to someone else's page', 'Reader opening an analysis page', 'Support agent pointing a customer at an analysis', 'Operator answering \"who changed this page, and when\"', 'Approver of what the company publishes under its own name', 'Budget owner approving recurring spend'. The document states the translation explicitly: 'The request named four departments... Departments do not use systems; people in roles do'. Departments appear only as the source of the translation and in the 'Who speaks for them' column."
+    },
+    {
+      "text": "Each functional requirement names the role it serves",
+      "passed": true,
+      "evidence": "All six functional rows name a role. In the requirement text: F1 'An analyst can publish...', F2 'A colleague who did not create a page can change and republish it', F3 'A publisher can bring back an earlier version', F4 'An operator can find...', F6 'A publisher can mark a page as readable only by holders of a company account'. F5's requirement text is written about the publisher group ('Only accounts in a named publisher group can change what the company domain serves'), and its Source column names the served role: 'Added for the approver role'. F4 and F6 also carry role attributions in Source ('Added for the operator role'; 'Added for the support and approver roles')."
+    },
+    {
+      "text": "Each functional requirement's proof is a concrete scenario (a role, a situation, an action, an observable result), not a restatement of the requirement",
+      "passed": true,
+      "evidence": "Checked all six. F1: 'Given an analyst signed in on an office laptop with an HTML file and its images, when they publish it to a chosen path, then the page is readable at that path on the company domain and no other person acted'. F2: 'Given a page published by someone else who is on holiday, when a colleague in the publisher group replaces its content, then the new version is live and the original author was not involved'. F3: 'Given a page replaced three times and then deleted, when a publisher asks for the version published before the last replacement, then that exact content is live again at its original path'. F4: 'Given a page whose content is disputed, when the operator opens its history, then each version shows the publishing account, the timestamp and the content served'. F5: 'Given an employee outside the publisher group and a signed-out browser, when each attempts to publish or overwrite a page, then both are refused and both attempts appear in the record'. F6: 'Given a page marked company-only, when a signed-out browser requests it and every asset it references, then each request is refused without disclosing the content'. Each adds situational detail absent from the requirement (a holiday, three replacements then a deletion, a disputed page, a signed-out browser, referenced assets) plus how it is run, so none is a restatement."
+    },
+    {
+      "text": "'Intuitive', 'secure', 'fast' and 'guarantee that nothing is ever lost' do not survive as requirement text; each becomes a measurable statement with a target and condition, or is explicitly flagged as not yet a requirement",
+      "passed": true,
+      "evidence": "None of the four words appears in any F or N requirement statement (grep confirms they occur only in the reclassification prose, derivation/source columns and Sources). Each is translated: 'Intuitive' -> N1 'at or below 10 minutes for 4 of 5 publishers tested. Condition: office laptop, browser only, no terminal and no build step'; 'Fast' -> N1 (turnaround) and N2 'Largest contentful paint at the 75th percentile... at or below 2,500 ms... Condition: office network, a mid-range laptop, cold cache', with the ambiguity flagged ('it can mean the page loads quickly for a reader, or that a change goes live quickly'); 'Secure' -> F4/F5/F6 with pass-fail proofs ('a category, not a requirement'); 'nothing is ever lost' -> N3 'at least 365 days... Restore... 15 minutes or less. A drill that cannot produce the requested version is a failure of this requirement', with the explicit flag 'cannot be a requirement in that form: nothing is verifiable at \"never\"'."
+    },
+    {
+      "text": "The current-state figures (about 30 pages, one analyst, requests over chat) appear with a label for how they are known",
+      "passed": true,
+      "evidence": "Each figure carries an inline source plus a knowledge label. Page count: 'About 30 pages are live there (requester, 2026-09-08; *assumed*: a link inventory of what the team currently shares would confirm the count in under an hour)'. Chat requests: '(requester, 2026-09-08; *assumed*: the chat history and the absence of tickets in the issue tracker would confirm it)'. The Current usage table has a '(source)' column labelling every row, the header carries a standing evidence warning ('Every figure about the current state comes from the requesting conversation of 2026-09-08 and is therefore labelled *assumed*... Nothing here is *measured*'), and the Sources section names the requesting conversation as the origin of 'the page count, the personal-domain arrangement, the chat request flow'."
+    },
+    {
+      "text": "Any requirement the author adds that the user did not ask for names the role it serves and the goal behind it",
+      "passed": true,
+      "evidence": "The added requirements are identified as such and each names role and goal: '**F4, F5 and F6 were added here, not requested.** They serve the operator, approver and support roles above'. Per row: F4 -> Goal G4, Source 'Added for the operator role'; F5 -> Goals G4, G2, Source 'Added for the approver role'; F6 -> Goal G4, Source 'Added for the support and approver roles'. G4 is stated as a goal with beneficiaries ('The company can answer for what it publishes under its own name' / 'The domain owner; the approver who is asked \"who put this up\"'). The author-added non-functionals also carry a goal ID and a role: N4 -> G2 (readers/linkers, operator alerted), N2 -> G5 ('Readers get to the analysis instead of waiting for it'), N5 -> G6 (budget owner). The document also records what it declined to add and why ('deliberately *not* added is a human review gate')."
+    },
+    {
+      "text": "The tradeoff table includes at least one option nobody proposed and a baseline row of doing nothing or the smallest change",
+      "passed": true,
+      "evidence": "Unproposed options are present and labelled: '[Serving] Company wiki or internal docs platform, analyses published as pages (nobody proposed this)' and '[Serving] Hosted website product with a page editor and its own hosting (buy instead of build)'; the framing text says 'Two options nobody proposed are in the table'. Both a do-nothing baseline and a smallest-change row exist: 'Baseline: do nothing — chat requests to one analyst on his personal domain' with its own pros/cons/risk row, and '[Serving] Point a company subdomain at the analyst's existing host (the smallest change that would work)'."
+    },
+    {
+      "text": "Reaches an explicit decision with its decider and consequences",
+      "passed": true,
+      "evidence": "The decision is stated in one bolded sentence: 'Serve the pages from a versioned object store behind a CDN on a company subdomain, publish through a browser upload page authorized by a single publisher group... and default every page to company-sign-in-only until Q1 says otherwise.' Decider: '**Decision style: autocratic.** The CTO owns the call, after consulting the analyst who publishes today... the head of marketing... the budget owner... and the support lead'. A 'Consequences' subsection lists five ('Publishing becomes a group activity, so any publisher can change any page'; 'The company now owns a small internal tool'; 'Storage grows with every publish'; the redirect dependency; 'A genuine deletion request... now needs the operator'), followed by Residual risks and Confirmation. The status is 'proposed' pending Q1/Q2, but the decision, its basis and its decider are explicit."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 63510
+  },
+  "timing": {
+    "total_tokens": 126233,
+    "duration_ms": 566117,
+    "total_duration_seconds": 566.1
+  },
+  "claims": [
+    {
+      "claim": "2,500 ms at the 75th percentile is the published 'good' boundary for Largest Contentful Paint (Core Web Vitals)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the published Core Web Vitals thresholds (LCP good at <= 2.5 s measured at p75). It is also the only number in the document given an external anchor rather than an assumed label."
+    },
+    {
+      "claim": "Every current-state figure in the document is labelled *assumed* and traceable to the requesting conversation",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Spot-checked the page count, the chat-request flow, the traffic/volume rows, the prior decision on the account directory and the N1/N3/N5 derivations: each carries '*assumed*' with a named confirmation step. No unlabelled current-state number found."
+    },
+    {
+      "claim": "Every requirement is answered by something in the Design, and every design element cites a requirement",
+      "type": "quality",
+      "verified": true,
+      "evidence": "F1-F6 and N1-N5 all appear as citations in the Design subsections or figure captions (Figure 1 'Answers F1, F2, F4, F5, F6, N2, N4'; Figure 2 'Answers F2, F4, F5, N2, N3'; Figure 3 'Answers F3, F5, N3'). N5 is answered in prose ('keeps the recurring bill inside N5')."
+    },
+    {
+      "claim": "The tradeoff table records impact, probability, mitigation and contingency for every risk",
+      "type": "factual",
+      "verified": true,
+      "evidence": "All 14 alternative/risk rows populate the Risk, Impact, Probability, Mitigation and Contingency columns; where no mitigation exists it says so explicitly ('None available while the host belongs to an individual', 'None: the model itself is the problem') rather than leaving the cell empty."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "No system, bill, log or ticket queue was available, so every current-state figure and every target is assumed rather than measured",
+      "Support's relationship to the pages could not be determined and is folded into blocking question Q1",
+      "N1's 10 minutes, N3's 365 days and N5's USD 50/month are the author's numbers standing in for stakeholders' commitments"
+    ],
+    "needs_review": [
+      "Q1 (audience: public vs company-account-only) and Q2 (personal data in the pages) are blocking; the document's status stays 'proposed' until they are answered"
+    ],
+    "workarounds": [
+      "N2 anchored to an external Core Web Vitals threshold because no baseline page-load measurement exists"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Stakeholders are described as usage roles stating what each does with the system (for example an analyst publishing a page, a colleague reading one, an operator answering who changed a file), not only as department or title names",
+        "reason": "Non-discriminating: both configurations passed comfortably. Both open with an explicit 'departments are not roles' argument and a role table. If this behaviour is now reliable, consider tightening it to something the weaker run missed — e.g. that every functional requirement's role is one of the named usage roles, or that at least one role covers the 'who changed this file' question."
+      },
+      {
+        "assertion": "'Intuitive', 'secure', 'fast' and 'guarantee that nothing is ever lost' do not survive as requirement text; each becomes a measurable statement with a target and condition, or is explicitly flagged as not yet a requirement",
+        "reason": "Also non-discriminating: both runs translated all four with numbers and conditions. Note the assertion is satisfiable by decomposing 'secure' into binary capability statements rather than into anything with a measurable target — both documents did this. If measurability of the security items matters, the assertion should say so."
+      },
+      {
+        "assertion": "Reaches an explicit decision with its decider and consequences",
+        "reason": "Both passed, but 'consequences' is loose enough that scattered consequence statements anywhere in the document satisfy it (the old-skill run has no consequences section; it earned the pass from a paragraph inside 'The strongest objection to this decision'). Consider requiring consequences stated as consequences of the chosen option, including at least one cost the decision imposes on a named role."
+      },
+      {
+        "reason": "No assertion covers the reclassification of things the user asked for that are NOT requirements. The with_skill document moves 'publish on a company domain' out of Requirements into a prior-decisions table and still gives it an alternative in the tradeoff table; the old_skill document keeps the ask as requirement R-F1. That is a real, observable difference in reasoning quality that nothing here scores."
+      },
+      {
+        "reason": "No assertion checks whether the tradeoff table's unproposed options are actually weighed against the recommendation. Both documents list unproposed options, but only one states the strongest case against its own recommendation and the condition that would flip it ('If the analyses become mostly prose and tables... the wiki would probably win'). An assertion on 'names the strongest objection to its own recommendation and what would flip it' would discriminate."
+      }
+    ],
+    "overall": "Assertions 2, 3, 5, 6 and 7 discriminated cleanly and are the useful core of this eval; 1, 4 and 8 passed in both configurations and are candidates for tightening. Assertion 3 in particular is the sharpest one here: it fails any document that lists functional requirements without per-requirement acceptance scenarios, which is exactly how the old run failed."
+  }
+}

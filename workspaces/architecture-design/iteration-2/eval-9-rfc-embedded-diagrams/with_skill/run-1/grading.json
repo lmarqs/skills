@@ -1,0 +1,126 @@
+{
+  "expectations": [
+    {
+      "text": "At least one static diagram (context, container or component) is embedded in the document as Mermaid or another text-rendered diagram, not merely described in prose or linked",
+      "passed": true,
+      "evidence": "Section 'Static view' embeds a ```mermaid flowchart TB (document.md lines 316-353) with a 'Webhook ingestion pipeline (new)' subgraph holding edge, intake buffer, intake processor, store of record, publisher, event log, semantic validator and status service, plus partner and consumer nodes. Captioned 'Figure 1. C4 container diagram, level 2'. Embedded source, not prose or a link."
+    },
+    {
+      "text": "At least one dynamic diagram (sequence or flow) is embedded in the document as Mermaid or another text-rendered diagram",
+      "passed": true,
+      "evidence": "Two: a ```mermaid sequenceDiagram (lines 363-391) covering 'a partner posts an event and then re-posts it' with participants P/E/I/W/S/L/C, and a ```mermaid flowchart TD (lines 398-419) of the ingest decision path from 'Credential valid?' through 'Uniqueness conflict?'."
+    },
+    {
+      "text": "Each diagram caption states its type or zoom level and the requirement IDs it addresses",
+      "passed": true,
+      "evidence": "All four embedded mermaid blocks (fences at lines 316, 363, 398, 430) carry an italic caption with both elements: 'Figure 1. C4 container diagram, level 2, of the target state. Answers F1, F2, F3, F4, F5, F6, F7, N2, N3, N4.'; 'Figure 2. Sequence diagram, container level, ... Answers F1, F2, F6, F7, N1, N5.'; 'Figure 3. Flowchart of one ingest request's decisions, container level. Answers F1, F2, F6, F7, N1, N5.'; 'Figure 4. Entity-relationship diagram ..., level: the store of record. Answers F2, F5, N3, N5, N7.' No embedded diagram lacks either half."
+    },
+    {
+      "text": "The static diagram stays at one level of zoom: it does not mix external actors and systems with the internal modules of a single component",
+      "passed": true,
+      "evidence": "Figure 1 holds only container-level nodes inside the system boundary — 'Ingest edge', 'Durable intake buffer', 'Intake processor', 'Store of record', 'Publisher', 'Event log', 'Semantic validator', 'Status and error-feed service' — each a distinct process or datastore named as such in Design. Sub-parts stay folded into node labels rather than becoming peer boxes: the identity index and projection appear inside the store node ('raw body, projection, identity index, sequence; 7-day retention'), not as separate nodes. External actors (two partner systems, the partner integration engineer), external consumers A/B/C and the retiring path sit outside the boundary, which is the same zoom level's normal complement."
+    },
+    {
+      "text": "The 200 events per second figure is carried with its 'measured' label and used to derive at least one non-functional target with a stated condition",
+      "passed": true,
+      "evidence": "Carried with provenance every time: 'about 200 events per second (reported by the requester as measured last month; the instrument and the averaging window were not named, so the figure is recorded as *measured by report*)' and '≈200 events/s at the daily peak, all partners combined (requester's report of a measurement taken 2026-08; *measured by report*)'. Derived targets state their condition: N1 = 'p99 at or below 250 ms, sustained for 60 minutes at 400 accepted events/s, excluding time on the partner's network', with the derivation '400/s is 200/s (*measured by report*, 2026-08) x 2'; N6 = 'Sustains 400 accepted events/s at the edge and 1,200 consumer deliveries/s (400 x 3) for 60 minutes while holding N1 and N4'; N4 restates the 400 events/s condition under one-consumer failure."
+    },
+    {
+      "text": "The tradeoff table scores options against requirement IDs and includes a baseline row (do nothing or the smallest change)",
+      "passed": true,
+      "evidence": "The table's second column is 'Requirements (met / partial / missed, by ID)' and every row is scored in it, e.g. '[Fan-out] One durable ordered log ... met: F3, F4, N3, N4, N6' and '[Durability] The log is the only durable copy ... met: F3, F4, N4, N6; partial: N2, N3; missed: F5, N5, N7'. The final row is an explicit baseline: '**Baseline: leave the current path as it is** | met: nothing verifiably; missed: F2, F3, F4, F5, F6, F7, N2, N3, N4, N5, N7', with pros ('Zero effort, zero migration risk, and it is already carrying 200 events/s') and its own risk/impact/probability/contingency cells."
+    },
+    {
+      "text": "Reaches an explicit decision with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "'## The decision' opens with a single bolded decision sentence (accept after durable buffering; hybrid identity; uniqueness constraint in the persisting write; 7-day retention; publish once to an ordered log read at three positions). Decider is named twice — the header line 'Decider: Owner of the partner-integration service (role...)' and 'Decision style: autocratic. The owner of the partner-integration service makes the call, having consulted the three consumer team leads (Q1, N4), the data-platform owner ... and the security function'. Dedicated '### Consequences' subsection (six items: two refusal paths to document, uneven dedup semantics, three durable systems plus a reconciliation job, single retention number with its storage bill, fourth consumer = a new read position, meaning still unresolved) and '### Confirmation' subsection (N1/N6 load run as a release gate that fails the build above 250 ms p99, daily N2 reconciliation alarming on a single event, what gets measured first, quarterly F3/F4 drills, named review triggers, and 'Status moves from *proposed* to *accepted* when Q1, Q2 and Q3 are answered')."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 72862
+  },
+  "timing": {
+    "total_tokens": 141776,
+    "duration_ms": 696512,
+    "total_duration_seconds": 696.5
+  },
+  "claims": [
+    {
+      "claim": "720,000 events/hour and 17.3 million events/day at 200 events/s",
+      "type": "factual",
+      "verified": true,
+      "evidence": "200 x 3,600 = 720,000; 200 x 86,400 = 17,280,000. Both arithmetically correct and both labelled *estimated* with the upper-bound caveat stated."
+    },
+    {
+      "claim": "35.4 GB of raw payload per day at a 2 KB payload, 248 GB over 7 days, and ~7.7 GB of identity index for 121 million identifiers",
+      "type": "factual",
+      "verified": true,
+      "evidence": "200 x 2,048 B = 409,600 B/s; x 86,400 = 35.39 GB/day; x 7 = 247.7 GB (stated as 248 GB). 200 x 86,400 x 7 = 120,960,000 identifiers (stated as 121 million) x 64 B = 7.74 GB. All correct, and each rests on the declared 2 KB assumption."
+    },
+    {
+      "claim": "'No product is named' (reply) / the tradeoff table compares capability classes rather than products",
+      "type": "quality",
+      "verified": false,
+      "evidence": "True of the prose and the tradeoff table — no broker, store, runtime, cloud or observability product appears. But Figure 4 declares columns as `bytea`, `jsonb` and `timestamptz`, which are PostgreSQL-specific types, so the ER diagram does imply a product the document claims to have left open."
+    },
+    {
+      "claim": "Four Mermaid diagrams are embedded and nothing in the argument requires opening a link (reply)",
+      "type": "process",
+      "verified": true,
+      "evidence": "Exactly four ```mermaid fences (lines 316, 363, 398, 430). No external URL appears anywhere in document.md; the Sources section cites only the requester's statement and arithmetic on it, and is explicitly labelled 'provenance for facts already stated above, not required reading'."
+    },
+    {
+      "claim": "Every requirement ID appears at least once in Design ('every identifier above appears at least once here')",
+      "type": "factual",
+      "verified": true,
+      "evidence": "F1-F7 and N1-N7 all appear in Design section headings or bodies: F1/F6/N1/N2 (acknowledgement boundary), F7 (attribution), F2/N5 (identity), N3 (store), F3/F4/N4/N6 (fan-out), F5/N7 (status)."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Whether the wiki renders Mermaid is assumed; the fallback offered is exporting each figure as an image with the Mermaid source kept as the editable original",
+      "The 200 events/s figure is 'measured by report' only — instrument and averaging window unknown",
+      "All three latency/lag targets (N1 250 ms, N4 60 s, N7 5 s) have no measured baseline"
+    ],
+    "needs_review": [
+      "Three blocking questions (Q1 ordering, Q2 personal data, Q3 whether a current path exists) hold the status at 'proposed'",
+      "Placeholder names (Consumer A/B/C, decider as a role, question dates) must be replaced before publishing"
+    ],
+    "workarounds": [
+      "Products deferred to a follow-up task because the team's existing broker/store/runtime is unknown; options compared as capability classes instead"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "No monitoring, ticketing or dashboard vendor product is named that the prompt did not mention; instruments are referred to generically (for example the latency board, the load run)",
+        "reason": "Non-discriminating as worded, and it misses the difference that actually exists. Both configurations pass — neither names a monitoring, ticketing or dashboard vendor — yet old_skill devotes a 'Vendor mapping' table to PostgreSQL, MySQL, Kafka, Pulsar, NATS/JetStream, RabbitMQ, NGINX and Envoy while with_skill names no product at all. Given the eval is called 'vendor-neutral' and the prompt names no vendor of any kind, the assertion should say 'no vendor product of any kind is named as the chosen implementation' (and, if candidate implementations are acceptable, say so), otherwise the enumerated three categories let the whole difference through."
+      },
+      {
+        "assertion": "Each diagram caption states its type or zoom level and the requirement IDs it addresses",
+        "reason": "This is the sharpest assertion in the set, but nothing checks that the IDs in a caption match what the diagram actually shows. A caption listing every requirement ID in the document would pass. Consider requiring that each ID named in a caption be traceable to a node, participant or edge in that diagram, and that no diagram claim an ID it does not depict."
+      },
+      {
+        "assertion": "The tradeoff table scores options against requirement IDs and includes a baseline row (do nothing or the smallest change)",
+        "reason": "The 'or the smallest change' escape makes the second clause nearly unfailable: any design table contains a fewest-moving-parts option. Both configurations pass, but only one wrote a row identified as the status quo ('Baseline: leave the current path as it is', scored 'met: nothing verifiably'). Consider requiring the baseline to be labelled as such and scored against the same requirement IDs as the other rows."
+      },
+      {
+        "assertion": "The 200 events per second figure is carried with its 'measured' label and used to derive at least one non-functional target with a stated condition",
+        "reason": "Both pass, so it does not discriminate, yet the two documents differ materially in how tight the condition is: one states 'p99 <= 250 ms sustained for 60 minutes at 400 accepted events/s, excluding time on the partner's network', the other 'sustains 400 events/s with no error-rate increase, validated by load test before launch'. Requiring the derived target to name its multiplier, its duration/window and its measurement point would separate them."
+      },
+      {
+        "reason": "No assertion covers the prompt's actual constraint beyond diagrams — that the team reads this on the wiki and will not open external links. old_skill supplies an ASCII fallback for the static diagram and a numbered step list for each sequence diagram against the possibility that the wiki does not render Mermaid; with_skill only notes the assumption and suggests exporting images. That is a real, prompt-driven quality difference (in old_skill's favour) that nothing in the eval rewards. An assertion on self-containment — no external URL, and the page carries its meaning if the diagram does not render — would capture it."
+      },
+      {
+        "reason": "Assertions 1 and 2 are satisfied by the presence of any ```mermaid fence of the right kind and passed trivially for both configurations. They are worth keeping as floor checks, but they carry no signal in this comparison; assertions 3 and 4 are doing all the diagram-related discrimination."
+      }
+    ],
+    "overall": "The set is well aimed at diagram discipline: assertions 3 and 4 were the only discriminating ones (with_skill 8/8, old_skill 6/8, both failures there). Assertions 1, 2, 5, 6, 7 and 8 passed for both and are non-discriminating as worded — assertion 5 most consequentially, since it enumerates monitoring/ticketing/dashboard vendors and therefore cannot see the one document that names eight datastore, broker and proxy products. Tightening 5 to vendor-neutrality in general and 3 to caption-versus-content traceability would raise the set's resolution most."
+  }
+}

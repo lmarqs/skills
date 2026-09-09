@@ -4,7 +4,6 @@
   Treat sections as a checklist, not a cage: drop what does not apply, add what the decision needs.
   Nothing links out of this document to carry its argument: inline the number, the query, the excerpt,
   the diagram. Links go in Sources at the end, as provenance for what is already stated.
-  Name instruments, not vendors: "the latency board", "the cost report", "the issue tracker".
 -->
 
 # <Title: the problem, never the product>

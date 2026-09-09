@@ -1,0 +1,110 @@
+{
+  "expectations": [
+    {
+      "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+      "passed": true,
+      "evidence": "Summary: \"A language rewrite is one possible fix, and the most expensive and least reversible one available. This RFC treats the language as a subordinate dimension and decides the problem, not the ask.\" The hypothesis table H1-H6 asks of each cause \"Would a Rust/Go rewrite fix it?\" and concludes \"Only H5 makes a rewrite the *right* fix. Every other cause is fixed faster, cheaper, and more reversibly without one.\" The runtime dimension is explicitly gated: \"if the time is in a native engine (H2), a pure-Python layout engine (H1), or I/O, do **not** rewrite ... The language question is closed.\""
+    },
+    {
+      "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+      "passed": true,
+      "evidence": "Known/unknown split: \"~12 s wall time for a 40-page invoice (reported by users; not profiled)\" and \"**Where the 12 s go.** No stage-level timing exists (data fetch vs. layout vs. PDF serialization vs. asset loading).\" What would attribute it is named twice: NF3 (\"Every render emits per-stage timing (data fetch, assembly, layout/render, serialization, storage) as spans ... This is the requirement whose absence made this RFC necessary\") and Phase 0 / roadmap (\"Profiling spike — Profile a real 40-page invoice and last month's 10 slowest; classify wall time by hypothesis H1-H6 | 2d\")."
+    },
+    {
+      "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+      "passed": true,
+      "evidence": "Five non-rewrite rows: \"[Delivery] D1 - Keep synchronous on-demand rendering\", \"[Delivery] D2 - Pre-render at issuance, immutable store, serve from store\", \"[Delivery] D3 - Asynchronous on-demand\", \"[Runtime] R1 - Keep Python; profile-driven fixes\", \"[Runtime] R2 - Keep Python; swap the rendering engine\" — each with pros, cons and risk rows. reply.md confirms these were added deliberately: \"Added 'keep Python and fix the measured hot spots' and 'keep Python and swap the rendering engine' as real alternatives with pros, cons, and risks - not strawmen.\""
+    },
+    {
+      "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+      "passed": true,
+      "evidence": "\"[Runtime] R3 - Rewrite in Go\" carries pros (compiled, goroutines, static binary, short ramp, mature headless-Chromium drivers), cons (rewrite cost, parity risk, thinner document-layout ecosystem) and three risk rows. \"[Runtime] R4 - Rewrite in Rust\" carries pros (highest performance ceiling, no GC pauses, memory safety, Typst embeddable natively), cons (steepest ramp, slow compiles, smallest hiring pool) and four risk rows. The losing option gets a stated steelman: \"**Strongest objection to Go over Rust.** 'If we are rewriting anyway, Rust with a native typesetting engine gives the best output quality and the fastest renderer'\", answered on the merits, plus three named conditions that flip the pick to Rust."
+    },
+    {
+      "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+      "passed": true,
+      "evidence": "\"**NF1 - Interactive latency.** From finance clicking download to first byte: **<= 2 s at p95, <= 5 s at p99, for any invoice up to 40 pages.** **[Assumption]** - the number is a typical tolerance for an interactive download; confirm with finance before design sign-off.\" Unit (seconds), percentile, and the measured span (click to first byte) are all stated; NF3 supplies the instrument (per-stage spans plus \"a latency dashboard by page-count bucket\"), and NF2 adds a batch-window target. Both are framed around finance's use, and no language appears in either."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency, each with a reason or fact behind it; a bare 'unknown' or 'TBD' does not count",
+      "passed": false,
+      "evidence": "All four columns are populated for all twelve risk rows, but no impact or probability anywhere carries a reason or fact — every cell is a bare severity label. E.g. R3 risk \"The rewrite does not move the number because the bottleneck was never Python | Impact: High | Probability: Medium | Mitigation: Profile gate: the rewrite starts only if H5 is the majority of wall time | Contingency: Stop after the spike, having spent two days instead of two months\": the mitigation and contingency are reasoned, the impact and probability are not. Same pattern in R4 (\"Visual regressions | High | High | Same as R3 | Same as R3\") and in D2, D3 and R1-R2. The mitigation and contingency cells mostly do carry a fact, but the assertion requires a reason behind each of the four, and the impact/probability columns carry none in any row."
+    },
+    {
+      "text": "Reaches an explicit decision rather than only listing options",
+      "passed": true,
+      "evidence": "Three numbered decisions: \"**1. Delivery: adopt D2 (pre-render at issuance + immutable store) with D3 as the miss path.** This is independent of the runtime and ships first\"; \"**2. Runtime: gate the rewrite on the Phase 0 profile**\" with a written decision rule; \"**3. Language, if the gate opens: Go.**\" with the reasoning (compiled-vs-interpreted is the gap that matters; NF4 breaks the tie) and named conditions that flip it to Rust or to no rewrite. Decision style recorded as autocratic (billing domain owner)."
+    },
+    {
+      "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+      "passed": true,
+      "evidence": "reply.md has an explicit \"## What I challenged\" section: \"**That a compiled rewrite would fix the 12 s.** Of the six usual causes ... only one - Python-interpreter CPU in code we own - is fixed by changing the language ... No profile exists, so nobody knows which case this is\" and \"**That the two options were exhaustive.**\" The preceding \"## What I reclassified\" states the reframing: \"**'Rust or Go' -> 'invoice PDF latency'.** The request named two solutions before stating the problem.\""
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.88
+  },
+  "execution_metrics": {
+    "output_chars": 30260,
+    "output_files": {
+      "document.md": 26273,
+      "reply.md": 3987
+    }
+  },
+  "timing": {
+    "total_tokens": 93076,
+    "duration_ms": 496664,
+    "total_duration_seconds": 496.7
+  },
+  "claims": [
+    {
+      "claim": "12 s / 40 pages = 300 ms per page; reaching a 2 s target by rendering faster alone requires a 6x end-to-end speedup",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Both check: 12000/40 = 300 ms; 12/2 = 6. The sizing arithmetic is correct and used consistently in Context, Design and the tradeoff table."
+    },
+    {
+      "claim": "10,000 historical invoices at 12 s each is 33 h serially; ~4 h with 8 parallel workers; ~42 min at 2 s per render with 8 workers",
+      "type": "factual",
+      "verified": true,
+      "evidence": "120,000 s = 33.3 h; /8 = 4.17 h; 20,000 s / 8 = 2,500 s = 41.7 min. All three round correctly."
+    },
+    {
+      "claim": "Go's ramp from Python is shorter than Rust's, Go's PDF ecosystem is thinner than Python's for high-level document layout, and Typst is embeddable natively in Rust",
+      "type": "factual",
+      "verified": false,
+      "evidence": "These carry the language pick, and all three are self-labelled \"[Inference]\" with one routed to Phase 0 for verification. reply.md is explicit: \"Ecosystem claims ... are labeled as inference and routed to the spike for verification. I could not verify them in this session.\" Honest labelling, but the decisive tiebreak (NF4 / team familiarity) rests on an assumption the document itself says is unverified: \"**Team:** no existing Rust or Go production service.\""
+    },
+    {
+      "claim": "H1-H6 are the usual causes of slow PDF generation in Python services, and only H5 is fixed by a language change",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The taxonomy is sound and each row's verdict on 'would a rewrite fix it?' holds on its own logic (native-engine time and query shape are indeed language-independent). It is labelled \"[Inference]\" and no cause is asserted to apply. No external measurement backs the split, so it establishes that the bottleneck is unlocated rather than where it is."
+    },
+    {
+      "claim": "NF1 (<=2 s p95) and NF2 (2,000 invoices in 30 min) are assumptions needing finance confirmation",
+      "type": "process",
+      "verified": true,
+      "evidence": "Both are tagged \"[Assumption]\" inline, and the roadmap has a \"Finance figures and targets | ... confirm NF1/NF2 | 1d\" task, so the claim to have flagged rather than invented them holds."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Which rendering library the service uses - called out as \"the single most important fact missing from this RFC\"",
+      "Where the 12 s go; no stage-level timing exists",
+      "Whether generation is in the HTTP request path, whether PDFs are stored, volume and page-count distribution",
+      "Team's existing production languages - assumed to be neither Go nor Rust, which is what breaks the Go/Rust tie",
+      "Ecosystem and ramp-time claims labelled [Inference] and unverified in session"
+    ],
+    "needs_review": [
+      "Nine questions the author would have asked are listed in reply.md rather than resolved",
+      "Status is \"draft - for review\"; the runtime decision is gated on the Phase 0 profile"
+    ],
+    "workarounds": [
+      "The language pick is made conditional on the profile gate opening, so 'pick one' is answered without committing to the rewrite"
+    ]
+  }
+}

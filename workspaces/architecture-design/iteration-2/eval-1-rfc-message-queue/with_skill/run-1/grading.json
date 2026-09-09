@@ -1,0 +1,150 @@
+{
+  "configuration": "with_skill",
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "A '## Context' section opens with the problem from zero prior knowledge ('The team is building a pipeline that processes orders in stages rather than doing the work inside the checkout request') and has explicit subsections '**What exists today.**', '**The gap.**' and '**Numbers that do not exist yet.**', plus 'Current usage' (five roles and what they do today), Goals, Stakeholders, Constraints, Prior decisions and Out of scope. A closing Glossary defines outbox, quorum queue, publisher confirm, visibility timeout, etc., so no term is assumed known. Current state is stated with its uncertainty: 'Order processing happens inside the checkout request, or does not exist yet because the pipeline is greenfield (*assumed*...)'."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "'## Requirements' contains '### Functional' (table F1-F6) and '### Non-functional' (table N1-N6) as separate labelled subsections."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": true,
+      "evidence": "Both requirement tables carry a 'Goal' column populated for every row against goals G1-G4 defined in the Context ('Goal | Who benefits | How we will know' table). F1->G1, F2->G2, F3->G3, F4->'G1, G2', F5->G3, F6->G1; N1->G1, N2->G3, N3->G1, N4->G4, N5->G4, N6->'G1, G3'. Each row additionally carries a 'Source' column giving the provenance/rationale, e.g. F2's 'At-least-once is the strongest guarantee either candidate offers in practice, so duplicates are a certainty rather than a risk', and the NFR table adds a 'Derived from' column. No row is bare requirement text."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": true,
+      "evidence": "N1 'zero unexplained differences for 30 consecutive days'; N2 'raises an alert within 5 minutes'; N3 'p95 delay ... at or below 60 seconds at twice the measured peak order rate'; N4 'at or below 8 [unplanned engineer-hours] per quarter, and no Sev-1 or Sev-2 incident in the two quarters after launch'; N5 'at or below USD 250 [per month]'; N6 'recoverable for at least 14 days'. All six carry a number with a unit; N4 explicitly converts the requester's adjective ('dead simple') into hours per quarter."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": true,
+      "evidence": "The functional table has a 'Proof (the scenario, and how it is run)' column filled for all of F1-F6 (e.g. F1: 'run as a fault-injection test that blocks broker egress for 10 minutes under load, in CI before each release'; F4: 'run as a property test over shuffled event orders per order id'), and the non-functional table has a 'Proof (measurement)' column filled for all of N1-N6 (e.g. N5: 'The cloud cost report, tagged, one month after launch'; N6: 'Restore drill: reconstruct one order's history from the database alone, with the queue emptied'). Twelve of twelve requirements name a verification."
+    },
+    {
+      "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+      "passed": true,
+      "evidence": "The Requirements preamble names the surgery explicitly: '\"We can't lose messages\" is not a requirement as stated: it is an absolute with no measurement'. It becomes N1: 'The daily reconciliation of orders accepted against orders in a terminal or in-flight state closes with zero unexplained differences for 30 consecutive days after launch, including days on which a broker or consumer failure occurred. One unexplained difference is a Sev-1', verified by 'The reconciliation job, nightly, alarming on a non-zero result'. Target, loss rate and verification method are all present."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Components are named across six design dimensions and in the diagrams: Checkout service, Order database (orders/outbox/processed_message), Outbox relay, Payment/Reservation/Shipping consumers, Reconciliation job, Message queue with quarantine, Fulfilment system, plus the OrderEventPublisher port. Static: 'Figure 1. C4 container diagram of the target state' as a mermaid `flowchart TB`. Dynamic: 'Figure 2. Sequence for \"an order is accepted and its first stage runs, with one redelivery\"' as a mermaid `sequenceDiagram`. Two further diagrams (stateDiagram-v2, erDiagram) are also present."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+      "passed": true,
+      "evidence": "The 'Alternatives analysis (Tradeoff)' table has a row '**[Broker] SQS, standard queues, FIFO per stage only where needed**' (pros: 'Nothing stateful to run...dead-letter queues, redrive and multi-availability-zone replication are built in; per-request pricing with no floor'; cons: 'No broker-side topic routing, wildcards, header routing or per-message priority; ... 14-day retention ceiling') and a row '**[Broker] RabbitMQ self-hosted on the existing cluster**' (pros: 'Exchanges give topic, header and fanout routing today ... no per-message cost'; cons: 'Durability depends on the team configuring it correctly: quorum queues, publisher confirms, persistent messages ...'). Dedicated Pros and Cons columns are populated for both."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "Three: '**[Broker] Managed RabbitMQ (Amazon MQ for RabbitMQ) — option nobody proposed**', '**[Broker] Durable log (Kafka or Kinesis) — option nobody proposed**', and '**Baseline: no broker at all — the outbox table *is* the queue, polled by workers**'. All three are argued on requirement coverage rather than mentioned in passing, and the managed-RabbitMQ row is credible enough that the Decision names it as the contingency ('If a routing need becomes real, buy managed RabbitMQ rather than running it')."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+      "passed": true,
+      "evidence": "All eleven risk rows populate Impact, Probability, Mitigation and Contingency, and Impact/Probability are never bare ratings — each is a rating plus a reason, e.g. Impact 'High: it is the failure G2 exists to prevent' / Probability 'Medium: it is application code on the critical path, and at-least-once makes duplicates routine rather than rare'; 'Medium: disk alarms are among the most common RabbitMQ incidents'; 'Medium if this is the team's first RabbitMQ (B1 = no); Low if an experienced operator already owns one (B1 = yes)'. Three cells assert that no mitigation/contingency exists, but each states the fact behind that rather than a placeholder: 'None; this is the honest cost of buying the option early', 'None; this is the wrong scale for it', 'None available; the failure is structural' with contingency 'Not applicable; rejected. It is in the table because it is the shape most pipelines are built in, and the reason for rejecting it belongs on the record'. Judged as reasoned answers rather than bare 'N/A'; flagged in eval_feedback as the one call I had to make."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "'## The decision' opens: '**Adopt the outbox handoff, at-least-once delivery with idempotent consumers, and SQS standard queues behind a publisher port, with FIFO reserved for a stage that proves it needs serialization. Do not self-host RabbitMQ. If a routing need becomes real, buy managed RabbitMQ rather than running it.**' The status remains 'proposed' pending B1-B3, but the chosen alternative is named unambiguously, and the drivers that decided it are ranked in the following paragraph."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "A '### Consequences' subsection lists six, including 'The team now maintains three things it did not have: an outbox relay with its own lag alarm, an idempotency table on the write path of every consumer, and a re-drive tool' and 'Correctness on G2 now depends on application code — the idempotency check — rather than on a vendor's guarantee'. A '### Residual risks' subsection follows. Confirmation is a separate '### Confirmation' subsection: '**The fitness function** is the nightly reconciliation behind N1 ... If that alarm stays quiet for 30 days including a day with a broker or consumer failure, this decision is holding', plus named alarms, a CI release gate, a quarterly game day and '**Revisit this document** if B1 or B2 answers against the recommendation ... or in six months, whichever comes first'."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "'## Launch strategy' gives three phases each with an exit criterion ('Exit criterion: N1's reconciliation closes at zero for 30 consecutive days'; 'Exit criterion: no code path writes an order without an outbox row, asserted by a test') and names the deferred routing decision's trigger. '## Tasks and roadmap' follows with a twelve-row table of tasks and estimates, ordered so 'The first five tasks are measurements, because five assumed numbers are load-bearing above.'"
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "Both document.md and reply.md are entirely in English; no non-English text appears in headings, tables, diagram labels or the glossary."
+    }
+  ],
+  "summary": {
+    "passed": 14,
+    "failed": 0,
+    "total": 14,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 68260
+  },
+  "timing": {
+    "total_tokens": 150193,
+    "duration_ms": 804280,
+    "total_duration_seconds": 804.3
+  },
+  "claims": [
+    {
+      "claim": "At 10,000 orders/day and 5 messages/order the pipeline carries ~1.5M messages a month, 4.5M requests, ~USD 1.80/month at USD 0.40 per million requests",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: 10,000 x 5 x 30 = 1.5M messages; x3 calls = 4.5M requests; 4.5 x 0.40 = 1.80. The document labels the 0.40 price *assumed* and flags it for pre-commit verification."
+    },
+    {
+      "claim": "The SQS/self-host cost crossover is around 139M messages or ~930,000 orders a day",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Internally consistent: USD 167/month upkeep divided by USD 1.20 per million messages = 139M; 139M / 5 messages per order = 27.8M orders/month; 27.8M / 30 = ~927k/day. USD 167 derives from 'one engineer-day a quarter' at 'USD 500 a day' (500/3 = 166.7). Every input is labelled assumed, and the document states the load-bearing input and its sensitivity."
+    },
+    {
+      "claim": "SQS standard queues are at-least-once with best-effort ordering; FIFO deduplication window is 5 minutes; retention ceiling is 14 days; message size cap is 256 KiB",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Consistent with published SQS behaviour as far as I can check without network access, and each is labelled '*vendor-documented, to re-confirm*' with a roadmap task to verify. One point of conflict worth noting: the old_skill document in this same eval asserts the SQS payload ceiling is 1 MiB and that '256 KB' is stale. The two documents cannot both be right; neither could be verified here."
+    },
+    {
+      "claim": "The order database as system of record plus a publisher port makes the broker a two-way door reversible for 5-8 engineer-days",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The structural argument is sound and internally consistent with the design (ports in dimension 6, outbox in dimension 1). The 5-8 engineer-day figure is labelled '*assumed*, derived from the adapter and drill lines in the roadmap' and is not measured; the document does not claim otherwise."
+    },
+    {
+      "claim": "Nothing in the document was measured; every figure is labelled with its provenance",
+      "type": "process",
+      "verified": true,
+      "evidence": "Spot-checked throughout: every numeric claim I sampled carries '*assumed*' or '*vendor-documented, to re-confirm*', the Constraints table records emptiness as a finding rather than inventing clauses, and the Sources section lists provenance instead of citations. Consistent with the 'Evidence status, read this first' header."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+        "reason": "This was the most discriminating assertion in the set (with_skill gives every Impact/Probability a reason after the rating; old_skill gives bare 'Medium'/'High' and two literal em-dash mitigations), but it forced a judgment call the wording does not settle: with_skill has three cells reading 'None; this is the honest cost of buying the option early', 'None; this is the wrong scale for it' and contingency 'Not applicable; rejected. ...'. I passed them as reasoned answers rather than bare placeholders. Say explicitly whether 'no mitigation exists, because X' counts as carrying the attribute — otherwise two graders will split on identical text."
+      },
+      {
+        "assertion": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+        "reason": "Both configurations passed, but on very unequal evidence: with_skill has a named fitness function tied to a requirement ID ('the nightly reconciliation behind N1 ... alarming on any unexplained difference') plus a revisit trigger, while old_skill's consequences are scattered through the design and alternative rows and its confirmation is a set of flip conditions plus a shadow-run reconciliation. The 'or a review' escape makes this passable by a document that merely says 'we will revisit in six months'. Consider requiring the confirmation to name a measurable signal traced to a specific requirement."
+      },
+      {
+        "reason": "No assertion covers provenance or evidence labelling, which is the largest observable difference between the two documents. with_skill labels every figure *assumed* or *vendor-documented, to re-confirm*, records the empty Constraints table as a finding, and makes its first five roadmap tasks the five measurements that would settle the argument. old_skill states contested vendor facts flatly — 'Max payload 1 MiB (64 KB per billed request unit)' and, in its reply, 'the payload ceiling is 1 MiB now, not the 256 KB figure many references still quote' — where with_skill says 256 KiB. One of the two is wrong and no assertion would catch it. An assertion like 'every quantitative claim is either sourced or explicitly marked as an assumption with a named way to confirm it' would discriminate."
+      },
+      {
+        "reason": "No assertion checks internal consistency between requirements and design. old_skill passes every structural assertion while carrying a live contradiction: N3 is justified 'because it sits inside (or adjacent to) a synchronous customer request', yet D1 removes publishing from the request path and the traceability table then says 'Relay publishes off the request path; the customer path only writes to the DB'. An assertion that each requirement's stated rationale survives the chosen design would catch this class of defect."
+      },
+      {
+        "assertion": "Written entirely in English (matching the request language)",
+        "reason": "Non-discriminating and effectively free — both configurations pass trivially, since the prompt is in English and neither document had any reason to drift. Keep it only as a regression guard for the multilingual behaviour; it carries no signal in this eval."
+      },
+      {
+        "reason": "Eight of the fourteen assertions (contextualization, functional/non-functional split, static+dynamic diagram, both named alternatives with pros/cons, an unproposed alternative, an explicit decision, a launch strategy or roadmap, English) passed for both configurations. They are presence checks that any competent RFC satisfies, so the eval's real resolution comes from the four requirement-quality assertions and the risk-attribute assertion. If this eval is meant to separate versions of the skill, consider trimming the presence checks and adding assertions on document qualities that are hard to fake."
+      },
+      {
+        "reason": "No assertion grades reply.md at all, even though it is a required output. Both replies do substantive work the document cannot do (with_skill lists the three questions it would have asked with its assumed answers and flags 'Every number in the document is assumed'; old_skill flags the one number it deliberately left blank). An assertion such as 'the reply names the assumptions that could change the decision and what would confirm them' would make the second output count."
+      }
+    ],
+    "overall": "The assertion set is well-aimed at requirement quality — the goal/rationale, quantified-target, per-requirement-proof and risk-attribute assertions are exactly the four that separated the two documents, and they did so cleanly. Its weaknesses are that over half the set is presence checks both configurations pass, that nothing checks evidence provenance or internal consistency (where the two documents differ most and where old_skill carries an actual factual conflict), that nothing grades reply.md, and that the risk-attribute assertion's treatment of a reasoned 'None' is left to the grader."
+  }
+}

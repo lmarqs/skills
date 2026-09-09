@@ -1,13 +1,12 @@
 {
   "eval_id": 9,
-  "eval_name": "rfc-embedded-diagrams-vendor-neutral",
+  "eval_name": "rfc-embedded-diagrams",
   "prompt": "Write an RFC for a webhook ingestion pipeline: partners post events to us, we validate, deduplicate, persist and fan out to three internal consumers. Include the diagrams; the team reads these on the wiki and will not open external links. We expect about 200 events per second at peak, measured last month.",
   "assertions": [
     "At least one static diagram (context, container or component) is embedded in the document as Mermaid or another text-rendered diagram, not merely described in prose or linked",
     "At least one dynamic diagram (sequence or flow) is embedded in the document as Mermaid or another text-rendered diagram",
     "Each diagram caption states its type or zoom level and the requirement IDs it addresses",
     "The static diagram stays at one level of zoom: it does not mix external actors and systems with the internal modules of a single component",
-    "No monitoring, ticketing or dashboard vendor product is named that the prompt did not mention; instruments are referred to generically (for example the latency board, the load run)",
     "The 200 events per second figure is carried with its 'measured' label and used to derive at least one non-functional target with a stated condition",
     "The tradeoff table scores options against requirement IDs and includes a baseline row (do nothing or the smallest change)",
     "Reaches an explicit decision with its decider, consequences and confirmation"

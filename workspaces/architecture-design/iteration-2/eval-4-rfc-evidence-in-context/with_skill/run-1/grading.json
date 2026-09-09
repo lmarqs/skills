@@ -1,0 +1,124 @@
+{
+  "expectations": [
+    {
+      "text": "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+      "passed": true,
+      "evidence": "The source is attached at every mention, never only once. Context: \"p95 of the dashboard endpoint sat at approximately 8,000 ms over 2026-08 (`api-latency` board, as reported by the requester; *measured, second-hand*)\". Current-usage table: \"p95 ≈8,000 ms over 2026-08 (`api-latency` board, per the requester; *measured, second-hand*)\". N1's Derived-from cell: \"Today ≈8,000 ms (`api-latency` board, 2026-08, per the requester; *measured, second-hand*)\". Also carried in the Goals table (\"Dashboard endpoint p95 on the `api-latency` board\") and the Sources section."
+    },
+    {
+      "text": "The location of the report queries is cited concretely (reports/queries.py)",
+      "passed": true,
+      "evidence": "Cited by path throughout, and treated as a claim about a specific file: \"aggregate queries over history, run from `reports/queries.py` inside the application process\"; \"The report queries are all in `reports/queries.py`\" as a labelled input row; task T2 \"Grep the repository for query construction outside `reports/queries.py`\"; the B2 proof-of-concept contract \"Take the dashboard endpoint's queries from `reports/queries.py`\"; glossary and Sources both name the path."
+    },
+    {
+      "text": "The 40% database-load figure, which the prompt states with no source, is not repeated as established fact: it carries a label (assumed, estimated, unverified, or 'per the requester') rather than being presented as measured",
+      "passed": true,
+      "evidence": "Every one of the ~14 mentions is hedged or labelled; I found no bare declarative use. Input table: \"'Reporting is 40% of our database load' | *assumed* | No instrument is named and 'load' is not a metric\". Context: \"Reporting is claimed to account for 40% of database load (requester, no instrument named; *assumed*)\". N2: \"Claimed 40% today (requester, no instrument; *assumed*, task T2 measures it)\". Decision: \"a 40% figure that is still *assumed*\"; \"how much of the claimed 40% actually moves\". Consequences: \"to the extent the 40% claim is real\". The document also states the figure is not load-bearing: \"Reporting being 40% of database load is treated as 'a large enough share to be worth isolating' rather than as a number any target depends on.\" The one unhedged mention, B1's \"the split saves less than 40%\", is a statement about how much of the claimed share can move, not an assertion that the share is measured."
+    },
+    {
+      "text": "For the 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+      "passed": true,
+      "evidence": "Named with a method, a grouping, a window and a cost: \"One query against the database's cumulative statement statistics, grouped by query fingerprint, over a week. About one hour (task T2)\". Task T2 restates it as work: \"Enable and read statement-level attribution on the transactional database: report-query share of database time by fingerprint, over a week.\" N2's Proof column names the same instrument (\"Cumulative statement statistics grouped by query fingerprint and database role, read weekly by the database owner\"), and the glossary defines \"Database time\" as the metric that resolves the ambiguity in the word \"load\"."
+    },
+    {
+      "text": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+      "passed": true,
+      "evidence": "The Context section runs a three-label scheme declared up front (measured / estimated / assumed) and applies it per mention. Examples: 8,000 ms \"(`api-latency` board … *measured, second-hand*)\"; 40% \"(requester, no instrument named; *assumed*)\"; the derived 60% \"(*estimated*, and only as good as the 40%)\"; ~300 tenants \"*assumed*\" with \"'active' is undefined\"; the invented targets are labelled too (N1's 1,500 ms \"is *assumed*: no abandonment figure and no contractual figure were supplied\", N2's 5% \"*estimated*\", N3's 5 minutes \"*Assumed.*\", N6's 30 s \"*Assumed.*\"), as is the 10% break-even threshold (\"the architect's judgement (*assumed*), not a measured break-even\") and the roadmap estimates. I found no unlabelled quantitative claim."
+    },
+    {
+      "text": "At least one requirement traces explicitly back to a specific fact stated in the context",
+      "passed": true,
+      "evidence": "The non-functional table has both a \"Derived from\" and a \"Source\" column. N1: \"Derived from: Today ≈8,000 ms (`api-latency` board, 2026-08, per the requester…)\" / \"Source: The requester's p95 figure\". N2: \"Derived from: Claimed 40% today (requester, no instrument; *assumed*…)\" / \"Source: The 40% claim\". N5 traces to the tenant count: \"With roughly 300 tenants (*assumed*) the blast radius of one unfiltered aggregate is the whole customer base\". F1 traces to the file: \"The report catalogue is claimed to live in `reports/queries.py` (*assumed*)\"."
+    },
+    {
+      "text": "The reasoning can be followed without opening any linked or external resource",
+      "passed": true,
+      "evidence": "The document contains no hyperlinks and no \"see X\" pointing outside itself. External artefacts are named only as things to be read later (\"Not opened for this document; task T1 reads it\"), and the argument states what it needs from them rather than deferring to them. The three mermaid figures are inline and each carries a caption naming the requirements it answers; the design prose (\"Where report reads execute\", \"How the data gets there\") states the same mechanism in words, so the chain from the 8-second p95 to B2 to the phased decision is followable from the text alone."
+    },
+    {
+      "text": "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top",
+      "passed": true,
+      "evidence": "Three layers, none of them a bare document list: an up-front evidence-label table with one row per input (label, why, what would confirm it and its cost); inline attribution at each mention throughout Context, Requirements, the tradeoff table and the Decision; and a closing \"## Sources\" section that names the instrument, the window and the informant per fact — e.g. \"The requester, 2026-09-08: reporting is 40% of database load; approximately 300 active tenants; the report queries are all in `reports/queries.py`. No instrument was named for any of the three; task T2 closes all three.\""
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 64441
+  },
+  "timing": {
+    "total_tokens": 147039,
+    "duration_ms": 765511,
+    "total_duration_seconds": 765.5
+  },
+  "claims": [
+    {
+      "claim": "Neither the repository nor the Grafana board was available while the document was written",
+      "type": "process",
+      "verified": true,
+      "evidence": "Stated in the document (\"Neither the repository nor the Grafana instance was available while this document was written, so the lookups above were not performed here\") and consistent with the reply (\"I could not verify anything\"). No transcript was available to cross-check, but nothing in the outputs contradicts it, and no figure is presented as first-hand."
+    },
+    {
+      "claim": "The four request figures can be closed in about two hours of work (tasks T1 and T2)",
+      "type": "factual",
+      "verified": false,
+      "evidence": "The reply says \"Tasks T1 and T2 in the document close all four in roughly two hours\", and the input table costs them at 15 min + 1 h + 15 min + 1 h ≈ 2.5 h; but the Tasks table sizes the same T1 and T2 at 0.5d + 1d. The two estimates are inconsistent with each other. Immaterial to the decision, but it is an unverified number stated twice at different magnitudes."
+    },
+    {
+      "claim": "\"Load\" is ambiguous, so the 40% figure has no single meaning",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Justified: the document enumerates the candidate metrics (\"CPU time, total query time, IOPS, connections and lock waits give different answers\"), then fixes one in the glossary (\"Database time … the metric N2 uses for 'load'\") and expresses N2's target in it, so the ambiguity is resolved rather than only flagged."
+    },
+    {
+      "claim": "Every incumbent from the prior-decisions table has a row in the tradeoff table",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Checked against the tables: single shared database → \"Baseline: do nothing\"; in-request synchronous reporting → \"[Delivery] In-request synchronous reporting (incumbent)\"; shared-schema multi-tenancy → \"[Data model] A reporting store per tenant, schema or database\". The fourth prior decision (Grafana as the latency instrument) is explicitly excluded with a reason."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "All four input figures are unverified; the document labels the p95 as measured second-hand and the other three as assumed",
+      "Database engine and multi-tenant model are assumed (PostgreSQL, shared schema with tenant_id)",
+      "Task estimates are the architect's, with no knowledge of team size or familiarity with logical replication"
+    ],
+    "needs_review": [
+      "B1 (which reports tolerate no staleness) and B2 (contention vs query cost in the 8 s) are blocking; status stays proposed while either is open",
+      "N1's 1,500 ms, N2's 5%, N3's 5 minutes and N6's 30 s are all proposed numbers awaiting measurement or product sign-off"
+    ],
+    "workarounds": [
+      "No repository or Grafana access, so every lookup was converted into a labelled task (T1–T3) rather than guessed"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Plainly: the rewrite did NOT make this eval meaningfully discriminating. Stating the 40% as flat fact in the prompt moved the score from 8/8 vs 8/8 to 8/8 vs 7/8. Exactly one assertion (#3) separated the two configurations, and only under a strict reading of its clause 'is not repeated as established fact' — the old-skill document does carry a provenance label for the figure in a dedicated evidence table, and fails only because it then restates the figure bare in argumentative prose ('Reporting consumes ~40% of the database and thereby degrades transactional endpoints'). Six of the eight assertions are non-discriminating."
+      },
+      {
+        "assertion": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+        "reason": "This assertion is ambiguous between 'each distinct claim has provenance somewhere' (both configurations pass; the old skill has an E1–E6 provenance table) and 'every mention of a number is hedged or labelled' (only the new skill passes). That ambiguity is precisely where the two documents differ, so it is the assertion most worth sharpening. Rewording it to 'every mention of a number in the document, not only its first statement, carries a source or a label' would turn the eval's single real discriminator into an explicit, unarguable one."
+      },
+      {
+        "assertion": "The location of the report queries is cited concretely (reports/queries.py)",
+        "reason": "Non-discriminating and near-trivial: the prompt hands over the path, and any document that echoes the prompt passes. It would pass for a document that cites the path while inventing its contents. Consider requiring that the document distinguish the claim 'the queries are in that file' from the verified fact, and name how the 'all' in 'all in reports/queries.py' would be checked — both documents do this, but a weaker one would not."
+      },
+      {
+        "assertion": "The reasoning can be followed without opening any linked or external resource",
+        "reason": "Cannot fail in this eval's setup. Neither executor had repository or Grafana access, so neither document could contain a working link; both pass by construction. To make it bite, the eval would need a prompt that supplies a real linkable artefact (a pasted log, a table of numbers) and then check that the document restates the load-bearing content inline instead of pointing at it."
+      },
+      {
+        "reason": "An outcome no assertion covers, and the clearest quality difference I observed: whether the document keeps the unsourced figure out of its load-bearing argument. The new skill states 'Reporting being 40% of database load is treated as \"a large enough share to be worth isolating\" rather than as a number any target depends on' and names the threshold that would flip the recommendation ('If the measured share is under about 10% … the \"optimize in place\" row becomes the likely decision'); the old skill argues from the figure ('it is a structural half of what the database does. Both numbers point the same direction'). An assertion like 'the document states what would change the recommendation if the 40% figure is wrong, and by how much' would test evidence discipline at the level of the argument rather than the level of the sentence."
+      },
+      {
+        "reason": "Both documents ran unusually long (57 KB and 48 KB). No assertion penalises length, and the new skill took 2.0× the wall-clock time and 1.8× the tokens of the old for a one-assertion gain. If restraint matters, an assertion bounding the document, or bounding the number of invented targets, would be worth adding — the labelling discipline the eval rewards can be bought by adding text, which makes 8/8 easier to reach the longer the document gets."
+      }
+    ],
+    "overall": "The rewrite bought one discriminating assertion out of eight, and that one turns on a strict reading rather than a clean difference. Assertions 1, 2, 4, 6, 7 and 8 all pass for both configurations — several of them are satisfiable by echoing the prompt (2), by any document with no links (7), or by any document with a sources heading (8). The eval currently measures whether provenance appears anywhere in the document; the behaviour it is trying to measure is whether an unsourced number stays quarantined from the argument. Sharpening assertion 5 to a per-mention test, and adding an assertion about what would change the decision if the 40% is wrong, would do more than another prompt rewrite."
+  }
+}

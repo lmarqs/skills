@@ -1,0 +1,118 @@
+{
+  "expectations": [
+    {
+      "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints, prior decisions or givens in a section separate from the requirements",
+      "passed": true,
+      "evidence": "A '### Prior decisions' table under '## Context' carries all four items as rows, ahead of and separate from '## Requirements': 'Kafka is the company's event transport', 'Public endpoints follow the company API standard', 'The platform is AWS, because everything else is there', 'Merges are gated on test coverage above 90%'. The Requirements section confirms the separation: 'Kafka, the company API standard and AWS moved to the prior decisions table ... Coverage above 90% moved there too'. None of the four appears among F1-F5 or N1-N5."
+    },
+    {
+      "text": "Each of those items carries a source (who or what imposed or decided it)",
+      "passed": true,
+      "evidence": "The prior-decisions table has a dedicated 'Who made it, when' column, populated for all four rows: Kafka -> 'Platform team, date not stated (requester's description; *assumed*)'; API standard -> 'The guild or team that wrote the standard (author not stated; *assumed*)'; coverage gate -> 'Not stated; presumably the team, in CI (*assumed*: the CI workflow file would confirm whether the gate is enforced or aspirational)'; AWS -> 'Not stated; predates this decision (*assumed*)'. The AWS cell is the weakest — it names no agent — but it is an explicit provenance statement (inherited, predating this decision) rather than silence, and the row title itself gives the 'what' ('because everything else is there'). Read as attribution-with-labeled-uncertainty, all four carry a source; see eval_feedback, this assertion admits generic answers."
+    },
+    {
+      "text": "Each of those items carries an indication of the cost or difficulty of challenging or reversing it",
+      "passed": true,
+      "evidence": "A 'Cost to reverse' column is filled for every row: Kafka -> 'Low **for this service** ... High company-wide, but that reversal is not on the table here'; API standard -> 'Low: this is a new surface with no existing clients. It would be high for an endpoint an app already consumes'; AWS -> 'High, and out of proportion to this decision'; coverage gate -> 'Low: a team practice, changeable in a pull request'."
+    },
+    {
+      "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+      "passed": true,
+      "evidence": "Absent from the functional (F1-F5) and non-functional (N1-N5) tables. Classified explicitly: '\"Nice to have: a UI for browsing the logs\" is a wish: nothing fails if it never ships, so it left the requirements, became a pro for the options that deliver it, and sits in the roadmap as phase 3.' The Design section repeats it: 'The requested browsing UI is not here. It is a wish, so it ships in phase 3'."
+    },
+    {
+      "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+      "passed": true,
+      "evidence": "Split into two quantified NFRs: 'N1 | ... p95 of a state-changing admin panel action grows by at most 10% over its pre-rollout baseline, measured at the panel's daily peak' and 'N2 | ... p95 of each of F1's four query shapes at or below 5 s, over a store holding the full retention window at the assumed volume'. Both carry a metric, a target, a condition and a named measurement instrument, and both are labeled *assumed* with what would derive them."
+    },
+    {
+      "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+      "passed": true,
+      "evidence": "Not among N1-N5 (latency, query latency, reconciliation, retention, tamper detection). Held out deliberately: 'line coverage is a delivery practice, not a quality of the running system'. In the tradeoff table it appears as '[Verification gate] 90% line coverage (incumbent, prior decision) | no requirement depends on it'."
+    },
+    {
+      "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated and the compliance role named",
+      "passed": true,
+      "evidence": "F1: goal column 'A compliance analyst answers a question the same day, without an engineer'; requirement 'A compliance analyst can retrieve staff actions by actor, by affected record, by action type and by time range, in any combination, over the whole retention window'; source column 'Context: the answer is not self-service', which traces to the grep-by-hand pain in Context. The compliance role is named as 'compliance analyst' and appears in the Goals and Stakeholders tables with 'Head of compliance' as its voice. F3 (export with range, count, integrity result) is derived the same way."
+    },
+    {
+      "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+      "passed": true,
+      "evidence": "Stated in three places. After the prior-decisions table: 'Two items in the request went somewhere other than the requirements. \"It should be fast\" is an unfinished non-functional requirement and became N1 and N2 ... \"Nice to have: a UI for browsing the logs\" is a wish'. At the head of Requirements: 'Four items from the request were reclassified ... Kafka, the company API standard and AWS moved to the prior decisions table: each was decided by someone inside the organization, so none of them excludes an option ... Coverage above 90% moved there too, and it is worth saying why more plainly'. And the version-history row: 'Six items from the request reclassified'."
+    },
+    {
+      "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+      "passed": true,
+      "evidence": "The alternatives table carries three transport rows: '[Transport] Kafka (incumbent, prior decision)', '[Transport] No broker: the relay writes straight to the audit store' and '[Transport] Managed queue (SQS FIFO or Kinesis) instead of Kafka'. Each non-incumbent row gets the same pros/cons/risk/impact/probability/mitigation/contingency treatment as every other option. The decision section returns to it: 'this document weighed the no-broker alternative beside it: for a single consumer, no broker is simpler and cheaper to operate. Kafka is kept anyway, on the platform relationship'."
+    },
+    {
+      "text": "Where an alternative conflicts with a stated given, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+      "passed": true,
+      "evidence": "The no-broker row records the conflict as a con and prices it as a risk rather than excluding the option: cons 'Reverses the Kafka prior decision for this service'; risk 'Platform team declines the exception, costing a review cycle' with impact Low, probability Medium, mitigation 'Raise it as an exception request early, with this row as the argument', contingency 'Adopt the Kafka variant; the relay's publish target is one line of configuration'. Same for the managed-queue row: 'Also reverses the Kafka prior decision, and gains nothing over it that this service needs'. The preamble states the rule: 'None of these excludes an option. Each incumbent has a row in the tradeoff table with at least one alternative beside it, and the cost of reversing it is a cost in that row.' AWS is handled the same way — 'Every option below runs on AWS ... recorded here rather than given a row' — as shared cost, not exclusion, and the rejected rows (direct publish, do-nothing) lose on requirements F2/N3, not on a given."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 70715
+  },
+  "timing": {
+    "total_tokens": 128632,
+    "duration_ms": 615465,
+    "total_duration_seconds": 615.5
+  },
+  "claims": [
+    {
+      "claim": "\"This document contains no *measured* numbers ... every figure below is labeled *assumed* with the requester as its origin\"",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The first half holds — no figure is presented as measured, and the NFR targets, the volume assumption and the retention upper bound all carry an explicit *assumed* label with a named instrument. The second half is overstated: the roadmap estimates ('2d', '3d', '4d', '5d', '8d'), the alarm threshold 'oldest unpublished outbox row above 5 minutes', the 24-hour detection window and the test scales ('200 actions seeded', '10,000 mixed actions') carry no assumption label."
+    },
+    {
+      "claim": "\"Each incumbent has a row in the tradeoff table with at least one alternative beside it\"",
+      "type": "factual",
+      "verified": false,
+      "evidence": "True for Kafka (no-broker, managed queue), the store and the query surface (read-only DB access beside company-standard endpoints). False for two of the four prior decisions: AWS is deliberately given no row ('recorded under \"what every option shares\" rather than given a row' — self-disclosed in the same table), and '[Verification gate] 90% line coverage (incumbent, prior decision)' has no alternative row beside it; the only counter-proposal is inside its own mitigation cell ('make F2's fault-injection run a required check beside it')."
+    },
+    {
+      "claim": "\"Six items from the request reclassified\" (version history)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Counts to six against the prompt: Kafka, API standard, AWS and the coverage gate to prior decisions; 'it should be fast' split into N1/N2; the browsing UI to a wish. Matches the reply's reclassification table row-for-row."
+    },
+    {
+      "claim": "Two requirements (F4 tamper-resistance, F5 restricted-and-recorded reads) were added by the architect rather than requested",
+      "type": "process",
+      "verified": true,
+      "evidence": "Consistent with the prompt, which asks for neither. Both are flagged in place ('Added by the architect; serves the auditor. Subject to B2'), in the Requirements preamble, in the stakeholder-conflicts list, and in the reply — so the addition is disclosed rather than smuggled in."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Each of those items carries a source (who or what imposed or decided it)",
+        "reason": "The weakest assertion in the set. 'A source' is satisfiable by a generic attribution ('the platform team', 'the guild or team that wrote the standard', 'an engineering standard, tracked in CI') and both documents leave the AWS decider unnamed, so the verdict turned on how systematically the field was populated rather than on whether the reader learns who to go to. Consider requiring, per item, either a named team/role/artifact or an explicit statement that the source is unknown plus who would know — which is the actionable property."
+      },
+      {
+        "assertion": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+        "reason": "This overlaps assertion 10 and is softer than it looks: prose that names a non-Kafka design and argues its merits satisfies it without the option ever entering the alternatives table. Consider requiring the alternative to appear in the alternatives analysis with the same pros/cons/risk treatment as the other options, which is the difference the two configurations actually showed."
+      },
+      {
+        "reason": "Non-discriminating in this eval: assertions 4, 5, 6, 7, 8 and 9 passed in both configurations. 4, 5, 6 and 8 look like table stakes for any competent run on this prompt; 7 passed for both only because 'its goal stated' can be met by goal language embedded in the requirement sentence rather than by an explicit requirement-to-goal link (only with_skill has the latter, via a Goal column and a Goals table). Tightening 7 to require an explicit traced link would make it discriminating."
+      },
+      {
+        "reason": "No assertion covers a defect I found in both documents and would have expected the eval to catch: numbers introduced by the author that are not covered by the document's own assumption discipline. with_skill claims 'every figure below is labeled *assumed*' while leaving roadmap estimates and alarm thresholds unlabeled; old_skill labels its A1-A9 numbers well but states an unverified external fact (QLDB end-of-support) inside the design section. An assertion on 'every quantity the author invented is labeled as such' would test something both runs got only partly right."
+      }
+    ],
+    "overall": "The set is well aimed at the real failure mode of this prompt (a given silently becoming a requirement), and assertions 1, 2, 3 and 10 are the ones that separated the two runs. Six of ten did not discriminate, and two of those (7, 9) are softer than their wording suggests."
+  }
+}

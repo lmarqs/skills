@@ -193,8 +193,10 @@ not a requirement; it is a goal, and it belongs in the Goals table.
 
 The Context is an argument about the current state, and an argument about the current state runs on
 numbers. Each one carries where it came from, inline, next to the claim rather than in a footnote or a
-linked document. Name the instrument and the date, not the vendor: "the latency board", "the cloud
-cost report", "the issue tracker", "the load run".
+linked document. Name the instrument and the date, and name them as the reader knows them: "the p95
+latency board, 12 Aug", "the July cost report", "issue 4182", "the load run of 3 Sep". Where the
+instrument has a product name, use it. A reader who cannot tell which dashboard a number came from
+cannot check it.
 
 | Kind | How it appears in the text |
 | --- | --- |

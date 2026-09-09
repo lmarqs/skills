@@ -4,9 +4,11 @@ A condensed RFC deciding how search will be served for a purchase flow. Use it a
 *structure, depth and tone*: the usage and goals tables, constraints kept apart from prior decisions,
 requirement tables with a goal, a scenario or a derived target, and a proof on every row, embedded
 diagrams, and a tradeoff table with a requirements column and a baseline row. Figures are illustrative
-but written the way real ones should be written, with a source and a label attached. Product names
-appear only for technologies that are options under analysis. (The skill writes in the language of
-the request; this example is in English, and the same structure applies in any language.)
+but written the way real ones should be written, with a source and a label attached. The instruments
+behind those figures are named generically here only because this file ships in a public repository;
+a real document names the dashboard, the tracker and the load tool the team actually uses. (The skill
+writes in the language of the request; this example is in English, and the same structure applies in
+any language.)
 
 ---
 
