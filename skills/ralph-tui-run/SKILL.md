@@ -1,6 +1,6 @@
 ---
 name: ralph-tui-run
-description: "Coordinates the implementation of a beads epic through ralph-tui. The agent running it does not write code: it first reads the project (agent instructions, ralph-tui config, beads, quality gates, git workflow), then picks the epic, asks for harness (claude or codex), model and effort from a preset list, starts ralph-tui headless so fresh subagents implement each bead, then checks progress every N minutes (configurable) and reports until the epic completes or fails. Explicit invocation only. Triggers on: ralph run, run the epic, implement the epic with ralph, start ralph on the beads."
+description: "Coordinates the implementation of a beads epic through ralph-tui. The agent running it does not write code: it first reads the project (agent instructions, ralph-tui config, beads, quality gates, git workflow), then picks the epic (the one created in this session when there is one), shows the beads it will implement and confirms, asks for harness (claude or codex), model and effort from a preset list, starts ralph-tui headless so fresh subagents implement each bead, then checks progress every N minutes (configurable) and reports until the epic completes or fails. Explicit invocation only. Triggers on: ralph run, run the epic, implement the epic with ralph, start ralph on the beads."
 ---
 
 # Ralph TUI - Run
@@ -18,28 +18,39 @@ Read, in this order, whatever exists:
 1. **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, `.claude/settings*.json`, `.codex/`, `.cursorrules`. These bind the subagents too.
 2. **ralph-tui setup:** `ralph-tui config show`, `.ralph-tui/config.toml`, `.ralph-tui/prompt.md` (custom template), `.ralph-tui/progress.md`, `ralph-tui status`.
 3. **Beads:** `.beads/` present, `bd list --type=epic`.
-4. **Quality gates:** how the project runs checks (`mise.toml`, `package.json` scripts, `Makefile`, CI). Confirm the beads name them.
+4. **Quality gates:** how the project runs checks (`mise task list`, `package.json` scripts, `Makefile`, CI). Confirm the beads name them.
 5. **Git workflow:** default branch, branch protection, worktrees, commit conventions, hooks.
 
-Write a five-line summary: harness and model the project already configures, branch strategy, quality gates, anything in the agent instructions that constrains an autonomous run. Show it to the user with the Step 2 questions. Project config becomes the default answer; presets fill the gaps.
+Write a five-line summary: harness and model the project already configures, branch strategy, quality gates, anything in the agent instructions that constrains an autonomous run. Show it to the user together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer; presets fill the gaps.
 
 If `.beads/` is missing, stop. Point to the `ralph-tui-create-beads` skill.
 
 ---
 
-## Step 1: Pick the epic
+## Step 1: Pick the epic and confirm the scope
+
+If an epic was created earlier in this session, it is the default. Otherwise:
 
 ```bash
 bd list --type=epic --status=open
 ```
 
-One open epic: use it. Several: ask which.
+One open epic: default to it. Several: ask which.
+
+Then show what will be implemented and get an explicit yes before anything else:
+
+```bash
+bd show <epic-id>
+bd list --parent=<epic-id> --deps --pretty
+```
+
+Summarize: epic title and goal, each child bead in execution order with its status, which beads are blocked and by what, and the quality gates the beads name. Flag beads that look too big for one iteration or have no acceptance criteria. Do not start on a scope the user has not confirmed.
 
 ---
 
 ## Step 2: Ask for run settings (one message)
 
-Offer these presets; accept custom values.
+Ask these together with the Step 1 confirmation. Offer these presets; accept custom values.
 
 | Preset | Harness | Model | Effort |
 |---|---|---|---|
