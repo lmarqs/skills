@@ -25,25 +25,25 @@ Read whatever exists. Later steps act on these findings.
 
 - **Instructions and settings,** project and user level, for every harness involved. Subagents inherit them, including rules about committing, pushing, issue tracking and effort.
 - **ralph-tui:** merged config, the prompt the run will use (`ralph-tui template show --tracker <tracker>`), any existing session, and the agents it supports (`ralph-tui plugins agents`).
-- **Beads:** config, existing worktrees, open epics. If no beads epic is reachable, stop and point to the `ralph-tui-create-beads` skill.
+- **Beads:** config, existing worktrees, open epics, and each child bead's acceptance criteria and blockers. If no beads epic is reachable, stop and point to the `ralph-tui-create-beads` skill.
 - **Quality gates:** how the project runs its checks, whether they run in this checkout today, and whether the beads name them.
 - **Git and forge:** remote and forge, default branch and protection, branch and commit conventions, commit hooks, ignore rules, worktree conventions, PR template and allowed merge methods.
 - **Models and effort:** read [references/harness-options.md](references/harness-options.md), then confirm against the harness and ralph-tui's agent. Offer only models both accept.
 
 ## 2. Propose the run plan
 
-Send one message. Fill each item from step 1, never from memory; where step 1 found nothing, write a question. The user replies "ok" or changes lines. Do not start without explicit confirmation.
+Send one message. Fill each item from step 1, never from memory; where step 1 found nothing, write a question. The user replies with a delivery strategy plus "ok" or changed lines. Do not start without both.
 
 - **Scope:** the epic created earlier in this session, else the only open epic, else ask. Child beads in execution order with blockers. Flag beads too big for one iteration or whose acceptance criteria cannot be checked, such as "works"; if most are, recommend refining them before the run.
 - **Gaps:** anything that would stop the run or the delivery, and every conflict between the plan and the project or user setup, each with a proposed fix.
-- **Harness, model, effort:** one setting covers the whole run, so size it for the hardest bead.
+- **Harness, model, effort:** one setting covers the whole run, so size it for the hardest bead. Say how the effort will reach the subagents.
 - **Budget:** maximum iterations. Propose the bead count plus headroom for retries; say how much and why.
 - **Check interval:** the user's value; if none was given, propose one and say why.
 - **Parallel workers:** the project's setting, else a proposal based on how many beads the tree shows as independent.
 - **Subagent permissions:** whether subagents skip permission prompts and whether they run sandboxed. State what ralph-tui does by default for the chosen agent.
 - **Worktree:** yes or no. If yes, its path and branch: the project's convention, else a proposal with the reason. Say whether creating it changes a tracked file.
 - **Commits:** who commits each bead and with what message, from ralph-tui's auto-commit setting and what the prompt tells subagents. If neither commits, say the run will produce no commits.
-- **Delivery strategy:** never pick or recommend one. Present the options (none, one PR for the epic, grouped PRs with groups the user names, one PR per bead; draft or ready) with what each means here: units, branches, base of each PR, merge order, and the effect of the allowed merge methods. Say which options the project cannot support yet, for example without a remote. How you build the branches is your call; nothing about delivery may surface for the first time after the run starts.
+- **Delivery strategy:** never pick, recommend or default to one. Present the options (none, one PR for the epic, grouped PRs with groups the user names, one PR per bead; draft or ready) with what each means here: units, branches, base of each PR, merge order, and the effect of the allowed merge methods. Say which options the project cannot support yet, for example without a remote. How you build the branches is your call; nothing about delivery may surface for the first time after the run starts.
 
 ## 3. Prepare and start ralph-tui
 
