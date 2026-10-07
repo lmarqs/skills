@@ -4,14 +4,14 @@ Snapshot from Claude Code 2.1.292 and codex-cli 0.160.1, for the two harnesses t
 
 ## Claude Code
 
-Refresh: `claude --help` (`--model`, `--effort`).
+Refresh: `claude --help` (`--model`, `--effort`). ralph-tui's claude agent has its own allowlist; see observed-behavior.md.
 
 | Alias | Resolves to | Pick for |
 |---|---|---|
 | `haiku` | `claude-haiku-5-5` | Fastest and cheapest. Mechanical beads that quality gates fully check. |
 | `sonnet` | `claude-sonnet-5-5` | Fast, balanced. Small, well-specified beads that follow a known pattern. |
 | `opus` | `claude-opus-5-5` | Strong reasoning. Beads touching several files or needing design judgment. |
-| `fable` | `claude-fable-5-1` | Most capable, slowest, costliest. Work where a wrong decision is expensive to undo. |
+| `fable` | `claude-fable-5-1` | Most capable, slowest, costliest. Work where a wrong decision is expensive to undo. Not accepted by ralph-tui 0.12.0's claude agent. |
 
 Effort: `low`, `medium`, `high`, `xhigh`, `max`.
 
