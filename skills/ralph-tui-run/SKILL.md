@@ -71,8 +71,10 @@ Also ask:
 
 ralph-tui 0.12.0 forwards `--model` to claude and codex but not effort. Set effort in the harness config before starting:
 
-- **claude:** `effortLevel` in the project's `.claude/settings.local.json`.
-- **codex:** `model_reasoning_effort` in `~/.codex/config.toml`.
+- **claude:** `effortLevel` in `.claude/settings.local.json`.
+- **codex:** `model_reasoning_effort` in `.codex/config.toml`. Codex applies project config only when the project is trusted; `codex` prompts for trust on first run in a directory.
+
+Both files are project-local so the run never changes the user's global defaults. If one already sets effort, keep it and tell the user.
 
 Tell the user what you changed. Respect the branch strategy from Step 0: `--direct-merge` or `--target-branch <name>` in parallel mode. Then:
 
