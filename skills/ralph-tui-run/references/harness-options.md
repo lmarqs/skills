@@ -1,10 +1,10 @@
 # Harness options
 
-Snapshot from Claude Code 2.1.292 and codex-cli 0.160.1. The refresh commands are the source of truth; run them in step 1 and prefer their output when it differs from this file.
+Snapshot from Claude Code 2.1.292 and codex-cli 0.160.1, for the two harnesses this skill was written for. The refresh commands are the source of truth; prefer their output when it differs from this file.
 
 ## Claude Code
 
-Refresh: `claude --help` (`--model`, `--effort`). Set effort for a run with `CLAUDE_CODE_EFFORT_LEVEL`.
+Refresh: `claude --help` (`--model`, `--effort`).
 
 | Alias | Resolves to | Pick for |
 |---|---|---|
@@ -17,7 +17,7 @@ Effort: `low`, `medium`, `high`, `xhigh`, `max`.
 
 ## Codex
 
-Refresh: `codex debug models`. Offer only models with `"visibility": "list"`; each model's `supported_reasoning_levels` is its valid effort set. Set effort with `model_reasoning_effort` in `<dir>/.codex/config.toml`.
+Refresh: `codex debug models`. Offer only models with `"visibility": "list"`; each model's `supported_reasoning_levels` is its valid effort set.
 
 | Model | Pick for | Effort |
 |---|---|---|
@@ -27,7 +27,7 @@ Refresh: `codex debug models`. Offer only models with `"visibility": "list"`; ea
 
 Older models still listed (`gpt-6-sol`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) only when the project pins one.
 
-OpenAI documents `ultra` as available to subagents only. ralph-tui runs each bead as a top-level `codex exec`, so `ultra` likely does not apply; treat `max` as the ceiling unless the refresh shows otherwise. Available levels also vary by ChatGPT plan.
+OpenAI's models guide documents `ultra` as available to subagents only, and available levels vary by ChatGPT plan. Whether `ultra` applies to a ralph-tui bead was not tested.
 
 ## Effort, both harnesses
 

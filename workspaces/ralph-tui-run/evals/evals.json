@@ -5,21 +5,21 @@
       "id": 0,
       "name": "session-epic-twelve-beads",
       "prompt": "We just created the beads epic for the billing export feature in this session. Run it with ralph.",
-      "expected_output": "Reads the project before proposing anything: agent instructions, `ralph-tui config show`, beads config, quality gates, git conventions and merge methods. Defaults the scope to the epic created in the session and lists its child beads in execution order with blockers. Sends ONE plan message with every setting pre-filled from project config, marks the delivery strategy as the one required answer with no default, and proposes an iteration budget of at least 18 for 12 beads. Does not start ralph-tui before the user confirms. Does not write any project code.",
+      "expected_output": "Reads the project before proposing anything: agent instructions, ralph-tui config, beads, quality gates, git conventions and forge settings. Defaults the scope to the epic created in the session and lists its child beads in execution order with blockers. Sends ONE plan message with every setting filled from what it found, marks undetermined items as questions instead of guessing, marks the delivery strategy as required with no default, and proposes an iteration budget above the 12 beads with the headroom stated. Does not start ralph-tui before the user confirms. Does not write any project code.",
       "files": []
     },
     {
       "id": 1,
       "name": "dirty-tree-pr-per-bead",
       "prompt": "Run epic bd-42 with ralph-tui, codex at max effort, one PR per bead, no worktree. I have some uncommitted local changes, don't worry about them.",
-      "expected_output": "Flags as gaps before starting: auto-commit is off and must be enabled for per-bead PRs; auto-commit runs `git add -A`, so the uncommitted changes would land in the first bead's commit, and proposes a worktree or a clean tree instead; `.ralph-tui/` must be ignored; confirms `max` is in the chosen codex model's supported levels from `codex debug models`; codex effort goes in the project's `.codex/config.toml` and needs a trusted project. Spells out the stacked PR units, bases and merge order, and the impact of the repo's allowed merge methods. Passes `--iterations` sized to the bead count. Does not start until the user confirms the adjusted plan.",
+      "expected_output": "Before starting, checks what ralph-tui's auto-commit stages and flags that the uncommitted local changes could land in a bead's commit, proposing a worktree or a clean tree. Flags that per-bead PRs need one commit per bead naming the bead, and checks the auto-commit setting. Confirms `max` is a supported effort for the chosen codex model from the harness's own catalog, and checks how effort reaches codex subagents. Spells out the stacked PR units, bases and merge order, and the impact of the allowed merge methods. Does not start until the user confirms the adjusted plan.",
       "files": []
     },
     {
       "id": 2,
       "name": "stuck-bead-mid-run",
       "prompt": "Check on the ralph run. Status has shown the same bead in progress for the last three checks and the log has an [ERROR] line.",
-      "expected_output": "Treats the run as stuck. Shows the end of the run log and the stuck bead's log under `.ralph-tui/iterations/`. Reports iterations used against the budget. Stops the ralph-tui session before offering `ralph-tui resume`, then waits for the user. Does not implement or close the bead itself, and does not treat exit code 1 alone as proof the run is progressing.",
+      "expected_output": "Treats the run as stalled. Shows the end of the run log and the stuck bead's iteration log. Reports iterations used against the budget. Stops the ralph-tui session before offering to resume it, then waits for the user. Does not implement or close the bead itself, and does not infer progress from an exit code alone.",
       "files": []
     }
   ]
