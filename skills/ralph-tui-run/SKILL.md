@@ -23,7 +23,7 @@ Projects differ. Read whatever exists; later steps act on these findings.
 
 - **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, harness settings. They bind the subagents too.
 - **ralph-tui:** `ralph-tui config show` for tracker, agent, model, `maxIterations`, `autoCommit`, `commitMessageTemplate` and parallel settings. Also `ralph-tui template show` and `ralph-tui status`.
-- **Beads:** `bd config show`, `bd worktree list`, open epics. No `.beads/`: stop and point to the `ralph-tui-create-beads` skill.
+- **Beads:** `bd config show`, `bd worktree list` (where existing worktrees live), open epics. No `.beads/`: stop and point to the `ralph-tui-create-beads` skill.
 - **Quality gates:** how the project runs its checks, and whether the beads name them.
 - **Git:** default branch and protection, branch and commit conventions, commit hooks, PR template, `.gitignore`, and allowed merge methods (`gh repo view --json squashMergeAllowed,rebaseMergeAllowed,mergeCommitAllowed`).
 - **Harness options:** models and effort levels for claude and codex, with when to pick each, are in [references/harness-options.md](references/harness-options.md). Run its refresh commands; their output wins over the file.
@@ -38,7 +38,7 @@ Send one message with every item filled in from step 1. The user replies "ok" or
 - **Budget:** maximum iterations, default bead count plus half for retries. It is the only limit ralph-tui enforces.
 - **Check interval:** N minutes, default 5.
 - **Parallel workers:** default serial. Only for beads the tree shows as independent.
-- **Worktree:** yes keeps the user's checkout untouched; no runs in the current checkout.
+- **Worktree:** yes keeps the user's checkout untouched; no runs in the current checkout. If yes, state its path, following the project's convention from step 1.
 - **Delivery strategy:** required, no default. None, one PR for the epic, grouped PRs (the user names the groups), or one PR per bead; draft or ready. State the units, branches, base of each PR, merge order, and how the repo's merge methods affect them. For example, squash-merging a stacked PR forces the next one to rebase. How you build the branches is your call; nothing about delivery may surface for the first time after the run starts.
 
 ## 3. Prepare and start ralph-tui
@@ -49,7 +49,7 @@ Apply the fixes the user approved, then handle these traps exactly:
 - **Tracker:** pass the project's tracker from step 1, not a hardcoded one.
 - **Effort:** ralph-tui does not forward effort to claude or codex (confirm with `ralph-tui run --help`). For claude, launch ralph-tui with `CLAUDE_CODE_EFFORT_LEVEL=<level>`; subagents inherit it, and the settings file rejects `max`. For codex, set `model_reasoning_effort` in `<dir>/.codex/config.toml`; codex reads it only in a trusted project.
 - **Commits:** any delivery strategy other than none needs `autoCommit = true` and a commit template containing `{{taskId}}`. Auto-commit runs `git add -A`, so the working tree must start clean and every file you add for the run must be ignored.
-- **Worktree:** create it outside the repo with `bd worktree create ../<name> --branch <branch>`. Beads stay shared.
+- **Worktree:** create it with `bd worktree create <path> --branch <branch>` so beads stay shared. Without a path it lands in `./<name>` inside the repo and edits `.gitignore`; use the path from the plan.
 - **Environment:** ralph-tui strips variables matching `*_API_KEY`, `*_SECRET_KEY` and `*_SECRET` from subagents. `ralph-tui doctor --agent <harness> --cwd <dir>` must pass before starting.
 - **Lifetime:** ralph-tui must outlive the command that starts it. Launch it detached with output in a log file.
 
