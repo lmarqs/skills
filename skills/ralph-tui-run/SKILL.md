@@ -13,15 +13,15 @@ Every project is set up differently. Learn this one before touching anything.
 
 ## Step 0: Read the project
 
-Read, in this order, whatever exists:
+Read, in this order, whatever exists. Later steps act on what you find here; do not rediscover it there.
 
-1. **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, `.claude/settings*.json`, `.codex/`, `.cursorrules`. These bind the subagents too.
-2. **ralph-tui setup:** `ralph-tui config show`, `.ralph-tui/config.toml`, `.ralph-tui/prompt.md` (custom template), `.ralph-tui/progress.md`, `ralph-tui status`.
-3. **Beads:** `.beads/` present, `bd list --type=epic`.
+1. **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, `.claude/settings*.json`, `.codex/config.toml`, `.cursorrules`. These bind the subagents too. Note any configured model and effort.
+2. **ralph-tui:** `ralph-tui config show` merges global and project config. Note the tracker (`beads` or `beads-bv`), agent and model, `autoCommit` (off by default), `commitMessageTemplate` and whether it keeps `{{taskId}}`, and the parallel settings (`maxWorkers`, `worktreeDir`, `directMerge`, `targetBranch`). Also read the prompt with `ralph-tui template show`, `.ralph-tui/progress.md`, and `ralph-tui status` for an existing session.
+3. **Beads:** `.beads/` present, `bd config show`, `bd worktree list` for existing worktrees, `bd list --type=epic`.
 4. **Quality gates:** how the project runs checks (`mise task list`, `package.json` scripts, `Makefile`, CI). Confirm the beads name them.
-5. **Git workflow:** default branch, branch protection, worktrees, commit conventions, hooks.
+5. **Git:** default branch and its protection, branch naming and commit conventions, hooks that run on commit, PR template under `.github/`, and whether `.gitignore` covers `.ralph-tui/`.
 
-Write a five-line summary: harness, model and effort the project already configures, branch strategy, quality gates, anything in the agent instructions that constrains an autonomous run. Show it to the user together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer; presets fill the gaps.
+Summarize in a short list: what the project already configures for harness, model, effort, commits, branches and PRs; the quality gates; and every gap or conflict with what the run will need. Examples: auto-commit off while PRs are wanted, logs not ignored, commit hooks that a subagent's commit could fail. Show it together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer.
 
 If `.beads/` is missing, stop. Point to the `ralph-tui-create-beads` skill.
 
@@ -88,7 +88,7 @@ ralph-tui 0.12.0 forwards `--model` to claude and codex but not effort. Set effo
 - **claude:** `effortLevel` in `.claude/settings.local.json`.
 - **codex:** `model_reasoning_effort` in `.codex/config.toml`. Codex applies project config only when the project is trusted; `codex` prompts for trust on first run in a directory.
 
-Both files are project-local so the run never changes the user's global defaults. If one already sets effort, keep it and tell the user.
+Both files are project-local so the run never changes the user's global defaults. If Step 0 found effort already set to the chosen value, leave it.
 
 Tell the user what you changed.
 
@@ -97,7 +97,7 @@ Pick the working directory (`<dir>`):
 - **Worktree:** `bd worktree create <epic-id> --branch <branch>`, with a branch name that follows the project's convention from Step 0. `<dir>` is the new worktree. Apply the effort config there, since project-local files do not carry over.
 - **No worktree:** `<dir>` is the current checkout.
 
-If any PR was chosen, ralph-tui must commit once per bead. Set `autoCommit = true` in `<dir>/.ralph-tui/config.toml` and keep the default commit message, which carries the bead id. Auto-commit stages everything, so if `.gitignore` does not cover `.ralph-tui/`, ask before adding it; otherwise the run logs get committed.
+If any PR was chosen, ralph-tui must commit once per bead with the bead id in the message. Resolve the Step 0 gaps the user approved: set `autoCommit = true` in `<dir>/.ralph-tui/config.toml`, restore `{{taskId}}` in the commit template, and add `.ralph-tui/` to `.gitignore`. Auto-commit stages everything, so without that ignore entry the run logs get committed.
 
 Then:
 
