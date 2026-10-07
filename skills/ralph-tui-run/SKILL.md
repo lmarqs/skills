@@ -48,24 +48,15 @@ Summarize: epic title and goal, each child bead in execution order with its stat
 
 ---
 
-## Step 2: Ask for run settings (one message)
+## Step 2: Run settings (same message as the Step 1 confirmation)
 
-Ask these together with the Step 1 confirmation. Offer these presets; accept custom values.
+Defaults are what Step 0 found in the project config. Ask only what is missing or worth changing:
 
-| Preset | Harness | Model | Effort |
-|---|---|---|---|
-| claude-fast   | claude | sonnet  | medium |
-| claude-strong | claude | opus    | high   |
-| claude-max    | claude | opus    | max    |
-| codex-fast    | codex  | configured | medium |
-| codex-strong  | codex  | configured | high   |
-| codex-max     | codex  | configured | xhigh  |
-
-"configured" is the `model` in `.codex/config.toml`, else `~/.codex/config.toml`. Read it in Step 0 and name it in the question, so the user confirms a real model, not a placeholder. Any model name the user types is passed as given.
-
-Also ask:
-- **Check interval** in minutes (N). Default 5.
-- **Parallel workers**. Default serial. `--parallel 3` runs three beads at once on a session branch.
+- **Harness:** `claude` | `codex`
+- **Model:** claude `opus` | `sonnet`; codex: the configured model (name it) or another
+- **Effort:** claude `low` | `medium` | `high` | `max`; codex `minimal` | `low` | `medium` | `high` | `xhigh`
+- **Check interval:** N minutes, default 5
+- **Parallel workers:** default serial; `--parallel 3` runs three beads at once on a session branch
 
 ---
 
