@@ -50,13 +50,24 @@ Summarize: epic title and goal, each child bead in execution order with its stat
 
 ## Step 2: Run settings (same message as the Step 1 confirmation)
 
-Defaults are what Step 0 found in the project config. Ask only what is missing or worth changing:
+Defaults are what Step 0 found in the project config. One setting applies to every bead in the run, so size it for the hardest bead in the epic, not the average one. Ask only what is missing or worth changing.
 
-- **Harness:** `claude` | `codex`
-- **Model:** claude `opus` | `sonnet`; codex: the configured model (name it) or another
-- **Effort:** claude `low` | `medium` | `high` | `max`; codex `minimal` | `low` | `medium` | `high` | `xhigh`
-- **Check interval:** N minutes, default 5
-- **Parallel workers:** default serial; `--parallel 3` runs three beads at once on a session branch
+**Harness:** `claude` | `codex`. Use the one the project's agent instructions and hooks were written for.
+
+**Model**
+- claude `sonnet`: fastest and cheapest. Small, well-specified beads such as adding a column or repeating a known pattern.
+- claude `opus`: stronger reasoning. Beads that touch several files or need design judgment.
+- claude `fable`: most capable, slowest, costliest. Epics where a wrong decision is expensive to undo.
+- codex: the configured model, named. Codex has no command to list models, so use another name only if the user supplies it.
+
+**Effort:** claude `low` | `medium` | `high` | `xhigh` | `max`; codex `minimal` | `low` | `medium` | `high` | `xhigh`
+- Low end: quick and cheap, little deliberation per bead. Mechanical beads where quality gates catch mistakes.
+- Middle: the usual choice for feature work.
+- High end: more thinking per iteration, slower, more tokens. Ambiguous or cross-cutting beads, or an epic that produced rework on a previous run.
+
+**Check interval:** N minutes, default 5. Shorter for many small beads, longer for few large ones.
+
+**Parallel workers:** default serial. `--parallel 3` runs three beads at once on a session branch. Only when the Step 1 tree shows beads without dependencies between them and the project accepts a branch merge at the end.
 
 ---
 
