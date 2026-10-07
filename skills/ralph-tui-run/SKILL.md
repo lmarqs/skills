@@ -1,147 +1,87 @@
 ---
 name: ralph-tui-run
-description: "Coordinates the implementation of a beads epic through ralph-tui. The agent running it does not write code: it first reads the project (agent instructions, ralph-tui config, beads, quality gates, git workflow), then picks the epic (the one created in this session when there is one), shows the beads it will implement and confirms, asks for harness (claude or codex), model, effort, worktree usage and pull request granularity (none, one per epic, grouped, or one per bead), starts ralph-tui headless so fresh subagents implement each bead, checks progress every N minutes (configurable), and on completion opens the chosen PRs. Explicit invocation only. Triggers on: ralph run, run the epic, implement the epic with ralph, start ralph on the beads."
+description: "Coordinates the implementation of a beads epic through ralph-tui without writing code itself. Reads the project's agent, ralph-tui, beads and git setup; proposes one run plan (scope, harness, model, effort, iteration budget, worktree, delivery strategy) for the user to confirm; starts ralph-tui headless so fresh subagents implement each bead; monitors progress every N minutes; and delivers through the agreed pull request strategy. Use only when explicitly invoked: \"ralph run\", \"run the epic with ralph\", \"implement the epic with ralph-tui\", \"start ralph on the beads\"."
 ---
 
 # Ralph TUI - Run
 
-You are the coordinator. ralph-tui spawns one fresh agent per bead; you start it, watch it, and report. Never edit project code and never close beads yourself.
+You coordinate; ralph-tui's subagents implement. Never edit project code, close beads or merge pull requests.
 
-Every project is set up differently. Learn this one before touching anything.
+Copy this checklist and track progress:
 
----
-
-## Step 0: Read the project
-
-Read, in this order, whatever exists. Later steps act on what you find here; do not rediscover it there.
-
-1. **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, `.claude/settings*.json`, `.codex/config.toml`, `.cursorrules`. These bind the subagents too. Note any configured model and effort.
-2. **ralph-tui:** `ralph-tui config show` merges global and project config. Note the tracker (`beads` or `beads-bv`), agent and model, `autoCommit` (off by default), `commitMessageTemplate` and whether it keeps `{{taskId}}`, and the parallel settings (`maxWorkers`, `worktreeDir`, `directMerge`, `targetBranch`). Also read the prompt with `ralph-tui template show`, `.ralph-tui/progress.md`, and `ralph-tui status` for an existing session.
-3. **Beads:** `.beads/` present, `bd config show`, `bd worktree list` for existing worktrees, `bd list --type=epic`.
-4. **Quality gates:** how the project runs checks (`mise task list`, `package.json` scripts, `Makefile`, CI). Confirm the beads name them.
-5. **Git:** default branch and its protection, branch naming and commit conventions, hooks that run on commit, PR template under `.github/`, and whether `.gitignore` covers `.ralph-tui/`.
-
-Summarize in a short list: what the project already configures for harness, model, effort, commits, branches and PRs; the quality gates; and every gap or conflict with what the run will need. Examples: auto-commit off while PRs are wanted, logs not ignored, commit hooks that a subagent's commit could fail. Show it together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer.
-
-If `.beads/` is missing, stop. Point to the `ralph-tui-create-beads` skill.
-
----
-
-## Step 1: Pick the epic and confirm the scope
-
-If an epic was created earlier in this session, it is the default. Otherwise:
-
-```bash
-bd list --type=epic --status=open
+```
+- [ ] 1. Read the project
+- [ ] 2. Propose the run plan and get confirmation
+- [ ] 3. Prepare and start ralph-tui
+- [ ] 4. Monitor every N minutes
+- [ ] 5. Deliver
 ```
 
-One open epic: default to it. Several: ask which.
+## 1. Read the project
 
-Then show what will be implemented and get an explicit yes before anything else:
+Projects differ. Read whatever exists; later steps act on these findings.
 
-```bash
-bd show <epic-id>
-bd list --parent=<epic-id> --deps --pretty
-```
+- **Agent instructions:** `CLAUDE.md`, `AGENTS.md`, harness settings. They bind the subagents too.
+- **ralph-tui:** `ralph-tui config show` for tracker, agent, model, `maxIterations`, `autoCommit`, `commitMessageTemplate` and parallel settings. Also `ralph-tui template show` and `ralph-tui status`.
+- **Beads:** `bd config show`, `bd worktree list`, open epics. No `.beads/`: stop and point to the `ralph-tui-create-beads` skill.
+- **Quality gates:** how the project runs its checks, and whether the beads name them.
+- **Git:** default branch and protection, branch and commit conventions, commit hooks, PR template, `.gitignore`, and allowed merge methods (`gh repo view --json squashMergeAllowed,rebaseMergeAllowed,mergeCommitAllowed`).
+- **Harness options:** models and effort levels for claude and codex, with when to pick each, are in [references/harness-options.md](references/harness-options.md). Run its refresh commands; their output wins over the file.
 
-Summarize: epic title and goal, each child bead in execution order with its status, which beads are blocked and by what, and the quality gates the beads name. Flag beads that look too big for one iteration or have no acceptance criteria. Do not start on a scope the user has not confirmed.
+## 2. Propose the run plan
 
----
+Send one message with every item filled in from step 1. The user replies "ok" or changes lines. Do not start without explicit confirmation.
 
-## Step 2: Run settings (same message as the Step 1 confirmation)
+- **Scope:** the epic created earlier in this session, else the only open epic, else ask. List child beads in execution order with blockers (`bd list --parent=<epic-id> --deps --pretty`). Flag beads too big for one iteration or without acceptance criteria.
+- **Gaps:** every conflict between the project setup and this plan, each with a proposed fix.
+- **Harness, model, effort:** one setting covers every bead, so size it for the hardest one. Offer the options from the reference file with their one-line guidance.
+- **Budget:** maximum iterations, default bead count plus half for retries. It is the only limit ralph-tui enforces.
+- **Check interval:** N minutes, default 5.
+- **Parallel workers:** default serial. Only for beads the tree shows as independent.
+- **Worktree:** yes keeps the user's checkout untouched; no runs in the current checkout.
+- **Delivery strategy:** required, no default. None, one PR for the epic, grouped PRs (the user names the groups), or one PR per bead; draft or ready. State the units, branches, base of each PR, merge order, and how the repo's merge methods affect them. For example, squash-merging a stacked PR forces the next one to rebase. How you build the branches is your call; nothing about delivery may surface for the first time after the run starts.
 
-Defaults are what Step 0 found in the project config. One setting applies to every bead in the run, so size it for the hardest bead in the epic, not the average one. Ask only what is missing or worth changing.
+## 3. Prepare and start ralph-tui
 
-**Harness:** `claude` | `codex`. Use the one the project's agent instructions and hooks were written for.
+Apply the fixes the user approved, then handle these traps exactly:
 
-**Model**
-- claude `sonnet`: fastest and cheapest. Small, well-specified beads such as adding a column or repeating a known pattern.
-- claude `opus`: stronger reasoning. Beads that touch several files or need design judgment.
-- claude `fable`: most capable, slowest, costliest. Epics where a wrong decision is expensive to undo.
-- codex: the configured model, named. Codex has no command to list models, so use another name only if the user supplies it.
-
-**Effort:** claude `low` | `medium` | `high` | `xhigh` | `max`; codex `minimal` | `low` | `medium` | `high` | `xhigh`
-- Low end: quick and cheap, little deliberation per bead. Mechanical beads where quality gates catch mistakes.
-- Middle: the usual choice for feature work.
-- High end: more thinking per iteration, slower, more tokens. Ambiguous or cross-cutting beads, or an epic that produced rework on a previous run.
-
-**Check interval:** N minutes, default 5. Shorter for many small beads, longer for few large ones.
-
-**Parallel workers:** default serial. `--parallel 3` runs three beads at once on a session branch. Only when the Step 1 tree shows beads without dependencies between them and the project accepts a branch merge at the end.
-
-**Worktree:** yes | no. Yes runs the epic in a separate checkout on its own branch, so the user's working tree and current branch stay untouched while ralph-tui commits. Beads are shared with the main checkout. No runs in the current checkout; if that is the default or a protected branch, create a feature branch first.
-
-**Pull requests:** no default; the user must choose. ralph-tui never opens PRs; the coordinator does it after the epic completes.
-- **None:** nothing is pushed. The user reviews and merges the branch.
-- **One for the epic:** a single PR with every bead. One review, but a large diff.
-- **Grouped:** the user names the groups, for example schema, backend and UI. One PR per group. Groups must be contiguous in the Step 1 execution order; if they are not, say so and ask to regroup.
-- **One per bead:** the smallest diffs to review, but many PRs.
-
-Grouped and per-bead PRs are stacked: each targets the previous one's branch, so they merge bottom-up. Also ask: draft or ready for review.
-
----
-
-## Step 3: Apply effort, then start
-
-ralph-tui 0.12.0 forwards `--model` to claude and codex but not effort. Set effort in the harness config before starting:
-
-- **claude:** `effortLevel` in `.claude/settings.local.json`.
-- **codex:** `model_reasoning_effort` in `.codex/config.toml`. Codex applies project config only when the project is trusted; `codex` prompts for trust on first run in a directory.
-
-Both files are project-local so the run never changes the user's global defaults. If Step 0 found effort already set to the chosen value, leave it.
-
-Tell the user what you changed.
-
-Pick the working directory (`<dir>`):
-
-- **Worktree:** `bd worktree create <epic-id> --branch <branch>`, with a branch name that follows the project's convention from Step 0. `<dir>` is the new worktree. Apply the effort config there, since project-local files do not carry over.
-- **No worktree:** `<dir>` is the current checkout.
-
-If any PR was chosen, ralph-tui must commit once per bead with the bead id in the message. Resolve the Step 0 gaps the user approved: set `autoCommit = true` in `<dir>/.ralph-tui/config.toml`, restore `{{taskId}}` in the commit template, and add `.ralph-tui/` to `.gitignore`. Auto-commit stages everything, so without that ignore entry the run logs get committed.
-
-Then:
+- **Iteration cap:** ralph-tui stops at `maxIterations` (default 10) without reporting failure. Always pass `--iterations <budget>`.
+- **Tracker:** pass the project's tracker from step 1, not a hardcoded one.
+- **Effort:** ralph-tui does not forward effort to claude or codex (confirm with `ralph-tui run --help`). For claude, launch ralph-tui with `CLAUDE_CODE_EFFORT_LEVEL=<level>`; subagents inherit it, and the settings file rejects `max`. For codex, set `model_reasoning_effort` in `<dir>/.codex/config.toml`; codex reads it only in a trusted project.
+- **Commits:** any delivery strategy other than none needs `autoCommit = true` and a commit template containing `{{taskId}}`. Auto-commit runs `git add -A`, so the working tree must start clean and every file you add for the run must be ignored.
+- **Worktree:** create it outside the repo with `bd worktree create ../<name> --branch <branch>`. Beads stay shared.
+- **Environment:** ralph-tui strips variables matching `*_API_KEY`, `*_SECRET_KEY` and `*_SECRET` from subagents. `ralph-tui doctor --agent <harness> --cwd <dir>` must pass before starting.
+- **Lifetime:** ralph-tui must outlive the command that starts it. Launch it detached with output in a log file.
 
 ```bash
-mkdir -p <dir>/.ralph-tui
-ralph-tui doctor --agent <harness> --cwd <dir>
-ralph-tui run --tracker beads --epic <epic-id> --agent <harness> --model <model> \
-  --cwd <dir> --no-tui --no-setup > <dir>/.ralph-tui/run.log 2>&1 &
+ralph-tui run --tracker <tracker> --epic <epic-id> --agent <harness> [--model <model>] \
+  --iterations <budget> --cwd <dir> --no-tui --no-setup [--parallel <n> --direct-merge]
 ```
 
-Pass `--model` only when the chosen model differs from the harness's configured one. Add `--parallel <n>` if requested; add `--direct-merge` with it when a PR is wanted, so all work lands on one branch. If `doctor` fails, report and stop.
+`--direct-merge` keeps parallel work on one branch so the delivery strategy can split it.
 
----
+## 4. Monitor every N minutes
 
-## Step 4: Monitor every N minutes
+Scheduling the checks is your harness's call. Each check:
 
 ```bash
 ralph-tui status --json --cwd <dir>
 bd list --parent=<epic-id>
 ```
 
-Report in two or three lines: beads closed / total, current bead, last iteration result, any `[ERROR]` or `[WARN]` line in `<dir>/.ralph-tui/run.log`.
+Read the status field: exit code 1 means running or paused. Report in two or three lines: beads closed of total, current bead, iterations used of the budget, cost when logged, and any error or warning in the log.
 
-Stop when `ralph-tui status` exits `0` (completed) or `2` (failed). In Claude Code, pace the interval with the `loop` skill or `ScheduleWakeup`; elsewhere, sleep N minutes between checks.
+- **Stuck** (same bead for three checks, or an error): show the end of the log and that bead's log under `<dir>/.ralph-tui/iterations/`. Stop the session before offering `ralph-tui resume`, then wait for the user.
+- **Completed or failed:** stop monitoring.
 
----
+## 5. Deliver
 
-## Step 5: Finish
-
-- **Completed, PRs:** run the quality gates once in `<dir>`. If they fail, open nothing and report the failures. If they pass:
-  1. **One for the epic:** the PR head is `<branch>`.
-  2. **Grouped or per bead:** find each unit's last commit by bead id in `git log`. Create one branch per unit at that commit, named by the project's convention.
-  3. Push each branch and run `gh pr create` per unit, adding `--draft` if chosen. The first PR targets the base branch; each next one targets the previous unit's branch.
-  4. Follow the project's PR template and conventions. The title comes from the epic or group. The body lists its beads, the gate results and, when stacked, the merge order.
-  5. Report every PR URL in merge order.
-- **Completed, no PRs:** list closed beads and the branch. Ask the user to review the diff before merging.
-- **Worktree:** leave it in place. Tell the user to run `bd worktree remove <epic-id>` after merging.
-- **Failed or stuck** (same bead for 3 checks, or `[ERROR]`): show the last 30 lines of `<dir>/.ralph-tui/run.log` and that bead's log under `<dir>/.ralph-tui/iterations/`. Offer `ralph-tui resume`; wait for the user.
-
----
+1. Run the quality gates once in `<dir>`. If they fail, deliver nothing and report the failures.
+2. Execute the confirmed delivery strategy. PRs follow the project's template; each body lists its beads, the gate results and, when there are several, the merge order.
+3. Report every PR URL in merge order, or the branch when the strategy is none.
+4. Leave the worktree in place; tell the user to run `bd worktree remove` after merging.
 
 ## Rules
 
-- One session per project. If `ralph-tui status` shows one, ask: `resume` or `--force`.
-- ralph-tui owns bead state. Do not run `bd close`.
-- If a bead is beyond ralph-tui, report it. Do not implement it.
-- Push and open PRs only as chosen in Step 2. Never merge them.
+- Never implement a bead, close a bead or merge a PR.
+- One ralph-tui session per directory. If one exists, ask: resume or `--force`.
