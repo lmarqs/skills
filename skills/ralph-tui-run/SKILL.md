@@ -21,7 +21,7 @@ Read, in this order, whatever exists:
 4. **Quality gates:** how the project runs checks (`mise task list`, `package.json` scripts, `Makefile`, CI). Confirm the beads name them.
 5. **Git workflow:** default branch, branch protection, worktrees, commit conventions, hooks.
 
-Write a five-line summary: harness and model the project already configures, branch strategy, quality gates, anything in the agent instructions that constrains an autonomous run. Show it to the user together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer; presets fill the gaps.
+Write a five-line summary: harness, model and effort the project already configures, branch strategy, quality gates, anything in the agent instructions that constrains an autonomous run. Show it to the user together with the Step 1 scope and the Step 2 questions. Project config becomes the default answer; presets fill the gaps.
 
 If `.beads/` is missing, stop. Point to the `ralph-tui-create-beads` skill.
 
@@ -57,9 +57,11 @@ Ask these together with the Step 1 confirmation. Offer these presets; accept cus
 | claude-fast   | claude | sonnet  | medium |
 | claude-strong | claude | opus    | high   |
 | claude-max    | claude | opus    | max    |
-| codex-fast    | codex  | default | medium |
-| codex-strong  | codex  | default | high   |
-| codex-max     | codex  | default | xhigh  |
+| codex-fast    | codex  | configured | medium |
+| codex-strong  | codex  | configured | high   |
+| codex-max     | codex  | configured | xhigh  |
+
+"configured" is the `model` in `.codex/config.toml`, else `~/.codex/config.toml`. Read it in Step 0 and name it in the question, so the user confirms a real model, not a placeholder. Any model name the user types is passed as given.
 
 Also ask:
 - **Check interval** in minutes (N). Default 5.
@@ -84,7 +86,7 @@ ralph-tui run --tracker beads --epic <epic-id> --agent <harness> --model <model>
   --no-tui --no-setup > .ralph-tui/run.log 2>&1 &
 ```
 
-Omit `--model` for codex default. Add `--parallel <n>` if requested. If `doctor` fails, report and stop.
+Pass `--model` only when the chosen model differs from the harness's configured one. Add `--parallel <n>` if requested. If `doctor` fails, report and stop.
 
 ---
 
