@@ -1,0 +1,111 @@
+{
+  "expectations": [
+    {
+      "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+      "passed": true,
+      "evidence": "Plan is structured as 'The plan — six independent deployments' (Deployment 1–6), with 'Each step is a separate deploy with its own rollback story. Do not collapse steps.' Compatibility is the stated governing rule: 'can every application version in traffic work with every intermediate database state? Each numbered deployment keeps the answer yes', and each deployment ends with an explicit rollback story against the prior version."
+    },
+    {
+      "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+      "passed": true,
+      "evidence": "Deployment 1 adds 'two nullable columns, no default, no index yet' via migrations.AddField with null=True, notes 'ADD COLUMN ... NULL with no default is metadata-only', and does not modify name ('Old code is untouched — it never selects columns it doesn't know about')."
+    },
+    {
+      "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+      "passed": true,
+      "evidence": "Deployment 2 is 'dual-write + fallback reads': save() 'Writes both representations, old one authoritative' (sets first_name/last_name from name and syncs name from the parts), and reads use 'new-with-fallback' — display_first_name returns self.first_name if not None else split_name(self.name)[0]. It also audits update()/bulk_create()/bulk_update() paths that bypass save()."
+    },
+    {
+      "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+      "passed": true,
+      "evidence": "Deployment 3 is 'A management command, not a Django data migration — 40M rows must never run inside one migration transaction'. Loop processes BATCH = 5_000 rows per transaction.atomic() block, iterating by PK ('Iterate by PK range, never OFFSET'), with 'Bounded: ~5k rows per transaction, short locks, no long transaction holding back vacuum' and a throttle sleep."
+    },
+    {
+      "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+      "passed": true,
+      "evidence": "Explicit properties: 'Idempotent: the first_name__isnull=True predicate makes re-running a batch a no-op, and never clobbers rows the dual-write path already populated' and 'Restartable: checkpoint on id; crash → resume, not restart' — the loop persists save_checkpoint(last_id) and filters first_name__isnull=True, name__isnull=False."
+    },
+    {
+      "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+      "passed": true,
+      "evidence": "Deployment 4: 'keeps dual-writing name ... This is what keeps the rollback window open' and 'Define the rollback window now, with a date and an owner — e.g. 2–4 weeks covering at least one full business cycle.' The drop is Deployment 6: 'A separate, later deployment — never bundled with Deployment 5', gated on Deployment 5 being 'stable past its own rollback window'."
+    },
+    {
+      "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+      "passed": true,
+      "evidence": "Convergence query 'SELECT COUNT(*) FROM users WHERE first_name IS NULL AND name IS NOT NULL; -- must reach 0' plus reconstruction/shape checks. Before Deployment 5: 'code search for name usages (ORM, raw SQL, serializers, admin, reports, BI/ETL jobs ...)' and 'pg_stat_statements / RDS Performance Insights showing no queries referencing users.name other than your own dual-write'. Deployment 6 preconditions re-check both plus a tagged snapshot."
+    },
+    {
+      "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+      "passed": true,
+      "evidence": "'The split itself is a lossy, ambiguous transformation ... single-word names, multi-word surnames ... Once name is dropped, no down migration can reconstruct it faithfully' and, bolded: 'name is the source of truth until the very last step, and that step is deliberately delayed.' An 'ambiguity ledger' tracks uncertain rows for later compensating fixes."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "note": "No metrics.json or transcript available for this run",
+    "total_tokens": 51059,
+    "output_chars": 15305,
+    "output_files": ["plan.md"]
+  },
+  "timing": {
+    "executor_duration_seconds": 119.5,
+    "duration_ms": 119481,
+    "total_tokens": 51059
+  },
+  "claims": [
+    {
+      "claim": "ADD COLUMN ... NULL with no default is metadata-only in Postgres (no table rewrite), but still takes a brief ACCESS EXCLUSIVE lock",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct Postgres behavior; the plan pairs it with SET lock_timeout='3s' + retry, which is the standard mitigation for lock-queueing on a hot table."
+    },
+    {
+      "claim": "QuerySet.update(), bulk_create(), bulk_update() bypass save() and signals, so dual-write must be added at each call site",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct Django behavior; the plan makes an audited list of write paths a deliverable of Deployment 2."
+    },
+    {
+      "claim": "SeparateDatabaseAndState RemoveField (state-only) before the physical drop keeps rolling pods from erroring, since Django selects explicit column lists",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct: Django ORM queries name model fields explicitly; removing the field from state first means no live version references the column before the DROP."
+    },
+    {
+      "claim": "NOT NULL can be added without a long exclusive-lock scan via CHECK ... NOT VALID then VALIDATE CONSTRAINT (and SET NOT NULL on PG 12+ reusing the validated check)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct Postgres pattern; VALIDATE takes SHARE UPDATE EXCLUSIVE only."
+    },
+    {
+      "claim": "The backfill uses the same split_name() function as live code so backfilled and dual-written rows agree",
+      "type": "process",
+      "verified": true,
+      "evidence": "The backfill pseudocode calls build_cases(rows, split_name) with the note 'same split_name as live code'."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [],
+    "note": "No user_notes.md present"
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+        "reason": "This assertion hard-codes one safe strategy (app-level fallback reads). The without-skill run used a defensible alternative — DB trigger dual-write plus switching reads only after verified backfill convergence — and fails purely on pattern mismatch. If the eval intends to test 'no read path can observe missing new-column data at any point', consider rewording toward that outcome rather than the specific fallback-read mechanism."
+      },
+      {
+        "reason": "No assertion covers DDL lock safety (lock_timeout/statement_timeout guards, avoiding ACCESS EXCLUSIVE queueing, CREATE INDEX CONCURRENTLY) even though this is a core zero-downtime failure mode on 'the hottest table' — both runs addressed it substantially, and a plan that omitted it entirely could still pass all 8 assertions."
+      }
+    ],
+    "overall": "Assertions are discriminating and outcome-focused overall; the two gaps above are the only ones worth acting on."
+  }
+}

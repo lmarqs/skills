@@ -1,0 +1,57 @@
+{
+  "skill_name": "safe-migrations",
+  "evals": [
+    {
+      "id": 0,
+      "name": "review-rename-narrow-notnull-rolling",
+      "mode": "review",
+      "prompt": "Can you review this Flyway migration before I merge? Context: we deploy with rolling updates on k8s and it usually takes ~15 minutes for all pods to cycle to the new version.\n\nV42__cleanup_customers.sql:\n\nALTER TABLE customers RENAME COLUMN full_name TO display_name;\nALTER TABLE customers ALTER COLUMN phone TYPE VARCHAR(20);\nALTER TABLE customers ADD COLUMN loyalty_tier VARCHAR(10) NOT NULL;\n\nThe app code in this same PR is already updated to use display_name everywhere and to set loyalty_tier on every insert. phone was VARCHAR(100) before but nobody has phone numbers that long, we checked.\n\nWrite your review to outputs/review.md.",
+      "expected_output": "A review that flags all three statements: the rename breaks old pods during the 15-min rolling window (and breaks rollback after it); the VARCHAR narrowing is silently irreversible if any value exceeds 20 chars (verify against data, widening back won't restore truncated values); NOT NULL without a default breaks inserts from old pods mid-rollout. Proposes staging via Expand-Migrate-Contract for the rename, a nullable-or-defaulted loyalty_tier, and pre-checks for the narrowing. Frames findings around 'can both versions run at once', mentions the rollback window / delayed destructive cleanup.",
+      "files": [],
+      "assertions": [
+        "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+        "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+        "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+        "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+        "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+        "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+        "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "plan-split-name-40m-zero-downtime",
+      "mode": "plan",
+      "prompt": "We need to split the `name` column on our `users` table into `first_name` and `last_name`. The table has about 40 million rows in Postgres (RDS) and it's the hottest table in the product \u2014 we can't take downtime. It's a Django app with rolling deploys. Give me a concrete migration plan; we'd also like to eventually drop `name`. Write the plan to outputs/plan.md.",
+      "expected_output": "A staged, numbered plan of independent deployments: (1) expand \u2014 add nullable first_name/last_name; (2) code \u2014 dual-write both representations, read new with fallback to name; (3) backfill in bounded batches (keyset/ID ranges, not one transaction), idempotent (only touches rows where new cols are null), restartable/pausable, with progress observability; (4) contract \u2014 read/write only new columns, keep `name` through an explicit rollback window; (5) separate later cleanup deployment dropping `name` only after verification queries (backfill converged, nothing reads/writes name). Should also flag that splitting names is a lossy transform (keep `name` as source of truth) and ideally raise the name-parsing ambiguity.",
+      "files": [],
+      "assertions": [
+        "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+        "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+        "Transitional code dual-writes both representations and reads new with fallback to name",
+        "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+        "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+        "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+        "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+        "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "incident-wrong-balances-restore-question",
+      "mode": "incident",
+      "prompt": "we're in a mess. last night a data migration recalculated account_balance for every row in `accounts` (~2M rows) using the wrong exchange rate. we rolled the app back to the previous release this morning, but the balances are still wrong \u2014 and customers kept transacting all day, so there are legitimate deposits and withdrawals sitting on top of the wrong numbers. one of my teammates wants to restore last night's RDS snapshot from right before the migration and call it a day. is that the right call? for context: the `transactions` table is append-only and intact, and we have RDS automated backups / PITR. write your recommendation to outputs/response.md.",
+      "expected_output": "A response that clearly says no to the full restore (it would destroy the day's valid transactions), and instead recommends a compensating forward migration: reconstruct correct balances from the intact append-only transactions table (or restore the snapshot into a separate environment, extract pre-migration balances, and replay/repair only affected rows in production). The repair should be treated as a production backfill: identify affected rows precisely, idempotent, bounded batches, verification queries before and after, and note that app rollback only stopped new bad writes \u2014 it repairs nothing.",
+      "files": [],
+      "assertions": [
+        "Explicitly advises against restoring the snapshot over production because it would destroy the day's valid transactions",
+        "Recommends a compensating forward migration/repair rather than any further rollback",
+        "Uses the intact append-only transactions table (and/or restore-aside extraction) as the source of truth for recomputing balances",
+        "If a restore is involved at all, restores into a separate environment and repairs only affected rows in production",
+        "Treats the repair as a production backfill: idempotent and processed in bounded batches",
+        "Includes verification of repaired balances (queries/reconciliation), not just job completion",
+        "Notes that the app rollback only stopped new bad writes and repaired nothing"
+      ]
+    }
+  ]
+}
