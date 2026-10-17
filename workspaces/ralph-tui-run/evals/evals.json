@@ -114,6 +114,74 @@
         }
       ],
       "setup": "inputs/make-stalled-run-project.sh <dir>; prints the epic id and a placeholder pid holding ralph-tui's lock. Kill the pid after the eval."
+    },
+    {
+      "id": 3,
+      "name": "json-task-file-twelve-stories",
+      "prompt": "We just created tasks/prd.json for the billing export feature in this session. Run it with ralph.",
+      "expected_output": "Picks the json tracker from the task file and never looks for or runs beads commands as the source. Reads the file and lists its 12 stories as a linear chain in priority order. Flags the toolchain gap, the missing remote and the uncheckable \"works\" criteria like the beads case. Explains that the engine rewrites tasks/prd.json as stories start and complete, so with auto-commit on each story's commit carries its passes change and with it off the file is left modified. Says ralph-tui does not act on branchName and proposes a worktree branch from the project's convention. Plans to start headless with --prd and an absolute path. Presents delivery options without choosing. Sends one plan and does not start ralph-tui or edit the task file.",
+      "files": [],
+      "setup": "inputs/make-json-eval-project.sh <dir>; prints the prd.json path 'created in this session'.",
+      "assertions": [
+        {
+          "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads"
+        },
+        {
+          "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)"
+        },
+        {
+          "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)"
+        },
+        {
+          "text": "Flags that there is no git remote and what that blocks"
+        },
+        {
+          "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked"
+        },
+        {
+          "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree"
+        },
+        {
+          "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not"
+        },
+        {
+          "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)"
+        },
+        {
+          "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose"
+        },
+        {
+          "text": "Proposes an iteration budget above 12 and states the headroom"
+        },
+        {
+          "text": "Sends one plan for confirmation and does not start ralph-tui"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "both-sources-ambiguous",
+      "prompt": "ralph run",
+      "expected_output": "Finds both a beads epic (Billing export, 12 beads) and tasks/prd.json (Invoice PDF rendering, 3 stories), sees that the ralph-tui config does not choose a tracker, and asks the user which one to run, naming both, before proposing a full plan. Does not start ralph-tui.",
+      "files": [],
+      "setup": "inputs/make-both-sources-project.sh <dir>; prints the epic id and the prd.json path. Neither was created in this session.",
+      "assertions": [
+        {
+          "text": "Finds both task sources: the beads epic and tasks/prd.json"
+        },
+        {
+          "text": "Asks which source to run, naming both, instead of picking one silently"
+        },
+        {
+          "text": "Does not start ralph-tui"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)"
+        }
+      ]
     }
   ]
 }
