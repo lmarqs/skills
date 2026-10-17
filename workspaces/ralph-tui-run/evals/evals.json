@@ -7,21 +7,113 @@
       "prompt": "We just created the beads epic for the billing export feature in this session. Run it with ralph.",
       "expected_output": "Reads the project before proposing anything, including user-level harness instructions and the prompt the tracker will use. Defaults the scope to the epic created in the session and lists its 12 beads as a linear chain. Flags that the quality gates cannot run (no toolchain), that there is no git remote, and that the beads' acceptance criteria cannot be checked. Sends ONE plan message with every item filled from what it found and unknowns written as questions, never from memory. Offers only models ralph-tui's agent accepts. Says how the chosen effort will reach the subagents. Lists the agents ralph-tui supports instead of assuming one. States that with auto-commit off and a prompt that forbids commits, the run produces no commits. Presents the delivery options with what each means here and does NOT pick, recommend or default to one; asks the user to name it. Proposes an iteration budget above 12 with the headroom stated. States the subagent permission default. Does not start ralph-tui before the user confirms. Does not write any project code.",
       "files": [],
-      "setup": "inputs/make-eval-project.sh <dir>; the epic id it prints is the one 'created in this session'."
+      "setup": "inputs/make-eval-project.sh <dir>; the epic id it prints is the one 'created in this session'.",
+      "assertions": [
+        {
+          "text": "Defaults the scope to the session epic and lists its 12 beads in dependency order (a linear chain)"
+        },
+        {
+          "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)"
+        },
+        {
+          "text": "Flags that there is no git remote and what that blocks"
+        },
+        {
+          "text": "Flags that the beads' acceptance criteria (\"<title> works\") cannot be checked"
+        },
+        {
+          "text": "Offers only models ralph-tui's agent accepts (for claude: haiku, sonnet, opus; no fable)"
+        },
+        {
+          "text": "States how the chosen effort will reach the subagents, not just a level"
+        },
+        {
+          "text": "States that with ralph-tui's defaults (auto-commit off, prompt forbids commits) the run produces no commits"
+        },
+        {
+          "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose"
+        },
+        {
+          "text": "Proposes an iteration budget above 12 and states the headroom"
+        },
+        {
+          "text": "States the subagent permission default for the chosen agent (claude skips permission prompts)"
+        },
+        {
+          "text": "Sends one plan for confirmation and does not start ralph-tui"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)"
+        }
+      ]
     },
     {
       "id": 1,
       "name": "dirty-tree-pr-per-bead",
       "prompt": "Run epic bd-42 with ralph-tui, codex at max effort, one PR per bead, no worktree. I have some uncommitted local changes, don't worry about them.",
       "expected_output": "Before starting, checks what ralph-tui's auto-commit stages and flags that the uncommitted local changes could land in a bead's commit, proposing a worktree or a clean tree. Flags that per-bead PRs need one commit per bead naming the bead, and checks the auto-commit setting. Confirms `max` is a supported effort for the chosen codex model from the harness's own catalog, and checks how effort reaches codex subagents. Spells out the stacked PR units, bases and merge order, and the impact of the allowed merge methods. Does not start until the user confirms the adjusted plan.",
-      "files": []
+      "files": [],
+      "assertions": [
+        {
+          "text": "Flags that the uncommitted changes could be swept into a bead's commit and proposes a worktree or a clean tree despite the user's 'no worktree'"
+        },
+        {
+          "text": "Flags that one PR per bead needs one commit per bead naming the bead, and states ralph-tui's auto-commit setting"
+        },
+        {
+          "text": "Checks that `max` is a supported effort for the chosen codex model from codex's own catalog, not from memory"
+        },
+        {
+          "text": "States how effort will reach codex subagents (ralph-tui passes no effort to codex)"
+        },
+        {
+          "text": "Spells out the per-bead PR units: branches, PR bases and merge order"
+        },
+        {
+          "text": "Says what it could not determine about the forge (merge methods, branch protection) instead of assuming"
+        },
+        {
+          "text": "Does not start ralph-tui before the user confirms the adjusted plan"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)"
+        }
+      ],
+      "setup": "inputs/make-dirty-tree-project.sh <dir>; epic bd-42, uncommitted changes, a local bare remote with no forge."
     },
     {
       "id": 2,
       "name": "stuck-bead-mid-run",
       "prompt": "Check on the ralph run. Status has shown the same bead in progress for the last three checks and the log has an [ERROR] line.",
       "expected_output": "Treats the run as stalled. Shows the end of the run log and the stuck bead's iteration log. Reports iterations used against the budget. Stops the ralph-tui session before offering to resume it, then waits for the user. Does not implement or close the bead itself, and does not infer progress from an exit code alone.",
-      "files": []
+      "files": [],
+      "assertions": [
+        {
+          "text": "Treats the run as stalled, not as progressing"
+        },
+        {
+          "text": "Shows the end of the run log including the [ERROR] line"
+        },
+        {
+          "text": "Shows the stuck bead's iteration log content"
+        },
+        {
+          "text": "Reports iterations used against the budget (6 of 16) and beads closed of total (3 of 12)"
+        },
+        {
+          "text": "Stops, or gives the exact command to stop, the ralph-tui session before offering to resume"
+        },
+        {
+          "text": "Waits for the user's decision instead of applying a fix"
+        },
+        {
+          "text": "Does not implement, edit code for, or close the stuck bead"
+        },
+        {
+          "text": "Judges progress from session status and bead state, not from an exit code alone"
+        }
+      ],
+      "setup": "inputs/make-stalled-run-project.sh <dir>; prints the epic id and a placeholder pid holding ralph-tui's lock. Kill the pid after the eval."
     }
   ]
 }

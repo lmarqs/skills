@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Builds the disposable project the evals run against: a TypeScript service
 # with a 12-bead linear epic, no git remote and no installed toolchain.
-# Usage: make-eval-project.sh <empty-dir>
+# Usage: make-eval-project.sh <empty-dir> [epic-id]
 set -euo pipefail
-dir="${1:?usage: make-eval-project.sh <empty-dir>}"
+dir="${1:?usage: make-eval-project.sh <empty-dir> [epic-id]}"
+epic_id="${2:-}"
 mkdir -p "$dir" && cd "$dir"
 git init -q -b main
 git config user.email eval@example.com
@@ -19,8 +20,12 @@ cat > CLAUDE.md <<'MD'
 MD
 mkdir -p src && echo "export const version = '0.1.0';" > src/index.ts
 git add -A && git commit -q -m "chore: init"
-bd init --quiet >/dev/null 2>&1
-epic=$(bd create --type=epic --title="Billing export" --description="Export invoices to CSV and S3 for finance." --silent)
+init_args=(--quiet)
+[ -n "$epic_id" ] && init_args+=(--prefix="${epic_id%-*}")
+bd init "${init_args[@]}" >/dev/null 2>&1
+epic_args=(--type=epic --title="Billing export" --description="Export invoices to CSV and S3 for finance." --silent)
+[ -n "$epic_id" ] && epic_args+=(--id="$epic_id")
+epic=$(bd create "${epic_args[@]}")
 prev=""
 i=0
 for title in "Add export_jobs table migration" "Add ExportJob repository" "CSV serializer for invoices" \
@@ -34,5 +39,5 @@ for title in "Add export_jobs table migration" "Add ExportJob repository" "CSV s
   [ -n "$prev" ] && args+=(--deps="$prev")
   prev=$(bd create "${args[@]}")
 done
-git add -A && git commit -q -m "chore: add beads" || true
+git add -A && git commit -q -m "chore: add beads" >/dev/null || true
 echo "$epic"
