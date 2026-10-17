@@ -45,6 +45,7 @@ Send one message. Fill each item from step 1, never from memory; where step 1 fo
 - **Subagent permissions:** whether subagents skip permission prompts and whether they run sandboxed. State what ralph-tui does by default for the chosen agent.
 - **Worktree:** yes or no. If yes, its path and branch: the project's convention, else a proposal with the reason. Say whether creating it changes a tracked file, and for a JSON source whether the file will be there.
 - **Commits:** who commits each task and with what message, from ralph-tui's auto-commit setting and what the prompt tells subagents. If neither commits, say the run will produce no commits. For a JSON source, say what happens to the task file, which the engine rewrites as it goes.
+- **Start command:** the exact `ralph-tui run` line step 3 will use, headless, with every flag filled, so the user confirms what will run.
 - **Delivery strategy:** never pick, recommend or default to one. Present the options (none, one PR for the whole run, grouped PRs with groups the user names, one PR per task; draft or ready) with what each means here: units, branches, base of each PR, merge order, and the effect of the allowed merge methods. Say which options the project cannot support yet, for example without a remote. How you build the branches is your call; nothing about delivery may surface for the first time after the run starts.
 
 ## 3. Prepare and start ralph-tui
