@@ -5,6 +5,7 @@ Seen on ralph-tui 0.12.0, beads 1.3.1, Claude Code 2.1.292 and codex-cli 0.160.1
 ## ralph-tui
 
 - **Iteration cap:** the engine's `maxIterations` default is 10. Seen in the bundled source and `ralph-tui config show`.
+- **Tracker selection:** `--tracker` wins, then the config's `tracker` key, then a `trackers` list entry; with none of these the tracker is `beads-bv`. `--prd <path>` switches to `json` unless `--tracker` is also given. Tracker settings live under `[trackerOptions]`. Seen in the config builder in the bundled source and `ralph-tui run --help`.
 - **Models:** the claude agent accepts only `sonnet`, `opus` and `haiku` and refuses to start on anything else. The codex agent accepts any model name. Seen in each agent's `validateModel` in the bundled source.
 - **Effort:** `--variant` is passed only to the opencode agent; the claude and codex agents receive `--model` but no effort. Seen in each agent's argument builder.
 - **Permissions:** the claude agent launches subagents with `--dangerously-skip-permissions` unless the agent config sets `skipPermissions = false`. The codex agent passes `--sandbox`, default `workspace-write`. Seen in the bundled source.
@@ -15,6 +16,16 @@ Seen on ralph-tui 0.12.0, beads 1.3.1, Claude Code 2.1.292 and codex-cli 0.160.1
 - **Environment:** variables matching `*_API_KEY`, `*_SECRET_KEY` and `*_SECRET` are removed before spawning an agent. Seen in the bundled source; `ralph-tui doctor` reports the filter.
 - **Status:** `ralph-tui status` exits 0 when completed, 1 when running or paused, 2 when failed or no session. Seen in `ralph-tui status --help`.
 - **Pull requests:** ralph-tui never opens one; at the end of a parallel run it prints `gh pr create` guidance. Seen in the bundled source.
+
+## json tracker
+
+- **Task file:** a JSON object with `name` and `userStories` at the root; each story has `id`, `title` and `passes`, and optionally `description`, `acceptanceCriteria`, `priority`, `dependsOn`, `labels` and `notes`. The root may carry `description`, `branchName` and `metadata`. Seen in the schema validator in the bundled source and the json tracker docs.
+- **Path:** `--prd <path>` or `[trackerOptions] path`. A relative path resolves against the directory ralph-tui was started in, not `--cwd`. `--tracker json` without a path opens an interactive file browser. Seen in the tracker's `initialize` in the bundled source and the json tracker docs.
+- **Selection:** the next story is one with `passes: false` whose `dependsOn` stories all pass, lowest `priority` first, then file order. `--epic` does not apply; the tracker reports one epic, `prd:<name>`. Seen in the bundled source and the json tracker docs.
+- **Write-back:** the engine rewrites the file when a story starts (`passes: false`, `metadata.updatedAt`) and when it completes (`passes: true`, `completionNotes`, `metadata.updatedAt`), reformatted with two-space indentation. Completion is written before auto-commit runs, so with auto-commit on each story's commit carries its own `passes` change. Seen in the tracker's `updateTaskStatus` and `completeTask` and the engine's iteration loop in the bundled source.
+- **Auto-commit:** stages with `git add -A` in the run directory, so a task file outside it, or ignored by git, is never committed. `{{taskType}}` is `story`, so the default message is `story: <id> <title>`. Seen in the bundled source.
+- **branchName:** read from the file but never acted on; ralph-tui does not create or check out that branch. Seen in the bundled source: `getBranchName` has no caller.
+- **Prompt:** `ralph-tui template show --tracker json` prints it. It tells subagents not to commit and has no step that edits the task file; the engine marks the story. Seen on one machine with a user-level template override.
 
 ## beads
 
