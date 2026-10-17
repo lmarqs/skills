@@ -28,4 +28,4 @@ Other trackers (`beads-rust`, `beads-rust-bv`, `linear`, `jira`) are not covered
 | Auto-commit on | one commit per bead, message type from the bead type | one commit per story, `story: <id> <title>` by default, carrying that story's `passes` change; only if the file is inside the run directory and not ignored |
 | Auto-commit off | tracked files untouched by the engine | the task file is left modified after the run |
 | Branch | the project's convention | the project's convention; `branchName` in the file is a hint, ralph-tui never checks it out |
-| You must not | close a bead | edit the task file or set `passes` |
+| You must not | close a bead | set `passes`, or edit the file while ralph-tui runs |
