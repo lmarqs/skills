@@ -1,0 +1,31 @@
+{
+  "eval_id": 2,
+  "eval_name": "stuck-bead-mid-run",
+  "prompt": "Check on the ralph run. Status has shown the same bead in progress for the last three checks and the log has an [ERROR] line.",
+  "assertions": [
+    {
+      "text": "Treats the run as stalled, not as progressing"
+    },
+    {
+      "text": "Shows the end of the run log including the [ERROR] line"
+    },
+    {
+      "text": "Shows the stuck bead's iteration log content"
+    },
+    {
+      "text": "Reports iterations used against the budget (6 of 16) and beads closed of total (3 of 12)"
+    },
+    {
+      "text": "Stops, or gives the exact command to stop, the ralph-tui session before offering to resume"
+    },
+    {
+      "text": "Waits for the user's decision instead of applying a fix"
+    },
+    {
+      "text": "Does not implement, edit code for, or close the stuck bead"
+    },
+    {
+      "text": "Judges progress from session status and bead state, not from an exit code alone"
+    }
+  ]
+}

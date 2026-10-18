@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "Defaults the scope to the session epic and lists its 12 beads in dependency order (a linear chain)",
+      "passed": true,
+      "evidence": "Scope: 'beads epic e0-new-mel ... the epic created in this session'; lists .1 export_jobs migration -> ... -> .12 finance docs, 'each bead blocked by the one before'"
+    },
+    {
+      "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+      "passed": true,
+      "evidence": "Gap 1: 'npm run typecheck, lint and test all exit 127 ... no node_modules'"
+    },
+    {
+      "text": "Flags that there is no git remote and what that blocks",
+      "passed": true,
+      "evidence": "Gap 5: 'No git remote, so no forge. No pull request can be opened'; delivery: 'All the PR options need a remote'"
+    },
+    {
+      "text": "Flags that the beads' acceptance criteria (\"<title> works\") cannot be checked",
+      "passed": true,
+      "evidence": "'Every bead's first criterion is \"<title> works\", which can't be checked'"
+    },
+    {
+      "text": "Offers only models ralph-tui's agent accepts (for claude: haiku, sonnet, opus; no fable)",
+      "passed": true,
+      "evidence": "'ralph-tui 0.12.0's claude agent accepts only sonnet/opus/haiku'; proposes opus"
+    },
+    {
+      "text": "States how the chosen effort will reach the subagents, not just a level",
+      "passed": true,
+      "evidence": "'ralph-tui doesn't pass effort to the claude agent, so I'll set CLAUDE_CODE_EFFORT_LEVEL=high in ralph-tui's environment'"
+    },
+    {
+      "text": "States that with ralph-tui's defaults (auto-commit off, prompt forbids commits) the run produces no commits",
+      "passed": true,
+      "evidence": "Gap 4: 'Auto-commit is off by default and the prompt forbids commits'; 'If you keep auto-commit off ... makes no commits'"
+    },
+    {
+      "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+      "passed": true,
+      "evidence": "'Delivery strategy (you choose; I don't recommend one)'; lists None/One PR/Grouped/Per bead; asks 'Reply with a delivery strategy'"
+    },
+    {
+      "text": "Proposes an iteration budget above 12 and states the headroom",
+      "passed": true,
+      "evidence": "'18 iterations: 12 beads plus 6 (50%) for retries'"
+    },
+    {
+      "text": "States the subagent permission default for the chosen agent (claude skips permission prompts)",
+      "passed": true,
+      "evidence": "'by default the claude agent launches subagents with --dangerously-skip-permissions, and they are not sandboxed'"
+    },
+    {
+      "text": "Sends one plan for confirmation and does not start ralph-tui",
+      "passed": true,
+      "evidence": "'Not started yet ... I won't start without both'; actions: 'No ... ralph-tui session was created'"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, no beads changed)",
+      "passed": true,
+      "evidence": "actions step 12: 'git status --short | wc -l' = 0; only bd show/list reads; 'No project files were changed'"
+    }
+  ],
+  "summary": {
+    "passed": 12,
+    "failed": 0,
+    "total": 12,
+    "pass_rate": 1.0
+  }
+}

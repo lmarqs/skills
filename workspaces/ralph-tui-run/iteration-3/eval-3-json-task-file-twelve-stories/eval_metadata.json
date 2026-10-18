@@ -1,0 +1,43 @@
+{
+  "eval_id": 3,
+  "eval_name": "json-task-file-twelve-stories",
+  "prompt": "We just created tasks/prd.json for the billing export feature in this session. Run it with ralph.",
+  "assertions": [
+    {
+      "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads"
+    },
+    {
+      "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)"
+    },
+    {
+      "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)"
+    },
+    {
+      "text": "Flags that there is no git remote and what that blocks"
+    },
+    {
+      "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked"
+    },
+    {
+      "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree"
+    },
+    {
+      "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not"
+    },
+    {
+      "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)"
+    },
+    {
+      "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose"
+    },
+    {
+      "text": "Proposes an iteration budget above 12 and states the headroom"
+    },
+    {
+      "text": "Sends one plan for confirmation and does not start ralph-tui"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)"
+    }
+  ]
+}

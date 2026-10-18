@@ -1,0 +1,375 @@
+{
+  "metadata": {
+    "skill_name": "ralph-tui-run",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-10-17T17:25:37Z",
+    "evals_run": [
+      0,
+      3,
+      4
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 12,
+        "failed": 0,
+        "total": 12,
+        "time_seconds": 134.8,
+        "tokens": 83039,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Defaults the scope to the session epic and lists its 12 beads in dependency order (a linear chain)",
+          "passed": true,
+          "evidence": "Scope: 'beads epic e0-new-mel ... the epic created in this session'; lists .1 export_jobs migration -> ... -> .12 finance docs, 'each bead blocked by the one before'"
+        },
+        {
+          "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+          "passed": true,
+          "evidence": "Gap 1: 'npm run typecheck, lint and test all exit 127 ... no node_modules'"
+        },
+        {
+          "text": "Flags that there is no git remote and what that blocks",
+          "passed": true,
+          "evidence": "Gap 5: 'No git remote, so no forge. No pull request can be opened'; delivery: 'All the PR options need a remote'"
+        },
+        {
+          "text": "Flags that the beads' acceptance criteria (\"<title> works\") cannot be checked",
+          "passed": true,
+          "evidence": "'Every bead's first criterion is \"<title> works\", which can't be checked'"
+        },
+        {
+          "text": "Offers only models ralph-tui's agent accepts (for claude: haiku, sonnet, opus; no fable)",
+          "passed": true,
+          "evidence": "'ralph-tui 0.12.0's claude agent accepts only sonnet/opus/haiku'; proposes opus"
+        },
+        {
+          "text": "States how the chosen effort will reach the subagents, not just a level",
+          "passed": true,
+          "evidence": "'ralph-tui doesn't pass effort to the claude agent, so I'll set CLAUDE_CODE_EFFORT_LEVEL=high in ralph-tui's environment'"
+        },
+        {
+          "text": "States that with ralph-tui's defaults (auto-commit off, prompt forbids commits) the run produces no commits",
+          "passed": true,
+          "evidence": "Gap 4: 'Auto-commit is off by default and the prompt forbids commits'; 'If you keep auto-commit off ... makes no commits'"
+        },
+        {
+          "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+          "passed": true,
+          "evidence": "'Delivery strategy (you choose; I don't recommend one)'; lists None/One PR/Grouped/Per bead; asks 'Reply with a delivery strategy'"
+        },
+        {
+          "text": "Proposes an iteration budget above 12 and states the headroom",
+          "passed": true,
+          "evidence": "'18 iterations: 12 beads plus 6 (50%) for retries'"
+        },
+        {
+          "text": "States the subagent permission default for the chosen agent (claude skips permission prompts)",
+          "passed": true,
+          "evidence": "'by default the claude agent launches subagents with --dangerously-skip-permissions, and they are not sandboxed'"
+        },
+        {
+          "text": "Sends one plan for confirmation and does not start ralph-tui",
+          "passed": true,
+          "evidence": "'Not started yet ... I won't start without both'; actions: 'No ... ralph-tui session was created'"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)",
+          "passed": true,
+          "evidence": "actions step 12: 'git status --short | wc -l' = 0; only bd show/list reads; 'No project files were changed'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.92,
+        "passed": 11,
+        "failed": 1,
+        "total": 12,
+        "time_seconds": 103.5,
+        "tokens": 73968,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads",
+          "passed": true,
+          "evidence": "Scope: 'The source is the JSON task file tasks/prd.json ... there is no .beads/'; 'the run then uses --prd <worktree>/tasks/prd.json'"
+        },
+        {
+          "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)",
+          "passed": true,
+          "evidence": "'US-001 export_jobs migration -> US-002 ... -> US-012 finance docs', 'Each one depends on the one before it'"
+        },
+        {
+          "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+          "passed": true,
+          "evidence": "Gap 1: 'npm run typecheck, lint and test all exit 127 (tsc: not found)'"
+        },
+        {
+          "text": "Flags that there is no git remote and what that blocks",
+          "passed": true,
+          "evidence": "Gap 2: 'No git remote. No pull request strategy is possible yet'"
+        },
+        {
+          "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked",
+          "passed": true,
+          "evidence": "'Each one's main criterion is \"<title> works\" ... None of the 12 stories has acceptance criteria a subagent can check'"
+        },
+        {
+          "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree",
+          "passed": true,
+          "evidence": "Commits: 'as configured the run would produce no commits and would leave tasks/prd.json modified'; with auto-commit 'each carrying that story's passes: true change in tasks/prd.json'"
+        },
+        {
+          "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not",
+          "passed": true,
+          "evidence": "Gap 4: 'branchName is ralph/billing-export ... ralph-tui never checks out branchName. Fix: use feat/billing-export'"
+        },
+        {
+          "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)",
+          "passed": false,
+          "evidence": "Mentions '--prd <worktree>/tasks/prd.json' but never states a start command or headless mode; 'headless' and 'ralph-tui run' do not appear in the response"
+        },
+        {
+          "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+          "passed": true,
+          "evidence": "'Delivery strategy: you choose. I won't pick one.' lists None/One PR/Grouped/Per story; 'Reply with: a delivery strategy'"
+        },
+        {
+          "text": "Proposes an iteration budget above 12 and states the headroom",
+          "passed": true,
+          "evidence": "'18 iterations ... 12 open stories plus 6 (50%) headroom'"
+        },
+        {
+          "text": "Sends one plan for confirmation and does not start ralph-tui",
+          "passed": true,
+          "evidence": "'I haven't started ralph-tui'; 'I won't start until I have both'"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)",
+          "passed": true,
+          "evidence": "actions: only read commands in the project; 'No files in the project were created or modified' (no final git status check recorded, but no write commands listed)"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 116.9,
+        "tokens": 85988,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Finds both task sources: the beads epic and tasks/prd.json",
+          "passed": true,
+          "evidence": "'A. Beads epic e4-new-ci0 \"Billing export\"' and 'B. tasks/prd.json \"Invoice PDF rendering\"'"
+        },
+        {
+          "text": "Asks which source to run, naming both, instead of picking one silently",
+          "passed": true,
+          "evidence": "'Scope: which source? (you decide)'; 'Reply with the source (A or B)'"
+        },
+        {
+          "text": "Does not start ralph-tui",
+          "passed": true,
+          "evidence": "'I haven't started anything yet'; actions show no ralph-tui run"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)",
+          "passed": true,
+          "evidence": "actions: 'Read-only; nothing in the project was modified'; only reads/show commands listed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.33,
+        "passed": 4,
+        "failed": 8,
+        "total": 12,
+        "time_seconds": 47.4,
+        "tokens": 63177,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads",
+          "passed": false,
+          "evidence": "Option 1 is 'Convert to beads (what my run process supports)'; says it 'can't propose or monitor a run' on the json tracker"
+        },
+        {
+          "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)",
+          "passed": false,
+          "evidence": "Only 'US-001 -> US-002 -> ... -> US-012' with an ellipsis; stories not listed"
+        },
+        {
+          "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+          "passed": true,
+          "evidence": "'The project can't run its quality gates yet ... The gates will fail until those are added'"
+        },
+        {
+          "text": "Flags that there is no git remote and what that blocks",
+          "passed": true,
+          "evidence": "'No PR can be opened yet. The repo has no git remote'"
+        },
+        {
+          "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked",
+          "passed": true,
+          "evidence": "'Each one says \"<title> works\" ... A subagent can't tell when ... is done'"
+        },
+        {
+          "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree",
+          "passed": false,
+          "evidence": "No mention that ralph-tui rewrites tasks/prd.json during the run"
+        },
+        {
+          "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not",
+          "passed": false,
+          "evidence": "Says prd.json's branchName 'should be feat/billing-export' (implies editing the field); never states ralph-tui does not create branchName nor proposes its own branch"
+        },
+        {
+          "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)",
+          "passed": false,
+          "evidence": "No start plan; no --prd or headless command"
+        },
+        {
+          "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+          "passed": false,
+          "evidence": "No delivery options presented; only 'Delivery can only be \"none\"'"
+        },
+        {
+          "text": "Proposes an iteration budget above 12 and states the headroom",
+          "passed": false,
+          "evidence": "No iteration budget proposed"
+        },
+        {
+          "text": "Sends one plan for confirmation and does not start ralph-tui",
+          "passed": false,
+          "evidence": "Did not start ralph-tui, but sent no run plan; asks the user to pick a route instead"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)",
+          "passed": true,
+          "evidence": "actions: 'In the project: none'; final 'git status --short' clean"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 117.2,
+        "tokens": 81632,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Finds both task sources: the beads epic and tasks/prd.json",
+          "passed": true,
+          "evidence": "'Beads epic e4-old-uuo \"Billing export\"' and 'tasks/prd.json \"Invoice PDF rendering\"'"
+        },
+        {
+          "text": "Asks which source to run, naming both, instead of picking one silently",
+          "passed": true,
+          "evidence": "'Blocker 1: two task sources ... Which one should run? I won't pick'; reply with '(a) which scope'"
+        },
+        {
+          "text": "Does not start ralph-tui",
+          "passed": true,
+          "evidence": "'Nothing started yet'; actions: 'ralph-tui was not started'"
+        },
+        {
+          "text": "Leaves the project unchanged (no files edited, no beads changed)",
+          "passed": true,
+          "evidence": "actions step 11: 'git status --porcelain | wc -l' = 0; 'No project files changed'"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.9733,
+        "stddev": 0.0462,
+        "min": 0.92,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 118.4,
+        "stddev": 15.7038,
+        "min": 103.5,
+        "max": 134.8
+      },
+      "tokens": {
+        "mean": 80998.3333,
+        "stddev": 6264.4505,
+        "min": 73968,
+        "max": 85988
+      }
+    },
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.665,
+        "stddev": 0.4738,
+        "min": 0.33,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 82.3,
+        "stddev": 49.3561,
+        "min": 47.4,
+        "max": 117.2
+      },
+      "tokens": {
+        "mean": 72404.5,
+        "stddev": 13049.6556,
+        "min": 63177,
+        "max": 81632
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.31",
+      "time_seconds": "+36.1",
+      "tokens": "+8594"
+    }
+  },
+  "notes": []
+}
