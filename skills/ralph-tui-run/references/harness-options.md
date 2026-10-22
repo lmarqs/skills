@@ -1,6 +1,6 @@
 # Harness options
 
-Snapshot from Claude Code 2.1.292 and codex-cli 0.160.1, for the two harnesses this skill was written for. The refresh commands are the source of truth; prefer their output when it differs from this file.
+Snapshot from Claude Code 2.1.292 to 2.1.309 and codex-cli 0.160.1, for the two harnesses this skill was written for; the effort levels and the `fable`, `opus` and `sonnet` aliases were checked against `claude --help` of 2.1.309, and how effort reaches workers against Claude Code 2.1.306 (lmarqs/the-cook#42). The refresh commands are the source of truth; prefer their output when it differs from this file.
 
 ## Claude Code
 
@@ -30,6 +30,8 @@ Older models still listed (`gpt-6-sol`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6
 OpenAI's models guide documents `ultra` as available to subagents only, and available levels vary by ChatGPT plan. Whether `ultra` applies to a ralph-tui bead was not tested.
 
 ## Effort, both harnesses
+
+How it reaches ralph-tui's workers: Claude's per run, through `CLAUDE_CODE_EFFORT_LEVEL` in the environment that starts ralph-tui; Codex's per agent entry, as `"-c", "model_reasoning_effort=<level>"` in `defaultFlags`. See observed-behavior.md.
 
 - **Low end:** quick, little deliberation per bead. Mechanical beads where gates catch mistakes.
 - **Middle:** the usual choice for feature work.

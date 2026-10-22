@@ -21,7 +21,7 @@ Other trackers (`beads-rust`, `beads-rust-bv`, `linear`, `jira`) are not covered
 | Already done | closed beads | stories with `passes: true` |
 | Nothing to run | point to `ralph-tui-create-beads` | point to `ralph-tui-create-json` |
 | Prompt check | the close step works with this database (see observed-behavior.md) | no close step; the engine marks the story |
-| Worktree | the project's convention, else `bd worktree create`; check with `bd list` inside it | the project's convention, else `git worktree add`; the file appears there only if it is committed; check it exists inside it |
+| Worktree | the project's launcher or convention, else `bd worktree create`; check with `bd list` inside it | the project's launcher or convention, else `git worktree add`; the file appears there only if it is committed; check it exists inside it |
 | Start | `--epic <id>` with the configured beads tracker | `--prd <absolute path>`; a relative path resolves against where ralph-tui starts, and without a path it opens an interactive picker |
 | Progress | beads closed of total, from `bd` and `ralph-tui status` | stories passing of total, from the file and `ralph-tui status` |
 | Engine writes | bead status in the beads database | the task file itself, at each story's start and completion |
