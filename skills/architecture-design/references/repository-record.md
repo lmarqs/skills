@@ -80,6 +80,8 @@ decision is accepted; until then, the record is a task in step 6's tasks list.
 Prefer the repository. If it has a place for design documents (`docs/rfcs/`, `docs/design/`, a
 directory beside the records), put the document there and link it by relative path. Otherwise the
 document lives in the issue or pull request that carries the decision, and the record links that URL.
+When that issue or pull request does not exist yet, the record names it ("the pull request that adds
+this record"), and replacing the name with the URL is a task in step 6's tasks list.
 An issue body can be edited after the record merges, so the document's version history is what tells
 a later reader which version the record summarized. Either way, the document links back to its record
 once the record exists, in its Sources or version history.
