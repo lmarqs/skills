@@ -4,8 +4,8 @@ Many repositories keep their own short decision records in one directory: `docs/
 `doc/architecture/decisions/`, `docs/decisions/`. Each is a short file in a fixed format (Nygard's
 four sections, MADR, or a house template). The full document from this method is several pages and
 cannot become one of those files without losing the analysis. So, when the repository keeps records,
-the decision leaves as two artifacts: **the full document**, which holds the analysis, and **the
-record**, written in the repository's format, which states the decision and links the document.
+the decision leaves as two artifacts: the full document, which holds the analysis, and the record,
+written in the repository's format, which states the decision and links the document.
 
 ## Contents
 
@@ -71,10 +71,9 @@ More Information in full MADR) gets them filled from the matching part of the do
 
 ## When to write it
 
-- **The format has a status field.** Write the record with the document, at step 5's status, and
-  update it when the status changes.
-- **The format has no status field.** A record there reads as decided. Write it only once the
-  decision is accepted; until then, the record is a task in step 6's tasks list.
+If the format has a status field, write the record with the document, at step 5's status, and update
+it when the status changes. If it has none, a record there reads as decided, so write it only once the
+decision is accepted; until then, the record is a task in step 6's tasks list.
 
 ## Where the full document goes
 

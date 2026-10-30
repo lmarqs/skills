@@ -18,7 +18,7 @@ it once; then work from `SKILL.md`.
 
 ## What the document is for
 
-The real work is structured thinking about a technical decision: framing the problem, weighing the
+The work is structured thinking about a technical decision: framing the problem, weighing the
 options against what matters, and committing with reasons. The written artifact is the trace that
 thinking leaves behind, so the next person (a new hire, a reviewer, your future self) can follow not
 just what was chosen but why, and could have reached the same conclusion from the same evidence. Keep
@@ -51,7 +51,7 @@ each is a claim with a source, and the source may be memory. Verify what the cod
 dashboards, the tickets and the logs can answer. Do the lookup before asking the user; a question you
 could have answered yourself spends their attention for nothing. When the user states a figure with no
 source, the figure enters the document labeled *assumed*, with the user as its origin and a named way
-to confirm it. That is not distrust; it is the same treatment every other claim gets.
+to confirm it, the same treatment every other claim gets.
 
 **The framing is part of what you challenge.** "It is between X and Y" is a hypothesis about the
 option space, not the option space. Ask what goal makes those two the candidates, then name at least
@@ -93,7 +93,7 @@ agreeing is cheap. Where it would not, state the assumption inline, label it, an
 > Abraham Lincoln.
 
 Architecture is the highest-leverage, hardest-to-reverse work in software. Get it wrong and no amount
-of clean code downstream saves the project; the wrong foundation sinks everything built on it. So this
+of clean code downstream saves the project. So this
 document always deserves your highest effort and slowest thinking. There is no quick mode, and a fast,
 thin pass is itself a failure. Thinking time is not the bottleneck: a rushed plausible answer that is
 subtly wrong costs far more than the hours spent getting it right.
@@ -106,7 +106,7 @@ down the requirements that constrain the choice, exploring the alternatives in e
   think of one option, you have not looked hard enough yet.
 - **Grill your own recommendation.** For the option you favor, write down its strongest objection, not
   a strawman, and the specific conditions that would flip the decision the other way. A tradeoff table
-  where every cell favors your pick is a warning sign, not a victory: you have stopped looking.
+  where every cell favors your pick is a warning sign: you have stopped looking.
 - **Steelman what you reject.** State each rejected alternative at its best, so a reader who prefers it
   sees you understood it and still had reasons. That is what makes the decision trustworthy.
 - **Be precise; ambiguity is where bad decisions hide.** Concrete numbers, named components, grounded
@@ -135,8 +135,8 @@ it is understood; the solution discussion has to wait its turn.
 The one moment to step back and read the whole document end to end is after the alternatives analysis
 reaches its conclusion and before the decision. Check that the requirements still hold, that every
 component traces to one, that every referenced identifier exists, that no two rows say the same thing,
-and that the decision follows from the analysis. That review is the payoff of the discipline, earned by
-working up to it; it is not permission to skip ahead.
+and that the decision follows from the analysis. The review comes only after the analysis is done; it
+is not permission to skip ahead.
 
 ## Sizing the decision
 
@@ -156,8 +156,8 @@ matter.
 
 ## Two shapes, one method
 
-The RFC-to-ADR spectrum shows up as two practical shapes, plus the short record a repository keeps. Same method underneath; the framing and the
-emphasis shift with when you are writing.
+The RFC-to-ADR spectrum shows up as two practical shapes, plus the short record a repository keeps.
+The method underneath is the same; the framing and the emphasis shift with when you are writing.
 
 **Forward-looking (RFC, design doc).** You are choosing before building, to weigh options and invite
 comment. This is the full method: the heart is the tradeoff analysis and the recorded decision. See
@@ -212,11 +212,11 @@ Record the stakeholder conflicts. Where a role's stated wish was overridden, say
 and whose, so the loser of the argument can see it was heard. Record the consequences (what becomes
 easier, what becomes harder, what the team now has to live with), the residual risks the mitigations do
 not remove, and the confirmation: the metric to watch, the automated check or fitness function, the
-review date. A decision with no confirmation quietly decays into folklore.
+review date. Without a confirmation, nobody checks whether the decision still holds.
 
 Status goes proposed, accepted, superseded or deprecated, with the decisions this one supersedes or
 relates to. A blocking open question, one whose answer would change the decision, holds the status at
-proposed. Recommending an option above an unresolved legal question is not deciding; it is hoping.
+proposed. An option recommended above an unresolved legal question has not been decided.
 
 ## Why structure beats prose
 

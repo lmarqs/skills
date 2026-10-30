@@ -2,7 +2,7 @@
 
 Steps 1 and 2 of the method are where these documents are won or lost. Everything downstream is judged
 against the requirements, so a requirement that is really a prior decision, a solution or a wish
-quietly poisons the design and the tradeoff analysis. This reference gives the classification rules,
+poisons the design and the tradeoff analysis. This reference gives the classification rules,
 the tests for goals and roles, the anatomy of a well-formed requirement, what counts as evidence, how
 to handle open questions, a catalogue of requirement defects drawn from the literature, the words that
 fail, and the prose pass. Examples are drawn from the search-service decision in `example-rfc.md` and
@@ -145,7 +145,7 @@ Each functional requirement then names the role it serves in its Requirement cel
 ## Anatomy of a requirement
 
 Every row carries the fields below. The order matters: the goal comes first because it is the part a
-reader needs in order to argue with the requirement.
+reader needs to argue with the requirement.
 
 | Field | What goes in it | Why it is there |
 | --- | --- | --- |
