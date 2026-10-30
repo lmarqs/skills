@@ -124,14 +124,14 @@ sequenceDiagram
 > The section that sets a retrospective document apart: what we discovered *by doing it*, so whoever
 > comes next does not trip on the same stone.
 
-- **Browser cookie management.** `SameSite`, `HttpOnly` and `Secure` are fundamental against
-  cross-site scripting and request forgery; understanding each property was crucial.
+- **Browser cookie management.** `SameSite`, `HttpOnly` and `Secure` are what protect the cookie
+  against cross-site scripting and request forgery, and each property had to be understood on its own.
 - **The user pool schema is immutable.** Changing it requires recreating the user pool; in production
   that would mean migrating all users.
 - **Cross-origin rules should have been decided before implementation.** Adjusting them mid-work cost
   time and shifted direction (it motivated the API gateway).
-- **Short-lived tokens.** The architecture was conceived around short-lived tokens; studying the
-  approach deeply (market recommendations, security impact) was essential.
+- **Short-lived tokens.** The architecture was built around short-lived tokens, and the approach
+  needed study first: market recommendations and its security impact.
 
 ## Improvement point
 

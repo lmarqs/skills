@@ -25,9 +25,11 @@ is in `references/method.md`. Read it once; work from this file.
 
 Two shapes share the method. **Forward-looking** (RFC, design doc): you are deciding, and the heart is
 the tradeoff analysis. Model: `references/example-rfc.md`; skeleton: `assets/template.md`.
-**Retrospective** (ADR, technical documentation): you are recording something built, as context
+**Retrospective** (technical documentation): you are recording something built, as context
 (situation before, motivations, scope), architecture (components and numbered flows), risks, lessons
 learned and a version history. Model: `references/example-technical-doc.md`. When unsure which, ask.
+Neither shape is the short record a repository keeps in its records directory; step 6 writes that
+record from either one.
 
 **Write in the language of the request and its source material**, headings included.
 
@@ -260,11 +262,25 @@ history. The decision document ends there: contracts, schemas, runbooks and spec
 produces, not sections it contains. For the retrospective shape: lessons learned, improvement points,
 version history.
 
+**The repository's record.** When the repository keeps decision records (`docs/adr/`, `docs/adrs/`,
+`doc/architecture/decisions/`), also write the decision as one of them, and link the full document
+from it. Detect the format from the existing records and any template; number and name the record by
+the repository's rule, titled with the decision taken; fill only the sections the format has, from
+Context, the drivers, the tradeoff table and the decision. A format with no status field gets the
+record only once the decision is accepted. Put the document next to the records when the repository
+has a place for design documents, otherwise in the issue or pull request that carries the decision.
+A decision that reverses an earlier record marks it superseded the way the repository does. For a
+two-way door, the light shape written in the repository's format is the record, with no separate
+document.
+Mapping, timing, supersession and a worked example: `references/repository-record.md`.
+
 ## Writing principles
 
 - **Newcomer-readable.** Spell out the obvious; define the acronyms at first use.
 - **The document stands alone.** Inline the number, the query, the log line, the diagram, the clause.
   A link is provenance for something already stated. No forward references; sections read in order.
+  The repository's record is the one artifact that links out for depth: it summarizes the decision in
+  sentences true on their own, and the full document it links holds the analysis.
 - **One name per concept.** Pick a term, define it once, never drift.
 - **Every claim carries evidence or a requirement ID**, with its measured / estimated / assumed label.
 - **Cut what is not pulling its weight.**
@@ -284,6 +300,8 @@ version history.
 - `references/foundations.md`: the literature behind each rule.
 - `references/example-rfc.md`: a worked forward-looking RFC modelling every table above.
 - `references/example-technical-doc.md`: a worked retrospective technical document.
+- `references/repository-record.md`: writing the decision into the repository's own record format:
+  detection, numbering, the section mapping, timing, supersession, an example.
 - `assets/template.md`: the fill-in skeleton for the forward-looking shape.
 
 ## Check before you hand it over
@@ -306,3 +324,6 @@ version history.
 12. No absolute, no evaluative adjective and no escape clause survives in a requirement.
 13. A newcomer can follow the whole argument without opening a link.
 14. The user was told what was reclassified, challenged and assumed, and why.
+15. When the repository keeps decision records, a record in its format exists (or, with no status
+    field and the decision not yet accepted, is a task), links the full document, and adds no section
+    the format lacks.

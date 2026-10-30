@@ -201,6 +201,39 @@
         "The title and the opening paragraph name the problem to solve, not the product or stack to build",
         "Still reaches an explicit recommendation with its decider, consequences and confirmation"
       ]
+    },
+    {
+      "id": 11,
+      "name": "rfc-writes-nygard-record",
+      "prompt": "Our web tier keeps logins in each replica's memory, so users get logged out when the balancer sends them to another replica or when we deploy. Sessions can hold up to 20 KB and security wants logout to end a session immediately. Options on the table are sticky sessions, signed cookies, or a shared store. We've agreed with the team to go with the shared store; write it up so it's on record. The team lead, Dana, owns the call.",
+      "expected_output": "The full forward-looking document (sized as a one-way door, tradeoff table with sticky sessions, signed cookies, shared store and a baseline), plus a new record docs/adrs/0003-<slug>.md in the repository's Nygard format (Title, Status, Context, Decision, Consequences) that links the full document and adds no section Nygard lacks.",
+      "files": [],
+      "setup": "inputs/make-nygard-records-project.sh <dir>; run in <dir>. Records 0001 and 0002 exist in Nygard's format.",
+      "assertions": [
+        "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+        "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+        "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+        "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+        "The record's Context states the problem and the decision drivers in priority order",
+        "Each rejected option appears in the record with what it offers and the driver it fails",
+        "The record links the full document",
+        "The record's status matches the document's decision status",
+        "Record 0002 is not marked superseded, since the decision does not reverse it"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "rfc-proposed-no-status-record-format",
+      "prompt": "We need to pick how the API stores uploaded files: local disk on each host, an S3-compatible object store, or Postgres large objects. Nothing is decided yet; we still need legal to confirm whether files may leave the EU. Write the design doc so the team can review it.",
+      "expected_output": "The full forward-looking document with status proposed and the EU data-residency question listed as blocking. Because the repository's record format has no status field and its README says records are written only for decisions taken, no record file is written; instead, writing the record in docs/adrs/ appears as a task in the document's tasks list, to do once the decision is accepted.",
+      "files": [],
+      "setup": "inputs/make-no-status-records-project.sh <dir>; run in <dir>. The record template has no status field, and docs/adrs/README.md says records are written only for decisions taken.",
+      "assertions": [
+        "The document's status is proposed and the EU data-residency question is listed as blocking with an owner",
+        "No new file is written in docs/adrs/ for this proposed decision",
+        "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+        "The document does not claim a decision record already exists for this choice"
+      ]
     }
   ]
 }

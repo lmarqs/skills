@@ -35,15 +35,13 @@ space below.
 
 Search is served two different ways today: straight from the transactional database and from
 Elasticsearch, stitched together across two APIs (the Public Search API and the internal Rest API).
-That shape grew as features were added, and it now costs us in three measurable places.
-
-- **Latency.** p95 of the schedule-search endpoint sat at 4.1 s over the last 30 days (latency board,
-  read 2026-04-12; *measured*).
-- **Money.** Elasticsearch ran USD 2,840 in March (cloud cost report, tag `service:search`;
-  *measured*), against USD 310 for the search share of the Core database instance (*estimated*, from
-  instance cost apportioned by query time).
-- **Maintenance.** 7 of the 19 search bugs closed in the last two quarters were divergences between the
-  two sources (issue tracker, component `search`, label `sync`; *measured*).
+That shape grew as features were added, and it now costs us in three measurable places. Latency: p95
+of the schedule-search endpoint sat at 4.1 s over the last 30 days (latency board, read 2026-04-12;
+*measured*). Money: Elasticsearch ran USD 2,840 in March (cloud cost report, tag `service:search`;
+*measured*), against USD 310 for the search share of the Core database instance (*estimated*, from
+instance cost apportioned by query time). Maintenance: 7 of the 19 search bugs closed in the last two
+quarters were divergences between the two sources (issue tracker, component `search`, label `sync`;
+*measured*).
 
 ### Current usage
 

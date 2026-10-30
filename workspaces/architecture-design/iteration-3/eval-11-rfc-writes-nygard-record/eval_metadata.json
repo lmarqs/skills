@@ -1,0 +1,16 @@
+{
+  "eval_id": 11,
+  "eval_name": "rfc-writes-nygard-record",
+  "prompt": "Our web tier keeps logins in each replica's memory, so users get logged out when the balancer sends them to another replica or when we deploy. Sessions can hold up to 20 KB and security wants logout to end a session immediately. Options on the table are sticky sessions, signed cookies, or a shared store. We've agreed with the team to go with the shared store; write it up so it's on record. The team lead, Dana, owns the call.",
+  "assertions": [
+    "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+    "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+    "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+    "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+    "The record's Context states the problem and the decision drivers in priority order",
+    "Each rejected option appears in the record with what it offers and the driver it fails",
+    "The record links the full document",
+    "The record's status matches the document's decision status",
+    "Record 0002 is not marked superseded, since the decision does not reverse it"
+  ]
+}
