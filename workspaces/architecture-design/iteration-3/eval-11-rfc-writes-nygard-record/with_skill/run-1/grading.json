@@ -1,0 +1,124 @@
+{
+  "expectations": [
+    {
+      "text": "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+      "passed": true,
+      "evidence": "document.md \"## Alternatives analysis (Tradeoff)\" table has rows \"[Session model] Shared session store ... (chosen; the team's prior decision)\", \"[Session model] Sticky sessions: balancer affinity cookie...\", \"[Session model] Signed cookies: the whole session in the browser, signed by the server\" and \"**Baseline: do nothing**\"."
+    },
+    {
+      "text": "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+      "passed": true,
+      "evidence": "Wrote docs/adrs/0003-keep-sessions-in-a-shared-store.md; existing records are 0001 and 0002, so 0003 is one above the highest."
+    },
+    {
+      "text": "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+      "passed": true,
+      "evidence": "Title \"# 3. Keep sessions in a shared store\" states the decision taken."
+    },
+    {
+      "text": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+      "passed": true,
+      "evidence": "Headings are exactly \"## Status\", \"## Context\", \"## Decision\", \"## Consequences\"; no other headings or labelled sub-blocks. Rejected options are prose inside Decision (reply: \"states each rejected option at its best inside the Decision section, since Nygard has no Options section\")."
+    },
+    {
+      "text": "The record's Context states the problem and the decision drivers in priority order",
+      "passed": true,
+      "evidence": "Context opens with the problem (\"each replica keeps the logins it created in its own memory, so a user is logged out when the balancer sends a new connection to another replica, and every deploy ... logs out every user\") then \"Drivers, in order: logout ends the session at once on every replica; users stay logged in across replicas and deploys; the fix must not bring back the single-instance outages ADR 2 removed; a session holds up to 20 KB...\"."
+    },
+    {
+      "text": "Each rejected option appears in the record with what it offers and the driver it fails",
+      "passed": false,
+      "evidence": "Sticky (\"need no new service and add no latency, but each deploy's restart still logs out that replica's users\"), signed cookies, revocation list and replication each give an offer and a failed driver. But \"Doing nothing keeps users being logged out on deploys and replica changes\" states no offer, and three options rejected in the document's tradeoff table are absent from the record: \"[Buy] Hosted identity provider\", \"[Replica count] Go back to one web instance\", \"[Store engine] Table in a relational database\". Not every rejected option appears."
+    },
+    {
+      "text": "The record links the full document",
+      "passed": false,
+      "evidence": "Record names the document only by title and says it is \"carried in the pull request that adds this record\"; there is no link or path. The reply concedes: \"the record refers to the full document as 'carried in the pull request that adds this record' instead of linking it.\""
+    },
+    {
+      "text": "The record's status matches the document's decision status",
+      "passed": true,
+      "evidence": "Record \"## Status\\n\\nAccepted\"; document \"**Status:** accepted (2026-10-30)\"."
+    },
+    {
+      "text": "Record 0002 is not marked superseded, since the decision does not reverse it",
+      "passed": true,
+      "evidence": "Record 0002 not modified (verified by caller); record 0003 does not claim to supersede it; reply: \"I did not mark 0002 superseded.\""
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 2,
+    "total": 9,
+    "pass_rate": 0.778
+  },
+  "execution_metrics": {
+    "output_chars": 42461
+  },
+  "timing": {
+    "total_tokens": 124853,
+    "duration_ms": 269544,
+    "total_duration_seconds": 269.5
+  },
+  "claims": [
+    {
+      "claim": "Browsers are only required to keep 4,096 bytes per cookie (RFC 6265, section 6.1)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "RFC 6265 6.1 sets minimum capabilities of at least 4096 bytes per cookie; record and document cite it correctly."
+    },
+    {
+      "claim": "Signed 20 KB session split over 7 or more cookies adds about 27 KB to every request (20 KB x 4/3 for base64)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "20480*4/3 = 27307 bytes; /4096 = 6.7, so 7 cookies. Arithmetic checks."
+    },
+    {
+      "claim": "ADR 0002 is untouched and not superseded",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Caller verified 0002 unmodified; record does not mark it."
+    },
+    {
+      "claim": "The record links the full document",
+      "type": "quality",
+      "verified": false,
+      "evidence": "It does not; it defers the link to a future PR URL, which the reply flags as a to-do."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "20 KB session size, traffic, deploy frequency and balancer routing are assumed (no application code in repo)"
+    ],
+    "needs_review": [
+      "Replace 'carried in the pull request' wording in record 0003 with a real link"
+    ],
+    "workarounds": [
+      "Kept the full document outside the repo because the repo has no design-doc location; skipped review checkpoints, assumptions stated inline"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+        "reason": "Discriminates only if labelled inline blocks (\"Options considered:\", \"Confirmation:\") count as sections; reword to say 'no extra headings or labelled blocks' to make grading unambiguous."
+      },
+      {
+        "assertion": "The record's Context states the problem and the decision drivers in priority order",
+        "reason": "Discriminates: with_skill writes 'Drivers, in order:' in Context; old_skill has no driver list."
+      },
+      {
+        "assertion": "Each rejected option appears in the record with what it offers and the driver it fails",
+        "reason": "Fails both; ambiguous whether 'each rejected option' means every row of the document's table or only the options the user raised. Specify the set (e.g. sticky, signed cookies, baseline)."
+      },
+      {
+        "assertion": "The record links the full document",
+        "reason": "Fails both, for different reasons (with_skill defers to a PR URL because the document lives outside the repo; old_skill omits any reference). Clarify whether naming the document plus a placeholder counts, or whether the eval setup should give the document a repo path."
+      },
+      {
+        "reason": "A1-A3, A8, A9 pass for both and do not discriminate. Missing: an assertion that the record stays short like 0001/0002, and one that the record does not repeat implementation detail (store config, rollout) that belongs in the document."
+      }
+    ],
+    "overall": "Discriminating assertions are A4 (sections) and A5 (ranked drivers in Context), both favouring with_skill. A6 and A7 fail both runs and need sharper wording; the rest are non-discriminating sanity checks."
+  }
+}

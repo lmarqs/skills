@@ -1,0 +1,288 @@
+{
+  "metadata": {
+    "skill_name": "architecture-design",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-10-30T05:33:41Z",
+    "evals_run": [
+      11,
+      12
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 11,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.556,
+        "passed": 5,
+        "failed": 4,
+        "total": 9,
+        "time_seconds": 333.9,
+        "tokens": 129833,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+          "passed": true,
+          "evidence": "document.md tradeoff table has rows \"Shared server-side session store (the team's agreed option)\", \"Sticky sessions (balancer affinity) on per-replica memory\", \"Signed cookies (session data held by the browser, signed by the server)\" and \"**Baseline: do nothing (per-replica memory, round-robin)**\"."
+        },
+        {
+          "text": "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+          "passed": true,
+          "evidence": "Wrote docs/adrs/0003-keep-login-sessions-in-a-shared-session-store.md, one above existing 0002."
+        },
+        {
+          "text": "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+          "passed": true,
+          "evidence": "Title \"# 3. Keep login sessions in a shared session store\" states the decision."
+        },
+        {
+          "text": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+          "passed": false,
+          "evidence": "Headings are only Status/Context/Decision/Consequences, but the record embeds labelled extra sections: Context contains an \"Options considered:\" bulleted block and Consequences contains a \"Confirmation: a CI test signs out on one replica ...\" paragraph with a review date; Status also adds \"Decider ... Reviewer ... Relates to ADR-0002\". These are exactly the Options and Confirmation sections the assertion excludes, inlined under Nygard headings."
+        },
+        {
+          "text": "The record's Context states the problem and the decision drivers in priority order",
+          "passed": false,
+          "evidence": "Context states the problem and facts (20 KB, the security rule, RFC 6265 limit) and then lists options, but never names decision drivers or ranks them. The only ordering hint is in Consequences (\"the security requirement was put ahead of staying signed in\"), not a priority-ordered driver list in Context."
+        },
+        {
+          "text": "Each rejected option appears in the record with what it offers and the driver it fails",
+          "passed": false,
+          "evidence": "\"Options considered\" gives offer + failure for do nothing (\"Sign-out already ends the session, but users keep being signed out\"), sticky (\"The smallest change, but a deploy ... still discards the sessions\") and signed cookies (\"No server state, but a copied cookie stays valid after sign-out\"). But \"Hosted identity or session service. Rewrites sign-in and still needs a server-side home...\" states no offer, the hybrid entry states no offer beyond the failure, and the document's rejected \"[Store] Table in a relational database\" row is absent from the record."
+        },
+        {
+          "text": "The record links the full document",
+          "passed": false,
+          "evidence": "The record contains no reference to document.md or any link to the full analysis (grep for \"link\"/\"document\" finds nothing)."
+        },
+        {
+          "text": "The record's status matches the document's decision status",
+          "passed": true,
+          "evidence": "Record \"Accepted, 2026-10-30\"; document \"**Status:** accepted, 2026-10-30 (recorded in the repository as ADR-0003)\"."
+        },
+        {
+          "text": "Record 0002 is not marked superseded, since the decision does not reverse it",
+          "passed": true,
+          "evidence": "0002 not modified; record Status says \"Relates to ADR-0002 (completes it; does not supersede it)\"."
+        }
+      ],
+      "notes": [
+        "Security team's reading of 'immediately' unconfirmed",
+        "20 KB and traffic figures unmeasured",
+        "Store product left for Dana to confirm",
+        "ADR left uncommitted",
+        "Placed the full document at the requested output path, not in the repo; inlined options and confirmation into the Nygard record"
+      ]
+    },
+    {
+      "eval_id": 12,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 343.6,
+        "tokens": 139426,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document's status is proposed and the EU data-residency question is listed as blocking with an owner",
+          "passed": true,
+          "evidence": "Line 3: \"**Status:** proposed. Two blocking questions are open (B1 legal, B2 hosting location).\" Blocking table (lines 103-107): B1 asks about personal data, contract restrictions, EU region of non-EU provider vs EU-controlled provider, DPF/SCC basis; Owner \"Legal counsel\", date \"2026-11-20 (*proposed date*; legal to confirm)\". Restated at line 407: \"**B1** (owner: legal counsel; date 2026-11-20, proposed)\"."
+        },
+        {
+          "text": "No new file is written in docs/adrs/ for this proposed decision",
+          "passed": true,
+          "evidence": "Judge brief states the repository was unchanged after the run. reply.md: \"Nothing created or modified in the repository (`git status` is clean).\" and \"Adding `docs/adrs/0002-...` now would break the repo's own rule\"."
+        },
+        {
+          "text": "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+          "passed": true,
+          "evidence": "Tasks table line 491: \"| Record the decision | When accepted, write ADR 0002 in `docs/adrs/` from that directory's template, linking this document | 0.5d |\". Refers to the repo template (Context, Options, Decision, Consequences) without naming the sections or the NNNN-<slug> filename pattern."
+        },
+        {
+          "text": "The document does not claim a decision record already exists for this choice",
+          "passed": true,
+          "evidence": "Line 514: \"`docs/adrs/README.md`: decision records are written only for decisions that have been taken; this document stays outside that directory until it is accepted.\" Only ADR 0001 is cited as existing; ADR 0002 appears only as a future task."
+        }
+      ],
+      "notes": [
+        "Decider assumed to be the API tech lead",
+        "Postgres use and hosting country assumed; B2 blocking",
+        "Two added requirements (erasure, file-location report) and 4-hour restore target not confirmed",
+        "Review checkpoints skipped",
+        "Document written to output path only; ADR 0002 deferred to a roadmap task"
+      ]
+    },
+    {
+      "eval_id": 11,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.778,
+        "passed": 7,
+        "failed": 2,
+        "total": 9,
+        "time_seconds": 269.5,
+        "tokens": 124853,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+          "passed": true,
+          "evidence": "document.md \"## Alternatives analysis (Tradeoff)\" table has rows \"[Session model] Shared session store ... (chosen; the team's prior decision)\", \"[Session model] Sticky sessions: balancer affinity cookie...\", \"[Session model] Signed cookies: the whole session in the browser, signed by the server\" and \"**Baseline: do nothing**\"."
+        },
+        {
+          "text": "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+          "passed": true,
+          "evidence": "Wrote docs/adrs/0003-keep-sessions-in-a-shared-store.md; existing records are 0001 and 0002, so 0003 is one above the highest."
+        },
+        {
+          "text": "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+          "passed": true,
+          "evidence": "Title \"# 3. Keep sessions in a shared store\" states the decision taken."
+        },
+        {
+          "text": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+          "passed": true,
+          "evidence": "Headings are exactly \"## Status\", \"## Context\", \"## Decision\", \"## Consequences\"; no other headings or labelled sub-blocks. Rejected options are prose inside Decision (reply: \"states each rejected option at its best inside the Decision section, since Nygard has no Options section\")."
+        },
+        {
+          "text": "The record's Context states the problem and the decision drivers in priority order",
+          "passed": true,
+          "evidence": "Context opens with the problem (\"each replica keeps the logins it created in its own memory, so a user is logged out when the balancer sends a new connection to another replica, and every deploy ... logs out every user\") then \"Drivers, in order: logout ends the session at once on every replica; users stay logged in across replicas and deploys; the fix must not bring back the single-instance outages ADR 2 removed; a session holds up to 20 KB...\"."
+        },
+        {
+          "text": "Each rejected option appears in the record with what it offers and the driver it fails",
+          "passed": false,
+          "evidence": "Sticky (\"need no new service and add no latency, but each deploy's restart still logs out that replica's users\"), signed cookies, revocation list and replication each give an offer and a failed driver. But \"Doing nothing keeps users being logged out on deploys and replica changes\" states no offer, and three options rejected in the document's tradeoff table are absent from the record: \"[Buy] Hosted identity provider\", \"[Replica count] Go back to one web instance\", \"[Store engine] Table in a relational database\". Not every rejected option appears."
+        },
+        {
+          "text": "The record links the full document",
+          "passed": false,
+          "evidence": "Record names the document only by title and says it is \"carried in the pull request that adds this record\"; there is no link or path. The reply concedes: \"the record refers to the full document as 'carried in the pull request that adds this record' instead of linking it.\""
+        },
+        {
+          "text": "The record's status matches the document's decision status",
+          "passed": true,
+          "evidence": "Record \"## Status\\n\\nAccepted\"; document \"**Status:** accepted (2026-10-30)\"."
+        },
+        {
+          "text": "Record 0002 is not marked superseded, since the decision does not reverse it",
+          "passed": true,
+          "evidence": "Record 0002 not modified (verified by caller); record 0003 does not claim to supersede it; reply: \"I did not mark 0002 superseded.\""
+        }
+      ],
+      "notes": [
+        "20 KB session size, traffic, deploy frequency and balancer routing are assumed (no application code in repo)",
+        "Replace 'carried in the pull request' wording in record 0003 with a real link",
+        "Kept the full document outside the repo because the repo has no design-doc location; skipped review checkpoints, assumptions stated inline"
+      ]
+    },
+    {
+      "eval_id": 12,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 289.8,
+        "tokens": 140348,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The document's status is proposed and the EU data-residency question is listed as blocking with an owner",
+          "passed": true,
+          "evidence": "Line 3: \"**Status:** proposed (held by two blocking questions; see Assumptions and open questions)\". Line 92: \"**Blocking** (the status stays proposed while either is open):\"; Q1 row (line 96) asks whether files incl. backups may be stored with a provider subject to non-EU law / must be EU-headquartered, Owner column \"Legal counsel\", date \"2026-11-13 (*proposed*; legal to confirm)\"."
+        },
+        {
+          "text": "No new file is written in docs/adrs/ for this proposed decision",
+          "passed": true,
+          "evidence": "Judge brief states the repository was unchanged after the run. reply.md: \"Nothing was created or modified in the repository.\" and explains writing 0002-*.md now \"would claim a decision that has not been made\"."
+        },
+        {
+          "text": "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+          "passed": true,
+          "evidence": "Tasks table line 426: \"| Decision record | Once accepted, write `docs/adrs/0002-<decision-as-slug>.md` from `docs/adrs/template.md`, linking this document.\" Names the repo template (whose sections are Context, Options, Decision, Consequences) and the NNNN-<slug> naming; does not spell the four section names out."
+        },
+        {
+          "text": "The document does not claim a decision record already exists for this choice",
+          "passed": true,
+          "evidence": "Line 426: \"...written only for decisions taken (`docs/adrs/README.md`), so no record exists while this is proposed\". Revision log line 458: \"the decision record is a task until accepted.\" No sentence asserts a record for this choice exists; the only ADR cited is 0001."
+        }
+      ],
+      "notes": [
+        "Decider assumed to be the API tech lead",
+        "Upload volumes (20,000/month, 2 MB) assumed; Q2 blocking",
+        "Added GDPR-derived requirements (erasure, copy inventory) flagged as unconfirmed by requester",
+        "Review checkpoints skipped because one-pass output was requested",
+        "Design doc kept out of the repo since the repo has only a records folder; recommends it live in the issue/PR"
+      ]
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.778,
+        "stddev": 0.314,
+        "min": 0.556,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 338.75,
+        "stddev": 6.8589,
+        "min": 333.9,
+        "max": 343.6
+      },
+      "tokens": {
+        "mean": 134629.5,
+        "stddev": 6783.3,
+        "min": 129833,
+        "max": 139426
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.889,
+        "stddev": 0.157,
+        "min": 0.778,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 279.65,
+        "stddev": 14.3543,
+        "min": 269.5,
+        "max": 289.8
+      },
+      "tokens": {
+        "mean": 132600.5,
+        "stddev": 10956.6,
+        "min": 124853,
+        "max": 140348
+      }
+    },
+    "delta": {
+      "pass_rate": "-0.11",
+      "time_seconds": "+59.1",
+      "tokens": "+2029"
+    }
+  },
+  "notes": []
+}
