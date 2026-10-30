@@ -156,7 +156,7 @@ matter.
 
 ## Two shapes, one method
 
-The RFC-to-ADR spectrum shows up as two practical shapes. Same method underneath; the framing and the
+The RFC-to-ADR spectrum shows up as two practical shapes, plus the short record a repository keeps. Same method underneath; the framing and the
 emphasis shift with when you are writing.
 
 **Forward-looking (RFC, design doc).** You are choosing before building, to weigh options and invite
@@ -164,7 +164,7 @@ comment. This is the full method: the heart is the tradeoff analysis and the rec
 `example-rfc.md` and start from `../assets/template.md`; treat its sections as a checklist, not a
 cage.
 
-**Retrospective (ADR, technical documentation).** You are recording something already decided or
+**Retrospective (technical documentation).** You are recording something already decided or
 built. Same spirit, reshaped: Context (situation before, motivations, scope), Architecture (components
 with responsibilities, step-by-step flows with a dynamic diagram), Risks and mitigations, Lessons
 learned, improvement points, and a version history table. Every rule about evidence, roles, one name
@@ -173,6 +173,14 @@ decided and what it taught. See `example-technical-doc.md`.
 
 Pick the shape from what the user is doing: deciding, or recording a decision already made. When
 unsure, ask.
+
+**The repository's record (ADR) is neither shape.** A retrospective technical document is several
+pages of architecture, flows and lessons; an ADR in a repository's records directory is one page in a
+fixed format (Nygard's context, decision, status, consequences, or MADR's minimal template) that says
+what was decided and why, and nothing else. The record cannot carry the full method, so it states the
+decision in the repository's format and links the document that holds the analysis: Tyree and
+Akerman's *related artifacts*. Writing one is part of step 6 whenever the repository keeps records;
+the details are in `repository-record.md`.
 
 ## Working with a person
 
