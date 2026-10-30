@@ -1,0 +1,15 @@
+{
+  "eval_id": 1,
+  "eval_name": "plan-split-name-40m-zero-downtime",
+  "prompt": "We need to split the `name` column on our `users` table into `first_name` and `last_name`. The table has about 40 million rows in Postgres (RDS) and it's the hottest table in the product \u2014 we can't take downtime. It's a Django app with rolling deploys. Give me a concrete migration plan; we'd also like to eventually drop `name`. Write the plan to outputs/plan.md.",
+  "assertions": [
+    "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+    "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+    "Transitional code dual-writes both representations and reads new with fallback to name",
+    "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+    "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+    "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+    "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+    "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition"
+  ]
+}

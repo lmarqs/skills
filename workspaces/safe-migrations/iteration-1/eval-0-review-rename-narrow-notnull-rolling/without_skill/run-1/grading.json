@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+      "passed": true,
+      "evidence": "Statement 1: 'breaks every old pod for the entire ~15-minute rollout window ... old-version pods ... are still issuing SELECT ... full_name ... and INSERT ... (full_name, ...). Every one of those queries fails with column \"full_name\" does not exist until the last old pod cycles out.'"
+    },
+    {
+      "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+      "passed": false,
+      "evidence": "The only rollback discussion is scoped to mid-rollout: 'Rollback story. If the deploy is rolled back mid-rollout, old code returns but the rename has already happened — the rollback is also broken.' The review never states that rollback to the previous release remains broken after the rollout completes; the distinct post-completion rollback hazard (and the need to keep the old schema working for a rollback window) is not made."
+    },
+    {
+      "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+      "passed": false,
+      "evidence": "Statement 2 raises three problems (ACCESS EXCLUSIVE rewrite/lock, data race making the ALTER fail with a value-too-long error, and cosmetic benefit) but never mentions data loss, truncation being irreversible, or that widening back would not restore lost characters. Irreversibility of the narrowing is not flagged anywhere."
+    },
+    {
+      "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+      "passed": true,
+      "evidence": "Statement 2, Problem 2: '\"We checked and nobody has phone numbers that long\" is a point-in-time check' — explicitly rejects the assumption; then recommends a real data check via constraint: 'ADD CONSTRAINT customers_phone_len CHECK (char_length(phone) <= 20) NOT VALID' followed by 'VALIDATE CONSTRAINT customers_phone_len', which validates all existing rows against the new length before any tightening."
+    },
+    {
+      "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+      "passed": true,
+      "evidence": "Statement 3, Problem 2: 'even fixed with a DEFAULT, old pods don't set it. During the 15-minute window, old-version pods INSERT without loyalty_tier. That's only OK if the column has a DEFAULT (or is nullable). So NOT NULL without a default is doubly wrong here.'"
+    },
+    {
+      "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+      "passed": true,
+      "evidence": "Verdict is 'do not merge as-is'; Statement 1 prescribes expand/contract across Release N / N+1 / N+2 (add display_name + backfill + dual-write, then read/write only display_name, then drop full_name); 'Suggested replacement' splits the work into V42 (expand, ships with dual-compatible app code) and V43 (next release: validate constraint, drop full_name)."
+    },
+    {
+      "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+      "passed": false,
+      "evidence": "The drop is deferred ('Release N+2 (or later migration): drop full_name'; V43 'next release, after all pods read/write display_name'), but no rollback window is mentioned — nothing about keeping full_name long enough to allow rolling back the contract release — and no verification step (e.g. confirming backfill convergence or that nothing still reads/writes full_name) is required before the DROP COLUMN. Deferral by one release alone does not satisfy the assertion's rollback-window-plus-verification requirement."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 3,
+    "total": 7,
+    "pass_rate": 0.57
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present in outputs dir; no transcript available.",
+    "output_chars": 7380
+  },
+  "timing": {
+    "total_tokens": 39913,
+    "duration_ms": 78801,
+    "total_duration_seconds": 78.8
+  },
+  "claims": [
+    {
+      "claim": "Narrowing varchar(100)->varchar(20) forces a rewrite of the whole table and its indexes under ACCESS EXCLUSIVE, while widening is metadata-only",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with PostgreSQL behavior: widening typmod is metadata-only since 9.2; narrowing requires ACCESS EXCLUSIVE with a full scan/rewrite."
+    },
+    {
+      "claim": "ADD COLUMN ... NOT NULL with no DEFAULT fails on any non-empty table, and Flyway's single transaction rolls back the earlier statements too",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct for Postgres ('column ... contains null values'); Flyway runs migrations transactionally on Postgres, so statements 1 and 2 would roll back."
+    },
+    {
+      "claim": "VARCHAR(100) vs VARCHAR(20) costs nothing in storage in Postgres (varlena is length-prefixed)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; varchar typmod does not change on-disk representation for values that fit."
+    },
+    {
+      "claim": "On Postgres 11+ ADD COLUMN ... NOT NULL DEFAULT 'basic' is metadata-only with lazy defaults",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; PG 11 fast default path applies to constant defaults."
+    },
+    {
+      "claim": "The suggested replacement sequence is safe at every intermediate point and a rollback mid-deploy leaves everything functional",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The V42/V43 split keeps full_name intact through the transition and adds only nullable/defaulted columns and NOT VALID constraints, so both app versions work against each intermediate schema. Caveat: the in-migration UPDATE backfill is flagged by the review itself as needing batching for large tables."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  }
+}

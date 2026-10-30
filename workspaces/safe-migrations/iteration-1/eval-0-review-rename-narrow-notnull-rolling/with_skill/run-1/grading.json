@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+      "passed": true,
+      "evidence": "Finding 2: 'From that moment until the last v1 pod terminates (~15 minutes), every v1 pod still in the rollout executes SELECT ... full_name ... / UPDATE ... SET full_name = ... against a schema where the column no longer exists. Every one of those queries errors — column \"full_name\" does not exist. That's up to 15 minutes of hard failures.'"
+    },
+    {
+      "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+      "passed": true,
+      "evidence": "Intro states the schema must stay compatible 'plus however long you need rollback to v1 to remain possible afterwards'; Finding 2: 'And rollback is worse than the rollout: if v2 misbehaves and you redeploy v1, v1 is now broken by the schema, so rolling back the application requires also reverse-renaming the column — under incident pressure, against data v2 has been writing.' Not scoped to mid-rollout only."
+    },
+    {
+      "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+      "passed": true,
+      "evidence": "Finding 1: 'Narrowing VARCHAR(100) → VARCHAR(20) discards information. Widening back later restores the *shape* of the column, not any characters that were lost — there is no down migration for this.' Also flags MySQL non-strict mode 'silently truncates ... one of them is invisible.'"
+    },
+    {
+      "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+      "passed": true,
+      "evidence": "Finding 1: '\"We checked\" is a point-in-time observation, not a constraint'; recommends 'add a CHECK (char_length(phone) <= 20) NOT VALID, clean existing data, then VALIDATE CONSTRAINT'; replacement step 4: 'Verify with queries: ... zero phones over 20 chars ... Then VALIDATE CONSTRAINT on the phone check.'"
+    },
+    {
+      "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+      "passed": true,
+      "evidence": "Finding 3 flags the statement failing outright on existing rows, then: 'If you \"fix\" it by adding a DEFAULT, it's still only conditionally safe: it works because v1's inserts (which don't mention loyalty_tier) get the default — but that means \"v2 sets it on every insert\" is doing none of the safety work; the default is.' Explicitly identifies old-pod inserts as incompatible with NOT NULL absent a default."
+    },
+    {
+      "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+      "passed": true,
+      "evidence": "Verdict is 'do not merge'; Finding 2 gives a 5-step 'Staged alternative (Expand–Migrate–Contract), each step an independent deployment'; the 'Recommended shape of the replacement' section lays out a 6-step deployment sequence (expand V42, dual-write app deploy, backfill, verify, contract app deploy, later V43+ cleanup)."
+    },
+    {
+      "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+      "passed": true,
+      "evidence": "Finding 2 step 5: 'Cleanup (separate, later migration, after the rollback window and after proving nothing reads/writes full_name): drop full_name. This is the only irreversible step, which is why it goes last and alone, with a date and an owner.' Replacement step 6: 'V43+, after an agreed rollback window (put a date on it now): drop full_name.'"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present in outputs dir; no transcript available.",
+    "output_chars": 11087
+  },
+  "timing": {
+    "total_tokens": 49541,
+    "duration_ms": 106027,
+    "total_duration_seconds": 106.0
+  },
+  "claims": [
+    {
+      "claim": "On Postgres, narrowing a varchar forces a full table rewrite under an ACCESS EXCLUSIVE lock, unlike widening which is metadata-only",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with PostgreSQL behavior: increasing varchar typmod is metadata-only since 9.2; decreasing requires ACCESS EXCLUSIVE with a table scan/rewrite."
+    },
+    {
+      "claim": "NOT NULL with no DEFAULT fails outright on a non-empty table with 'column ... contains null values'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct for PostgreSQL and strict-mode MySQL; the quoted error message matches Postgres."
+    },
+    {
+      "claim": "On Postgres 11+, adding a column with a constant default is metadata-only (no rewrite)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; PG 11 introduced fast column addition with non-volatile defaults."
+    },
+    {
+      "claim": "On PG 12+, a validated CHECK (col IS NOT NULL) constraint lets SET NOT NULL skip the full-table scan",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; PG 12 uses an existing validated constraint to prove non-nullness."
+    },
+    {
+      "claim": "Flyway wraps V42 in a single transaction on Postgres, so one failing statement fails the whole file",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; Flyway runs each migration in a transaction on databases with transactional DDL such as Postgres."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  }
+}
