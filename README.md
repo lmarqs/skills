@@ -20,6 +20,16 @@ npx skills@latest add lmarqs/skills
 | [`scaffold`](skills/scaffold/SKILL.md) | Scaffolds or audits a project's [mise](https://mise.jdx.dev) setup the house-standard way — a lean `mise.toml`, directory-namespaced `.mise/tasks/*` scripts (`tf:apply`, `node:setup`), a project "mise" house-rules skill, and command-skills for the few destructive tasks. Greenfield or brownfield (detect, report drift, fix on approval). Advisory: recommends the standard, explains the tradeoffs, lets you decide. | You set up a new project/repo, add or standardize a task runner, want build/test/lint/dev/deploy commands made consistent, say "add mise" or "set it up like our other repos", or bootstrap tooling for terraform, python, node, go, localstack, docker-compose, aws, or arduino/platformio. |
 | [`ralph-tui-run`](skills/ralph-tui-run/SKILL.md) | Coordinates a beads epic or a prd.json task file through ralph-tui without writing code: reads the project's agent, ralph-tui, task source and git setup, proposes one run plan (scope, harness, model, effort, iteration budget, worktree, delivery strategy) for confirmation, starts ralph-tui headless so fresh subagents implement each task, monitors every N minutes, and delivers through the agreed PR strategy. | You explicitly ask to run an epic or task file with ralph ("ralph run", "run the epic with ralph", "implement the epic with ralph-tui", "run the prd.json with ralph", "start ralph on the beads"). |
 
+## Global agent instructions
+
+[`global/AGENTS.md`](global/AGENTS.md) holds the maintainer's personal, cross-project
+agent instructions. It lives outside `skills/`, so the installer does not ship it.
+Link it into an agent's global config to use it, e.g.:
+
+```bash
+ln -s "$PWD/global/AGENTS.md" ~/.claude/CLAUDE.md
+```
+
 ## Adding a skill
 
 Each skill lives at `skills/<name>/SKILL.md` with optional `references/` for

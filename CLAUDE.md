@@ -10,6 +10,8 @@ shipped to consumers (the installer only reads `skills/**`).
   trigger metadata; keep `description` ≤ 1024 chars (it's always in context).
 - `skills/<name>/references/*.md` — progressive-disclosure detail, linked from the
   body. Keep the SKILL.md body lean; push depth here.
+- `global/AGENTS.md` — the maintainer's global agent instructions (user-level,
+  not project instructions for this repo); not distributed.
 - `.agents/skills/skill-creator/` — vendored authoring/eval tool (pinned in
   `skills-lock.json`); a dev dependency, not distributed.
 
