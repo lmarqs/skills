@@ -1,6 +1,34 @@
 # Written by the-cook; do not edit by hand.
 version: 1
 recipes:
+  - name: "io.github.lmarqs.cookbook:agents#connect"
+    source: "io.github.lmarqs.cookbook:agents:10.1.1#connect"
+    sha256: "3504ade2f81d7e83a4e05f98200db93250322c6d4a7c3828c8b1d0de52189836"
+    arguments:
+      "harness": ["claude"]
+      "worktree-setup": [".worktrees/setup"]
+      "worktree-teardown": [".worktrees/teardown"]
+      "worktree-branch-prefix": ["agent/"]
+    owns:
+      sections:
+        - file: ".gitignore"
+          id: "io.github.lmarqs.cookbook:agents#connect/harnesses"
+      keys:
+        - file: ".agents/adapters/claude/settings.json"
+          path: ["hooks","SessionStart"]
+        - file: ".agents/adapters/claude/settings.json"
+          path: ["hooks","WorktreeCreate"]
+        - file: ".agents/adapters/claude/settings.json"
+          path: ["hooks","WorktreeRemove"]
+        - file: ".agents/adapters/claude/settings.json"
+          path: ["permissions"]
+      files:
+        - ".agents/hooks/session-start"
+        - ".agents/hooks/worktree"
+      links:
+        - ".claude/commands"
+        - ".claude/settings.json"
+        - ".claude/skills"
   - name: "io.github.lmarqs.cookbook:agents#seed"
     source: "io.github.lmarqs.cookbook:agents:10.1.1#seed"
     sha256: "3504ade2f81d7e83a4e05f98200db93250322c6d4a7c3828c8b1d0de52189836"
