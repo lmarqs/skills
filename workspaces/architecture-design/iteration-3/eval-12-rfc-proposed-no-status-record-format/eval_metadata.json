@@ -1,0 +1,11 @@
+{
+  "eval_id": 12,
+  "eval_name": "rfc-proposed-no-status-record-format",
+  "prompt": "We need to pick how the API stores uploaded files: local disk on each host, an S3-compatible object store, or Postgres large objects. Nothing is decided yet; we still need legal to confirm whether files may leave the EU. Write the design doc so the team can review it.",
+  "assertions": [
+    "The document's status is proposed and the EU data-residency question is listed as blocking with an owner",
+    "No new file is written in docs/adrs/ for this proposed decision",
+    "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+    "The document does not claim a decision record already exists for this choice"
+  ]
+}

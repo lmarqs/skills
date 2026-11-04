@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Open the serial monitor for a board (esp01s | esp32)"
+#USAGE arg "[env]" help="platformio.ini environment / board; defaults to PIO_DEFAULT_ENV"
+#USAGE flag "--port <port>" help="Serial port; defaults to PIO_PORT"
+set -e
+ENV="${usage_env:-$PIO_DEFAULT_ENV}"
+PORT="${usage_port:-$PIO_PORT}"
+pio device monitor -e "$ENV" ${PORT:+-p "$PORT"} -b "${PIO_MONITOR_SPEED:-115200}"

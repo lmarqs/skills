@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start the production server (next start)"
+set -e
+pnpm run start

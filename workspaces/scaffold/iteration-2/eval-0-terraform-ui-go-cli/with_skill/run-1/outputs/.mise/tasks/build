@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Compile the CLI binary"
+set -e
+go build ./...

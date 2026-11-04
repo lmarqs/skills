@@ -1,0 +1,413 @@
+{
+  "metadata": {
+    "skill_name": "scaffold",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-06-27T17:18:24Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 826.5,
+        "tokens": 42958,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "mise.toml exists with a [tools] section",
+          "passed": true,
+          "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-0-greenfield-go-terraform/with_skill/run-1/outputs/mise.toml"
+        },
+        {
+          "text": "mise.toml has NO inline [tasks]",
+          "passed": true,
+          "evidence": "none"
+        },
+        {
+          "text": "go tasks build/test/lint/fmt exist as files",
+          "passed": true,
+          "evidence": "go/=['build', 'fmt', 'lint', 'setup', 'test']"
+        },
+        {
+          "text": "tf tasks init/plan/apply/fmt/check exist as files",
+          "passed": true,
+          "evidence": "tf/=['apply', 'check', 'fmt', 'init', 'plan']"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": true,
+          "evidence": "11 ok"
+        },
+        {
+          "text": "aws-auth sourced helper present",
+          "passed": true,
+          "evidence": "found"
+        },
+        {
+          "text": "no leaked account id / medprev codeartifact domain",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": true,
+          "evidence": "['.claude/skills/backend-service-mise/SKILL.md']"
+        },
+        {
+          "text": "command-skill exists for tf:apply",
+          "passed": true,
+          "evidence": "cmds=['.claude/commands/tf-apply/SKILL.md', '.claude/commands/tf-plan/SKILL.md']"
+        },
+        {
+          "text": "no command-skill for trivial tasks (lint/fmt/etc.)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 749.6,
+        "tokens": 38830,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "mise.toml exists with a [tools] section",
+          "passed": true,
+          "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-1-greenfield-platformio-esp32/with_skill/run-1/outputs/mise.toml"
+        },
+        {
+          "text": "mise.toml has NO inline [tasks]",
+          "passed": true,
+          "evidence": "none"
+        },
+        {
+          "text": "pio tasks setup/build/upload/monitor exist as files",
+          "passed": true,
+          "evidence": "pio/=['build', 'monitor', 'setup', 'upload']"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": true,
+          "evidence": "4 ok"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": true,
+          "evidence": "['.claude/skills/esp32-firmware-mise/SKILL.md']"
+        },
+        {
+          "text": "NO aws-auth helper and NO AWS tooling (non-cloud project)",
+          "passed": true,
+          "evidence": "awsauth=False aws_tool=False"
+        },
+        {
+          "text": "NO command-skills (all tasks non-destructive)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 702.3,
+        "tokens": 38830,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "existing package.json left byte-for-byte unchanged",
+          "passed": true,
+          "evidence": "unchanged"
+        },
+        {
+          "text": "existing pnpm-lock.yaml left unchanged",
+          "passed": true,
+          "evidence": "unchanged"
+        },
+        {
+          "text": "mise.toml created, pins node and pnpm, no inline [tasks]",
+          "passed": true,
+          "evidence": "pins=True inline=False"
+        },
+        {
+          "text": "node tasks setup/lint/test/build/dev exist as files",
+          "passed": true,
+          "evidence": "node/=['build', 'dev', 'lint', 'setup', 'start', 'test']"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": true,
+          "evidence": "6 ok"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": true,
+          "evidence": "['.claude/skills/acme-web-mise/SKILL.md']"
+        },
+        {
+          "text": "NO command-skills (node-only, non-destructive)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 5,
+        "failed": 5,
+        "total": 10,
+        "time_seconds": 1046.3,
+        "tokens": 47855,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "mise.toml exists with a [tools] section",
+          "passed": true,
+          "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-0-greenfield-go-terraform/without_skill/run-1/outputs/mise.toml"
+        },
+        {
+          "text": "mise.toml has NO inline [tasks]",
+          "passed": true,
+          "evidence": "none"
+        },
+        {
+          "text": "go tasks build/test/lint/fmt exist as files",
+          "passed": false,
+          "evidence": "go/=[]"
+        },
+        {
+          "text": "tf tasks init/plan/apply/fmt/check exist as files",
+          "passed": true,
+          "evidence": "tf/=['apply', 'check', 'fmt', 'init', 'plan', 'unlock']"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": false,
+          "evidence": "function: shebang=True set-e=False desc=True; server: shebang=True set-e=False desc=True"
+        },
+        {
+          "text": "aws-auth sourced helper present",
+          "passed": false,
+          "evidence": "missing"
+        },
+        {
+          "text": "no leaked account id / medprev codeartifact domain",
+          "passed": true,
+          "evidence": "clean"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": false,
+          "evidence": "[]"
+        },
+        {
+          "text": "command-skill exists for tf:apply",
+          "passed": false,
+          "evidence": "cmds=[]"
+        },
+        {
+          "text": "no command-skill for trivial tasks (lint/fmt/etc.)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.42857142857142855,
+        "passed": 3,
+        "failed": 4,
+        "total": 7,
+        "time_seconds": 469.0,
+        "tokens": 21334,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "mise.toml exists with a [tools] section",
+          "passed": true,
+          "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-1-greenfield-platformio-esp32/without_skill/run-1/outputs/.mise.toml"
+        },
+        {
+          "text": "mise.toml has NO inline [tasks]",
+          "passed": false,
+          "evidence": "inline tasks found"
+        },
+        {
+          "text": "pio tasks setup/build/upload/monitor exist as files",
+          "passed": false,
+          "evidence": "pio/=[]"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": false,
+          "evidence": "0 ok"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": false,
+          "evidence": "[]"
+        },
+        {
+          "text": "NO aws-auth helper and NO AWS tooling (non-cloud project)",
+          "passed": true,
+          "evidence": "awsauth=False aws_tool=False"
+        },
+        {
+          "text": "NO command-skills (all tasks non-destructive)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 758.6,
+        "tokens": 40819,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "existing package.json left byte-for-byte unchanged",
+          "passed": true,
+          "evidence": "unchanged"
+        },
+        {
+          "text": "existing pnpm-lock.yaml left unchanged",
+          "passed": true,
+          "evidence": "unchanged"
+        },
+        {
+          "text": "mise.toml created, pins node and pnpm, no inline [tasks]",
+          "passed": true,
+          "evidence": "pins=True inline=False"
+        },
+        {
+          "text": "node tasks setup/lint/test/build/dev exist as files",
+          "passed": true,
+          "evidence": "node/=['build', 'dev', 'lint', 'setup', 'start', 'test']"
+        },
+        {
+          "text": "every task file follows the contract",
+          "passed": true,
+          "evidence": "6 ok"
+        },
+        {
+          "text": "project 'mise' house-rules skill generated",
+          "passed": true,
+          "evidence": "['.claude/skills/acme-web-mise/SKILL.md']"
+        },
+        {
+          "text": "NO command-skills (node-only, non-destructive)",
+          "passed": true,
+          "evidence": "none"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 759.4667,
+        "stddev": 62.6851,
+        "min": 702.3,
+        "max": 826.5
+      },
+      "tokens": {
+        "mean": 40206.0,
+        "stddev": 2383.3019,
+        "min": 38830,
+        "max": 42958
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.6429,
+        "stddev": 0.3113,
+        "min": 0.4286,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 757.9667,
+        "stddev": 288.6505,
+        "min": 469.0,
+        "max": 1046.3
+      },
+      "tokens": {
+        "mean": 36669.3333,
+        "stddev": 13738.8377,
+        "min": 21334,
+        "max": 47855
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.36",
+      "time_seconds": "+1.5",
+      "tokens": "+3537"
+    }
+  },
+  "notes": []
+}

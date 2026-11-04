@@ -1,0 +1,52 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml pins terraform+helm+kubectl, no inline [tasks]",
+      "passed": false,
+      "evidence": "tools_ok=False inline=False"
+    },
+    {
+      "text": "tf tasks init/plan/apply/fmt/check exist",
+      "passed": false,
+      "evidence": "tf=[]"
+    },
+    {
+      "text": "tf:apply parameterized by module/flags (#USAGE present)",
+      "passed": false,
+      "evidence": "apply has #USAGE=False"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": false,
+      "evidence": "0 files ok"
+    },
+    {
+      "text": "aws-auth helper present, no leaked internals",
+      "passed": false,
+      "evidence": "clean"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "command-skills for tf:apply AND tf:plan (guardrails)",
+      "passed": false,
+      "evidence": "cmd-skills=[]"
+    },
+    {
+      "text": "no command-skill for trivial tasks (fmt/check/init)",
+      "passed": true,
+      "evidence": "cmd-skills=[]"
+    }
+  ],
+  "pass_count": 1,
+  "total": 8,
+  "summary": {
+    "pass_rate": 0.125,
+    "passed": 1,
+    "failed": 7,
+    "total": 8
+  }
+}

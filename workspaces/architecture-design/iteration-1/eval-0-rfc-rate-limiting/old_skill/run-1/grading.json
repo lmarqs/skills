@@ -1,0 +1,129 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "## Context: '`public-search-api` is a public-facing search endpoint with no request-rate controls of any kind today: no per-client quotas, no throttling, no circuit breaking. Any caller — authenticated or not — can send requests at whatever rate their client allows.' Followed by consequences and an explicit 'The problem to solve' statement and 'Out of scope' subsection. Covers current state without assuming the reader already knows the incident history."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "Document has '## Requirements' with '### Functional' and '### Non-functional' subsections, each containing bulleted requirements."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": false,
+      "evidence": "Several requirements are stated as bare constraints with no accompanying goal/rationale. E.g. functional bullet 1: '\"Every request to `public-search-api` must be evaluated against a per-client rate limit before reaching business logic. \"Per-client\" means per API key when one is presented, falling back to source IP for anonymous callers.' — no stated why. Non-functional 'Correctness under scale-out' and 'Explicit failure behavior' bullets similarly state the constraint ('must be enforced globally...', 'must have a stated fail-open or fail-closed policy') without explaining the goal it serves. Only a minority of requirements (e.g. the adjustable-limits one: '...so an on-call engineer can tighten or loosen a specific client's limit mid-incident') carry an explicit rationale. The assertion requires it for every requirement, which is not met."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "Only 'Latency overhead' has a number ('Proposed target: ≤ 10ms at p95'). The others do not: 'Correctness under scale-out' has no metric; 'Explicit failure behavior' has no metric; 'Observability' says only 'alerting on sustained throttling' with no threshold; 'Operability' says 'changeable within minutes' (no specific number); 'Cost proportionality' says the cost 'should be visibly smaller than the cost of the abuse it prevents, not merely \"acceptable\"' — an adjective ('visibly smaller'), not a number+unit."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": false,
+      "evidence": "No requirement in the Functional or Non-functional lists names a verification method (e.g., a load test, a specific dashboard check, an audit). The closest text is 'this must be validated against the real budget before sign-off' under Latency overhead, which flags that the number itself is unverified, not how the requirement's fulfilment will be proven. No other requirement mentions verification at all."
+    },
+    {
+      "text": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+      "passed": true,
+      "evidence": "All functional and non-functional bullets use 'must'/'should not' framing; no 'nice-to-have', 'wish', or 'stretch goal' language appears in the Requirements section."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Components named: 'Client identity resolution', 'Policy store', 'Shared state', 'Enforcement point', 'Metrics emission'. A '### Static diagram (described...)' ASCII-art box diagram follows, and a '### Dynamic diagram — request flow (described)' gives a numbered 7-step sequence from client request through enforcement to metrics emission."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (API Gateway throttling vs Redis middleware on Kubernetes) with pros and cons",
+      "passed": true,
+      "evidence": "The Alternatives table has rows '[Mechanism] AWS API Gateway native throttling' and '[Mechanism] Custom Redis-backed middleware on Kubernetes', each with populated Pros and Cons columns."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "Third table row: '[Mechanism] Ingress/service-mesh rate limiting already in-cluster (e.g., NGINX ingress annotations, Envoy/Istio policy) — considered and set aside', with its own pros/cons/risk, explicitly not one of the two alternatives named in the prompt."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+      "passed": true,
+      "evidence": "All 7 risk rows in the table have non-empty Impact, Probability, Mitigation, and Contingency cells, e.g. row 4: 'Impact: High | Probability: Medium | Mitigation: Define an explicit fail-open-with-alert policy...run Redis with replication/Sentinel... | Contingency: Page on-call to disable the middleware via feature flag...'"
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "'## The decision — Recommendation: Alternative A — AWS API Gateway native throttling, paired with an AWS WAF rate-based rule to cover anonymous/IP traffic — as the mechanism to ship first...' followed by an explicit 'Why this, and not Alternative B' explanation. Framed as a recommendation for the meeting to ratify (consistent with the prompt's 'settle it at the next architecture meeting'), but the alternative chosen is unambiguous, not left open."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "'Phase 2 — validate and tune: watch the dashboards from Phase 1 against real traffic for a defined window (proposed: two weeks) and adjust limits; confirm whether abuse recurs and whether it's now contained at the edge.'"
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both present: '## Launch strategy' with Phase 1/2/3, and a separate '## Tasks and roadmap' table with tasks and time estimates."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "Both document.md and reply.md are written entirely in English; the eval prompt was in English."
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 3,
+    "total": 14,
+    "pass_rate": 0.79
+  },
+  "execution_metrics": {
+    "output_chars": 22903,
+    "note": "metrics.json not present in run directory; no transcript file available for this run (grading from output files only, per instructions)."
+  },
+  "timing": {
+    "total_duration_seconds": 231.8
+  },
+  "claims": [
+    {
+      "claim": "The document marks every number it uses as a placeholder pending real telemetry",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The 10ms p95 latency target and the two-week tuning window are explicitly marked as placeholders. But task estimates in the roadmap table (e.g. '0.5–1d', '1–2d') and 'within minutes' in the Operability requirement are presented as plain figures/claims with no placeholder caveat, so the claim in reply.md ('Every number in the doc... is a placeholder, marked as such') is not fully accurate — it holds for the two numbers it names but not for all numbers in the document."
+    },
+    {
+      "claim": "A third alternative (ingress/service-mesh rate limiting) was added and then set aside on its own technical merits, not to pad the option space",
+      "type": "process",
+      "verified": true,
+      "evidence": "The table row and the paragraph after the table both give a substantive technical reason for setting it aside: it 'fails the correctness requirement as-is (per-pod counting) unless paired with a shared store, at which point it stops being simpler than Alternative B'."
+    },
+    {
+      "claim": "The recommendation (Alternative A) is presented with its strongest counter-argument stated plainly",
+      "type": "quality",
+      "verified": true,
+      "evidence": "'Strongest objection to this recommendation, stated plainly:' section acknowledges that if traffic is mostly anonymous, 'Alternative A's \"native throttling\" pitch is weaker than it looks' — a genuine steelman of the opposing view rather than a token caveat."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Nothing optional (nice-to-have, wish, stretch goal) appears in the requirements",
+        "reason": "This passes for essentially any RFC that uses 'must'-style requirement language, which is the default register for this kind of document. It would also pass for a requirements list with no rationale, no metrics, and no verification (as this one has) — it doesn't discriminate a good requirements section from a hollow one. Low value as currently phrased."
+      },
+      {
+        "assertion": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+        "reason": "This document's Context section describes the absence of rate limiting and its consequences, but never explains what public-search-api actually does or who its callers/business consumers are — a true newcomer would still not know why this API exists. The assertion as worded is satisfied by describing the technical current state alone; consider requiring that the section also establish the service's purpose/audience, not just the incident premise."
+      },
+      {
+        "assertion": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+        "reason": "The document frames the decision as a 'recommendation... not a unilateral decision' pending meeting ratification. That is defensible given the prompt ('settle it at the next architecture meeting'), but a future eval on this same skill for a request that explicitly asks the author to make a final call (not just prep one for a vote) should watch for authors hedging behind 'the meeting will decide' language to avoid committing."
+      }
+    ],
+    "overall": "Three of fourteen assertions fail, and they are the most load-bearing ones for this skill's stated method: rationale-per-requirement, quantified NFR targets, and per-requirement verification criteria. The document is otherwise strong — a genuinely three-way tradeoff table with complete risk attributes on every row, a clear decision with a stated counter-argument, and an honest, explicit accounting of what the author could not verify (topology, caller identity, real traffic numbers) rather than fabricating numbers to look more rigorous. That honesty is a notable positive outcome no assertion directly rewards. The requirements section is the document's weak point: most bullets read as bare constraints ('must be enforced globally...', 'must have a stated fail-open policy') without an attached goal, a number, or a verification method — exactly the gap the three failing assertions were designed to catch."
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "expectations": [
+    {
+      "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+      "passed": true,
+      "evidence": "Context section: 'Before naming a language, this document briefly checks that premise, because a rewrite is a large, hard-to-reverse investment and 12 seconds is a symptom, not a diagnosis.' Design section header '### Approach: rewrite vs. optimize in place' opens with: 'The requester asked to choose a rewrite language, but the prior question — rewrite at all, vs. fix the existing Python service — is the one that actually determines whether either Rust or Go pays off, so it is answered explicitly here rather than skipped.'"
+    },
+    {
+      "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+      "passed": true,
+      "evidence": "Related documents section: 'the \"~12s for a 40-page invoice\" figure is taken as given, not independently measured, and its p50/p95/p99 shape is unknown.' Launch strategy step 1: 'Profiling spike ... Instrument the current Python service ... to break the 12s down into data-fetch, render, and assemble/upload time, for the 40-page case.' This explicitly names a profile/breakdown-by-stage as the missing attribution."
+    },
+    {
+      "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+      "passed": true,
+      "evidence": "Tradeoff table's first row is '**[Approach] Keep Python, optimize in place**' with its own pros/cons/risk entries, distinct from the Go and Rust rewrite rows."
+    },
+    {
+      "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+      "passed": true,
+      "evidence": "Both '[Language] Rewrite in Go' and '[Language] Rewrite in Rust' rows list multiple pros and cons (e.g. Go: 'Goroutines fit a batch/burst rendering workload naturally...' vs 'Still garbage-collected — rare tail-latency risk...'; Rust: 'No GC — most predictable latency...' vs 'Steepest learning curve of any candidate...') plus 3 risk rows each."
+    },
+    {
+      "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+      "passed": true,
+      "evidence": "Non-functional requirements: 'Latency: generation of a representative 40-page invoice should complete in ≤ 3s at p95 on production-equivalent hardware, validated under load.' Unit (seconds/p95) and measurement method (validated under load on production-equivalent hardware) are both present, and the target is derived from the finance complaint ('Chosen as \"clearly no longer a complaint\" relative to the reported 12s') rather than from any language's characteristics -- the language choice is decided afterward, in a separate section, against this target."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+      "passed": true,
+      "evidence": "All 8 risk rows in the table have non-empty Impact/Probability/Mitigation/Contingency cells, e.g. 'GC pause spikes under concurrent batch generation | Low | Low | Tune GC target, use a bounded worker pool with backpressure, load-test at 2× expected peak | Increase pod CPU/memory headroom, or shard the batch run across more instances' and 'Learning curve stalls delivery or produces hidden defects from inexperienced Rust use | High | High | Dedicate a senior engineer (or a contractor with Rust depth)... | If the POC's first milestone slips past the checkpoint, fall back to Go...'."
+    },
+    {
+      "text": "Reaches an explicit decision rather than only listing options",
+      "passed": true,
+      "evidence": "'The decision' section states: 'Decision: rewrite the invoice PDF generation service in Go.' with rationale and a stated condition that would flip it, not a hedge or a list of equally-weighted options."
+    },
+    {
+      "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+      "passed": true,
+      "evidence": "reply.md: 'I didn't take \"rewrite\" as settled before picking the language. The method this doc follows requires ruling out the prior question — is this actually a language problem, or is 12s coming from something a rewrite wouldn't fix...' This is a direct, plain statement of the framing challenge and its reason, also mirrored in document.md's Context section."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "timing": {
+    "total_duration_seconds": 239.8
+  },
+  "claims": [
+    {
+      "claim": "The requester's stated 12-second figure and finance complaints could not be independently verified because no repo/APM/ticket access was available",
+      "type": "process",
+      "verified": true,
+      "evidence": "Both document.md ('Related documents' section) and reply.md state this limitation consistently and use it to justify flagging assumptions throughout rather than presenting them as confirmed."
+    },
+    {
+      "claim": "The recommended language (Go) still satisfies the stated ≤3s p95 latency target",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Document states 'both comfortably clear a 3-second budget for 40 pages of rendering' -- this is asserted rather than benchmarked, but the document is transparent that it is an engineering judgment, not a measured result, consistent with its overall stance of flagging unverified claims."
+    },
+    {
+      "claim": "Every alternative was checked against the stated requirements",
+      "type": "process",
+      "verified": true,
+      "evidence": "Paragraph after the tradeoff table: 'Every alternative is checked against the requirements in Section 2: all three could in principle satisfy the functional/correctness requirements... where they diverge is on... team maintainability... throughput under burst... and the unresolved root-cause question.' This ties the tradeoff back to the requirements section rather than leaving the mapping implicit."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+        "reason": "This passed here, but a document that stated any plausible-looking numeric target with 'p95' and 'validated under load' would also pass without actually deriving the number from the finance team's real pain point. The document itself admits the ≤3s figure is an unconfirmed assumption ('no SLA was provided by finance or product'); the assertion doesn't distinguish between a target derived from real finance input versus a well-labeled guess. Consider requiring the document to show its derivation logic (which this run does, but a future run could satisfy the letter of the assertion with a bare guess and less transparency)."
+      },
+      {
+        "reason": "No assertion checks whether the diagrams reflect a decision-independent design or bake in the already-chosen language. Here, the static diagram already labels the service 'Invoice PDF Service - Go' even though it appears in the Design section before 'The decision' section formally resolves the language choice -- a minor sequencing inconsistency (diagram anticipates the decision) that no assertion catches. Not disqualifying, but worth flagging as a documentation-ordering nit for future eval iterations."
+      }
+    ],
+    "overall": "All 8 assertions pass on genuine substance, not surface compliance -- the document explicitly interrogates the rewrite-vs-optimize premise, ties the profiling gap to a named remediation (a profiling spike breaking down fetch/render/assemble), keeps a non-rewrite alternative fully in the tradeoff table with its own risks, and reaches an owned, reversible-condition decision. The reply plainly states the framing challenge. Weakest point is the latency target: it's honestly flagged as an assumption rather than a real SLA, so 'tied to what finance needs' is more 'tied to reducing the reported complaint' than to verified finance input -- still a pass, but the assertion doesn't discriminate between this transparent guess and a fabricated-sounding number offered with false confidence."
+  }
+}

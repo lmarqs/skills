@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Build the Worker bundle (reads a build-time config value from AWS)"
+set -e
+
+# This build step needs a config value that lives in AWS. Authenticate first,
+# then fetch it via the sourced helper and expose it to the build.
+source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+export BUILD_CONFIG_VALUE="$(get_build_config_value)"
+
+npx wrangler deploy --dry-run --outdir dist

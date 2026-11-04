@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads",
+      "passed": true,
+      "evidence": "Scope: 'The source is the JSON task file tasks/prd.json ... there is no .beads/'; 'the run then uses --prd <worktree>/tasks/prd.json'"
+    },
+    {
+      "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)",
+      "passed": true,
+      "evidence": "'US-001 export_jobs migration -> US-002 ... -> US-012 finance docs', 'Each one depends on the one before it'"
+    },
+    {
+      "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+      "passed": true,
+      "evidence": "Gap 1: 'npm run typecheck, lint and test all exit 127 (tsc: not found)'"
+    },
+    {
+      "text": "Flags that there is no git remote and what that blocks",
+      "passed": true,
+      "evidence": "Gap 2: 'No git remote. No pull request strategy is possible yet'"
+    },
+    {
+      "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked",
+      "passed": true,
+      "evidence": "'Each one's main criterion is \"<title> works\" ... None of the 12 stories has acceptance criteria a subagent can check'"
+    },
+    {
+      "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree",
+      "passed": true,
+      "evidence": "Commits: 'as configured the run would produce no commits and would leave tasks/prd.json modified'; with auto-commit 'each carrying that story's passes: true change in tasks/prd.json'"
+    },
+    {
+      "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not",
+      "passed": true,
+      "evidence": "Gap 4: 'branchName is ralph/billing-export ... ralph-tui never checks out branchName. Fix: use feat/billing-export'"
+    },
+    {
+      "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)",
+      "passed": false,
+      "evidence": "Mentions '--prd <worktree>/tasks/prd.json' but never states a start command or headless mode; 'headless' and 'ralph-tui run' do not appear in the response"
+    },
+    {
+      "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+      "passed": true,
+      "evidence": "'Delivery strategy: you choose. I won't pick one.' lists None/One PR/Grouped/Per story; 'Reply with: a delivery strategy'"
+    },
+    {
+      "text": "Proposes an iteration budget above 12 and states the headroom",
+      "passed": true,
+      "evidence": "'18 iterations ... 12 open stories plus 6 (50%) headroom'"
+    },
+    {
+      "text": "Sends one plan for confirmation and does not start ralph-tui",
+      "passed": true,
+      "evidence": "'I haven't started ralph-tui'; 'I won't start until I have both'"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)",
+      "passed": true,
+      "evidence": "actions: only read commands in the project; 'No files in the project were created or modified' (no final git status check recorded, but no write commands listed)"
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 1,
+    "total": 12,
+    "pass_rate": 0.92
+  }
+}

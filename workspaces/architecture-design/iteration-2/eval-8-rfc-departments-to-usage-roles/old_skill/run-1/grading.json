@@ -1,0 +1,99 @@
+{
+  "expectations": [
+    {
+      "text": "Stakeholders are described as usage roles stating what each does with the system (for example an analyst publishing a page, a colleague reading one, an operator answering who changed a file), not only as department or title names",
+      "passed": true,
+      "evidence": "Section 'Stakeholders — and why the department list is not the role list' argues the departments 'are useful for knowing whom to invite to the review, and useless as an input to the design', then gives a table whose second column is 'What the role does with the system': Author 'Creates a page, edits it, previews it, publishes it, takes it down'; Requester 'Asks for a change to a page they do not edit themselves'; Viewer 'Reads a published page'; Administrator/Operator 'Owns the domain, the infrastructure, the role grants and the retention policy'; Auditor/Cost owner 'Answers \"what was live on date X, who published it\" and \"what does this cost\"'. Departments appear only in the 'Who holds it today' column."
+    },
+    {
+      "text": "Each functional requirement names the role it serves",
+      "passed": false,
+      "evidence": "Three of the eight functional requirements name no role in their own text: 'R-F1 — Company-owned address. Pages are served from a domain the company owns, with DNS and TLS certificates under engineering's control'; 'R-F5 — Per-page visibility. Each page is either *public* or *company-internal*...'; 'R-F8 — Migration and continuity. The ~30 existing pages are migrated, and the old personal-domain URLs redirect (HTTP 301)...'. The stakeholder table's reverse mapping ('Requirements it drives') rescues R-F1 (Administrator/Operator) and R-F5 (Reviewer/Approver, Viewer), but R-F8 appears in no role's list — grep of every R-F8 mention finds it only in Out of scope, A10, its own bullet, component 7, the requirements-check table, phase 1 and the roadmap, never against a role. The requirement sections carry no role column at all, so the naming is indirect where it exists."
+    },
+    {
+      "text": "Each functional requirement's proof is a concrete scenario (a role, a situation, an action, an observable result), not a restatement of the requirement",
+      "passed": false,
+      "evidence": "No functional requirement has a proof, scenario or acceptance test. R-F1 through R-F8 are single prose bullets with no Given/When/Then, no test and no observable result — e.g. 'R-F6 — Visible version history with restore. Every published version of a page is listed with who published it and when, can be previewed, and can be restored by an Author without engineering help.' The only acceptance test in the document is attached to a non-functional requirement (R-NF1: 'two Marketing colleagues who are *not* the current analyst each publish a new page and correct an existing one... in <= 10 minutes each'). The 'Requirements check across the chosen set' table maps each requirement to the design option that meets it, which is coverage, not proof. The dynamic diagrams narrate one publishing flow but are not per-requirement scenarios."
+    },
+    {
+      "text": "'Intuitive', 'secure', 'fast' and 'guarantee that nothing is ever lost' do not survive as requirement text; each becomes a measurable statement with a target and condition, or is explicitly flagged as not yet a requirement",
+      "passed": true,
+      "evidence": "'The request arrived as four adjectives: *intuitive, secure, fast,* and *nothing is ever lost*. None of those is checkable, and an unchecked adjective is where a bad decision hides.' A translation table maps each one, and none of the four words survives in requirement text (grep confirms they appear only in the translation prose, A9, the D4 heading and the decision narrative). Targets and conditions are present: R-NF1 'each publish a new page and correct an existing one, on their first attempt, unaided, in <= 10 minutes each, with only a one-page written guide'; R-NF5 'p95 time-to-first-byte <= 200 ms from the regions where viewers are... Largest Contentful Paint <= 2.5 s on a mid-range mobile device over a 4G-class connection... publish-to-live <= 60 s at p95'; R-NF6 'retained for 5 years... Deletion is soft, with 30 days to undo. RPO = 0... RTO <= 4 h'. 'Secure' is decomposed into six specific requirements (R-F1, R-F5, R-NF2, R-NF3, R-NF4, R-NF9)."
+    },
+    {
+      "text": "The current-state figures (about 30 pages, one analyst, requests over chat) appear with a label for how they are known",
+      "passed": false,
+      "evidence": "All three figures appear unlabelled, in one sentence with no source or knowledge marker: 'One analyst in Marketing writes analysis pages... and publishes them by hand on a domain he registered personally. There are roughly **30 pages** live today. When a colleague needs a number corrected... they message him over chat and he edits and re-uploads the file.' Every later restatement is likewise unlabelled ('The ~30 existing pages are migrated'; 'For **30 pages and one author**'; 'List all ~30 pages'). The document does label its assumptions elsewhere (A1-A10) and states 'There was no opportunity to interview stakeholders before writing, so every gap is recorded as a labelled assumption', but no assumption covers how the current-state figures are known — A6 is a forward-looking volume assumption ('order of 30-100 pages') for year one, not a provenance label for today's count. The reply notes 'I did not build a page inventory because I had no access to the pages', which explains a missing artifact rather than labelling the figures."
+    },
+    {
+      "text": "Any requirement the author adds that the user did not ask for names the role it serves and the goal behind it",
+      "passed": false,
+      "evidence": "Two added requirements are handled well: R-F3 and R-F4 are flagged as additions with role and goal ('Author is a role, not a person. Requirement R-F3 exists because the current design has exactly one holder'; 'Requester is a first-class role. Today it is served by chat, which is why requests get lost. R-F4 exists to give it a real surface'). But other author-added requirements name no role. R-F8 (migration plus 12-month 301 redirects — the user never mentioned existing links) names no role anywhere in the document; its goal appears only indirectly as component 7's responsibility 'Keeps already-shared links working'. R-NF3 (untrusted-HTML isolation, the document's own 'least obvious part of the design') is absent from every role row in the stakeholder table's 'Requirements it drives' column. R-F7 ('An Author can view a page at a non-public URL before it is published') names the Author role but states no goal behind it. The assertion requires role and goal for each such requirement, so these instances fail it."
+    },
+    {
+      "text": "The tradeoff table includes at least one option nobody proposed and a baseline row of doing nothing or the smallest change",
+      "passed": false,
+      "evidence": "The unproposed-option half is well satisfied — the user asked for 'an internal tool' and the tables weigh D1-B managed static host, D1-C GitHub Pages, D1-D the existing marketing CMS, D2-C a synced shared drive, D2-D an off-the-shelf CMS and D2-E a chat bot. The baseline half is missing: no row in D1, D2, D3, D4 or D5 is the status quo (keep the pages on the analyst's personal domain, keep taking requests over chat) or the smallest change to it (for example pointing a company subdomain at the analyst's existing host). Every alternative offered is a new build or a new vendor; D2-A (Git + CI) is the cheapest to build and is chosen as a bridge, not offered as a do-nothing baseline. The status quo's cost is argued in Context prose but never carried into the tradeoff analysis with pros, cons and a risk row."
+    },
+    {
+      "text": "Reaches an explicit decision with its decider and consequences",
+      "passed": true,
+      "evidence": "'The decision' section states the choice per dimension ('**Decided:** D1-A... D3-A... D4-A... D5-A... D2-A -> D2-B — a Git-and-CI bridge for the first two weeks, replaced by a deliberately small internal Publisher app') with reasoning. Decider: '**Decision style: autocratic.** The CTO owns the security boundary, the domain and the bill, and makes the final call. Marketing is consulted on the Author experience and owns the R-NF1 acceptance test (they can veto the Publisher as not-intuitive); Finance is consulted on cost... Support is consulted on the change-request flow.' Consequences are stated, though not under that heading: the decision imposes 'an edge auth gate *and* own a small internal web app forever. Every extra component here is a real, permanent maintenance liability'; the design section records the residual consequence 'a sibling subdomain still shares the parent domain for cookies scoped to it, and a stale DNS record on the parent domain is a subdomain-takeover vector'; and the launch strategy names the consequence of the bridge ('the temporary bridge quietly becoming the architecture — with the bottleneck intact')."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 4,
+    "total": 8,
+    "pass_rate": 0.5
+  },
+  "execution_metrics": {
+    "output_chars": 54876
+  },
+  "timing": {
+    "total_tokens": 102552,
+    "duration_ms": 576883,
+    "total_duration_seconds": 576.9
+  },
+  "claims": [
+    {
+      "claim": "Largest Contentful Paint <= 2.5 s is 'the published \"good\" threshold for that metric'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the published Core Web Vitals thresholds (LCP good at <= 2.5 s, assessed at p75). The document's other budgets (200 ms p95 TTFB, 60 s publish-to-live) are correctly disclosed as the author's own in the reply: 'the 200 ms TTFB and 60 s publish budgets are mine and negotiable'."
+    },
+    {
+      "claim": "'Every requirement above maps to at least one component. The reverse also holds — there is no component here that a requirement does not demand'",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Checked the components table: the union of its 'Requirements served' cells covers R-F1 to R-F8 and R-NF1 to R-NF9, and each of the nine components cites at least one requirement. The claim holds as stated."
+    },
+    {
+      "claim": "The infrastructure cost is 'single-digit to low-tens of US dollars per month'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Unverifiable from the outputs, and the document says so itself: 'That figure is an order-of-magnitude estimate from list pricing and **has not been verified against a pricing calculator**'. Disclosed rather than asserted, so not a defect — but it is not a checkable number as written."
+    },
+    {
+      "claim": "Named AWS services (S3, CloudFront, Lambda@Edge, Terraform) are appropriate because the company is already on AWS",
+      "type": "process",
+      "verified": false,
+      "evidence": "Rests entirely on assumption A8, which is labelled and carries a stated fallback ('If the company is on another cloud, the equivalent primitives exist there and the decision logic carries over'). The eval prompt never mentions a cloud provider, so the concrete service names are unsupported by the input."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Ten labelled assumptions A1-A10 stand in for un-interviewed stakeholders; A1 (public vs internal) and A2 (personal data) are marked as design-changing",
+      "The chosen cloud, identity provider, retention period, budget ceiling and approval path are all assumed",
+      "The cost figure is an order-of-magnitude read of list pricing, not a calculator output"
+    ],
+    "needs_review": [
+      "Q1 and Q2 are blocking; the reply says that if Q2 is 'yes', 'stop and re-run the decision'",
+      "Q12 (an already-licensed CMS or static host) 'could change the decision outright'"
+    ],
+    "workarounds": [
+      "A Git + CI bridge is adopted as phase 1 because it does not meet R-NF1, with an escalation date to stop it becoming permanent",
+      "No page inventory was produced; phase 0 exists to build one"
+    ]
+  }
+}

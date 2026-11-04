@@ -1,0 +1,13 @@
+# mise local env (real values, never committed)
+.env.yaml
+
+# Python venv backing mkdocs
+.venv/
+
+# Go build output
+/dist/
+*.test
+*.out
+
+# mkdocs build output
+/site/

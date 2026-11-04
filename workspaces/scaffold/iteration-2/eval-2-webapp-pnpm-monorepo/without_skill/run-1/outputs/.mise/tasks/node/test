@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run the frontend test suite"
+#MISE dir="packages/frontend"
+#USAGE arg "[pattern]" help="Optional test name/path filter"
+set -e
+pnpm run test ${usage_pattern:+"$usage_pattern"}

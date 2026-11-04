@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build for production"
+set -e
+pnpm run build

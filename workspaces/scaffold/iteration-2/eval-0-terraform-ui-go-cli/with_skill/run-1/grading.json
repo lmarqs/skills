@@ -1,0 +1,52 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists with [tools], no inline [tasks]",
+      "passed": true,
+      "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-2/eval-0-terraform-ui-go-cli/with_skill/run-1/outputs/mise.toml inline=False"
+    },
+    {
+      "text": "FLAT task names honored: build/test/lint/fmt at top level (no go: prefix)",
+      "passed": true,
+      "evidence": "flat=['build', 'fmt', 'lint', 'test']"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": true,
+      "evidence": "9 files ok"
+    },
+    {
+      "text": "a goreleaser release flow was generated (asked-for niche task)",
+      "passed": true,
+      "evidence": "release ns=['check', 'publish', 'snapshot']"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": true,
+      "evidence": "['.claude/skills/cli-mise/SKILL.md']"
+    },
+    {
+      "text": "command-skill for the destructive release/publish step",
+      "passed": true,
+      "evidence": "matched ['release'] in ['release']"
+    },
+    {
+      "text": "no command-skill for trivial tasks (build/test/lint/fmt)",
+      "passed": true,
+      "evidence": "cmd-skills=['release']"
+    },
+    {
+      "text": "no aws-auth helper (no AWS in this project)",
+      "passed": true,
+      "evidence": "n/a"
+    }
+  ],
+  "pass_count": 8,
+  "total": 8,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 8,
+    "failed": 0,
+    "total": 8
+  }
+}

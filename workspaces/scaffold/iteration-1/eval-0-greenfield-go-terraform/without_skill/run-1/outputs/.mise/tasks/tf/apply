@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#MISE description="Apply Terraform changes (infra/)"
+#USAGE flag "--target <target>" help="Terraform target to apply"
+#USAGE flag "--auto-approve" default="false" help="Automatically approve the apply operation"
+#USAGE flag "--var-file <file>" default="production.tfvars" help="Terraform variables file"
+
+set -ex
+
+cd "${MISE_PROJECT_ROOT}/infra"
+
+TARGET="$usage_target"
+AUTO_APPROVE="$usage_auto_approve"
+VAR_FILE="$usage_var_file"
+
+TERRAFORM_CLI_ARGS=""
+
+if [ -n "$TARGET" ]; then
+  TERRAFORM_CLI_ARGS="$TERRAFORM_CLI_ARGS -target $TARGET"
+fi
+
+if [ "$AUTO_APPROVE" = "true" ]; then
+  TERRAFORM_CLI_ARGS="$TERRAFORM_CLI_ARGS -auto-approve"
+fi
+
+if [ -f "$VAR_FILE" ]; then
+  TERRAFORM_CLI_ARGS="$TERRAFORM_CLI_ARGS -var-file=$VAR_FILE"
+fi
+
+terraform apply $TERRAFORM_CLI_ARGS

@@ -1,0 +1,100 @@
+{
+  "expectations": [
+    {
+      "text": "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+      "passed": true,
+      "evidence": "Source sits with the claim at first statement: \"the dashboard endpoint's p95 was around 8 seconds last month** (`api-latency` Grafana board)\". The provenance table repeats it as a row: \"E1 | Dashboard endpoint p95 ≈ **8s** last month | `api-latency` Grafana board, as reported by the requester | **Reported, not verified.**\" N1 ties the target back to the same instrument (\"measured on the `api-latency` Grafana board so the before/after comparison uses the same instrument that produced E1\"), and Q5 asks which panel produced it."
+    },
+    {
+      "text": "The location of the report queries is cited concretely (reports/queries.py)",
+      "passed": true,
+      "evidence": "Cited by path and treated as an unverified claim about a specific file: \"These queries live in **`reports/queries.py`**\"; \"E3 | Report queries live in **`reports/queries.py`** | Reported by the requester | **Reported, file not inspected.**\"; F2 \"Every report currently in `reports/queries.py`\"; Q3 \"Is `reports/queries.py` the only place reporting queries live?\"; task P0.1 attributes execution time to \"the queries in `reports/queries.py`\"."
+    },
+    {
+      "text": "The 40% database-load figure, which the prompt states with no source, is not repeated as established fact: it carries a label (assumed, estimated, unverified, or 'per the requester') rather than being presented as measured",
+      "passed": false,
+      "evidence": "The label exists (\"E2 | Reporting is **~40%** of database load | Reported by the requester; underlying source not named | **Reported, not verified, and the metric is undefined**\"), but the figure is then repeated as established fact in the Context prose that carries the argument, which is what this assertion bars. Two violating instances, both unhedged declaratives: \"the load share means reporting is not a rounding error we can tune away at the margins — it is a structural half of what the database does. Both numbers point the same direction: the two workloads need to stop sharing one instance.\" And, in the problem framing: \"**Problem A — contention.** Reporting consumes ~40% of the database and thereby degrades *transactional* endpoints.\" Neither sentence carries assumed, reported, estimated or 'per the requester', and the second also asserts the causal link that the same document elsewhere labels an inference (E5). The blanket disclaimer \"nothing here is independently verified\" and the E2 row do not undo a restatement that presents the number as measured at the point where it drives the conclusion."
+    },
+    {
+      "text": "For the 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+      "passed": true,
+      "evidence": "A named tool and a named analysis: task \"P0.1 Load attribution | `pg_stat_statements` analysis; rank reporting queries by total execution time; define what \\\"40% of load\\\" actually measures (Q2) | 1–2d\". Phase 0 restates it (\"Enable/read `pg_stat_statements` and attribute execution time to the queries in `reports/queries.py`\"), N3 lists \"`pg_stat_statements` attribution (Phase 0)\", and Q2 states what the measurement must settle (\"CPU time, total statement execution time, and query count imply materially different situations, and N2's exit criterion has to be expressed in the same metric\")."
+    },
+    {
+      "text": "Quantitative claims in the context carry either a source or a label indicating how they are known",
+      "passed": true,
+      "evidence": "Every distinct quantitative claim in the Context section has provenance, and the section is explicit that none of it is first-hand: \"Every number in this RFC comes from the request that prompted it. The author had no access to the Grafana board, the repository, or the database while writing, so nothing here is independently verified.\" The E1–E6 table gives each figure a source column and a status, and it also records what is absent (\"E6 | Data volume, growth rate, per-tenant skew | — | **Absent.**\") and separates inference from evidence (\"E5 … **Inference, not evidence.**\"). Invented targets are marked too: N1 \"(assumed target)\", N2 \"≤ 10%\" against \"the reported ~40%\", N5 \"(assumed budget)\", A5's 15 minutes as an assumption, and \"Estimates are **unvalidated**\". Judged per distinct claim, coverage is complete; note that individual restatements in prose are not always hedged (see assertion 3), and under a per-mention reading this assertion would fail on the same quotes."
+    },
+    {
+      "text": "At least one requirement traces explicitly back to a specific fact stated in the context",
+      "passed": true,
+      "evidence": "Requirements cite the evidence IDs directly. N1: \"Dashboard endpoint p95 ≤ 1.5s and p99 ≤ 3s (assumed target), measured on the `api-latency` Grafana board** so the before/after comparison uses the same instrument that produced E1.\" N2: \"reporting's share of primary database load must fall to ≤ 10%** (from the reported ~40%), measured by whatever metric turns out to underlie E2 once Q2 is answered.\" N3 justifies itself against E5 (\"its absence is part of why E5 is currently an inference\"), and F2 traces to the file named in the context."
+    },
+    {
+      "text": "The reasoning can be followed without opening any linked or external resource",
+      "passed": true,
+      "evidence": "No hyperlink exists in the document (the Related-documents entries read \"*Link needed.*\" and \"*Not inspected for this draft.*\"), and the argument does not defer to them: the two-problem framing, the E-table, the requirement list, the tradeoff tables and the phasing are all stated in the text. The sequence diagram is deliberately duplicated in prose — \"**Step by step, in words** (so the flow survives without the diagram renderer)\" — and the traceability table restates which component meets each requirement."
+    },
+    {
+      "text": "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top",
+      "passed": true,
+      "evidence": "The top-of-document \"Related documents\" list is not the only provenance: a dedicated \"### Evidence and its provenance\" subsection carries a six-row table with Claim / Source / Status per fact, and the facts are cited inline afterwards by ID (E1, E2, E3, E5, E6) in the requirements, the design, the decision and the open questions. The related-documents list itself also states status rather than merely linking (\"Source of the \\\"reporting is 40% of database load\\\" figure — **unidentified**; needs naming\")."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.88
+  },
+  "execution_metrics": {
+    "output_chars": 54049
+  },
+  "timing": {
+    "total_tokens": 81815,
+    "duration_ms": 379283,
+    "total_duration_seconds": 379.3
+  },
+  "claims": [
+    {
+      "claim": "The author had no access to the Grafana board, the repository, or the database while writing",
+      "type": "process",
+      "verified": true,
+      "evidence": "Stated in the document and echoed in the reply (\"I had no dashboard, no repo, no database in this pass\"). No transcript was available to cross-check, but no figure in the document is presented as first-hand and the Related-documents list marks the board as \"*Link needed*\" and the module as \"*Not inspected*\"."
+    },
+    {
+      "claim": "\"Reporting causes the 8s dashboard p95\" is an inference, not evidence",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Justified and acted on: \"E5 … **Inference, not evidence.** E1 and E2 are each consistent with this and also consistent with the dashboard simply being an expensive query on a quiet database.\" The design is then staged around it (\"Phase 2 is only committed to after Phase 0 measures the split\"), and the decision states the strongest objection to itself if E5 is wrong."
+    },
+    {
+      "claim": "Every requirement is met by something, and every component traces to a requirement",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The \"Requirement → component traceability\" table has a row for each of F1–F5 and N1–N7, and each names a component or phase. N1's row is the honest exception and is flagged as such: \"Phase 1 if contention-bound; otherwise summary tables (D3). **Gated on Phase 0 — see R1.**\" (Note the reference is to R1, which is not defined anywhere in the document — the risk IDs jump from R2 to R5; a broken internal cross-reference, not a graded item.)"
+    },
+    {
+      "claim": "Replication lag on a streaming replica is typically well under a second",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Stated with no source and no label: \"Serves **F4** with replication lag typically well under a second, orders of magnitude inside the 15-minute budget\". It is a general-engineering claim rather than a claim about this system, so it does not bear on the graded assertions about the context's figures, but it is an unlabelled quantitative statement that F4's satisfaction rests on."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "All figures are reported by the requester and unverified; E5 (that reporting contention causes the 8 s p95) is explicitly an inference",
+      "PostgreSQL, managed hosting, Python, and tenant scoping inside the queries are all assumptions (A1–A3, A7)",
+      "The 15-minute staleness budget (A5) is flagged as the assumption most likely to be wrong and most consequential",
+      "Data volume, growth rate and per-tenant skew are absent (E6/Q1), so the design states it cannot be sized quantitatively"
+    ],
+    "needs_review": [
+      "Q4 (per-report staleness tolerance) is blocking for Phase 2 and is called a product decision, not the author's",
+      "Author field and the `api-latency` board URL are left as TBD placeholders to be filled before circulating",
+      "Roadmap estimates are marked unvalidated and to be redone after Phase 0"
+    ],
+    "workarounds": [
+      "No system access, so the whole evidence base was recorded in an E1–E6 provenance table and a measurement-only Phase 0 was placed before any build work"
+    ]
+  }
+}

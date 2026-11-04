@@ -1,0 +1,5 @@
+# Local development variables for `wrangler dev`.
+# Copy to `.dev.vars` (gitignored) and fill in values.
+# APP_CONFIG is normally sourced from AWS by the mise `build-config` task;
+# set it here manually for local development.
+APP_CONFIG=

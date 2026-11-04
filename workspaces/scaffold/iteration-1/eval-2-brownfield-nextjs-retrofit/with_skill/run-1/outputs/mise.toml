@@ -1,0 +1,12 @@
+[settings]
+experimental = true
+# Read the Node version from .node-version when the node toolchain is used:
+idiomatic_version_file_enable_tools = ["node"]
+
+[tools]
+# Pinned major.minor, resolved at scaffold time. Only the node toolchain is in this repo.
+node = "24"
+pnpm = "10.16"
+
+[env]
+_.file = ".env.yaml"

@@ -1,0 +1,104 @@
+{
+  "expectations": [
+    {
+      "text": "Context section covers the situation before, the motivations for the change, and the scope",
+      "passed": true,
+      "evidence": "document.md has '## Context' with three subsections: '### Prior situation' (describes the monolithic cron-pod design and its coupling/latency/scaling implications), '### Motivations for the change' (decoupling, near-real-time delivery, independent scaling, pay-per-invocation cost, independent deploys), and '### Scope' (in-scope: dispatch of email/push/SMS via EventBridge; out-of-scope: preference management, template authoring, digest notifications)."
+    },
+    {
+      "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+      "passed": true,
+      "evidence": "The cron-pod/monolith claim traces directly to the user's own prompt. Everything beyond that is explicitly flagged: 'Kubernetes/ECS — [CONFIRM]', and the bullet list of implications is prefaced with 'Presumed characteristics of that shape, to confirm against what actually shipped:'. The 'Motivations for the change' subsection heading itself is tagged '[ASSUMED — confirm with the team]' with the line 'replace with the team's actual reasons'. No prior-situation claim is presented as sourced fact without either tracing to the prompt or being tagged."
+    },
+    {
+      "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+      "passed": true,
+      "evidence": "'### Components' lists Producer service(s), EventBridge bus ('central entry point for notification-request events'), EventBridge rules ('one rule per notification type... routing to the corresponding Lambda target'), Lambda email/push/SMS handlers ('builds and sends email via [provider]', etc.), Failure path, and Observability, each with a one-line responsibility."
+    },
+    {
+      "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+      "passed": true,
+      "evidence": "'### Dynamic flow — request to delivery' is an 8-step numbered list (1. producer action ... 8. on-call alerting), tracing the event from trigger to delivery/failure handling."
+    },
+    {
+      "text": "Has a risks-and-mitigations section",
+      "passed": true,
+      "evidence": "'## Risks and mitigations' contains a 6-row table with columns Risk | Impact | Probability | Mitigation | Contingency, covering duplicate delivery, silent partial failure, provider outage, concurrency/cold starts, schema drift, and loss of ordering — each with genuine, specific mitigation and contingency text, not placeholders."
+    },
+    {
+      "text": "Has a lessons-learned section",
+      "passed": false,
+      "evidence": "'## Lessons learned' exists as a header but contains zero actual lessons. Its full content is a disclaimer ('nothing here is invented') followed by five open questions for the team to answer ('What broke first in production after the cutover, and why?', 'Did duplicate delivery or silent partial failure... actually show up?', etc.). This is a question template, not a record of anything learned. Contrast with the Risks section, which the author was willing to populate with generic-but-substantive pattern-level content under the same information constraints — here the author declined to do the equivalent for lessons, leaving the section functionally empty of content."
+    },
+    {
+      "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+      "passed": false,
+      "evidence": "No glossary section exists anywhere in the document (headings are: Sourcing note, Related documents, Context/Prior situation/Motivations/Scope, Architecture/Components/Static diagram/Dynamic flow/Alternatives considered, Risks and mitigations, Lessons learned, Improvement points, Version history — no 'Glossary'). Acronyms are used without expansion or explanation at first use: 'DLQ (SQS)' (line 77) never expands DLQ or SQS; 'IAM policies' (line 62) is never defined; 'FIFO queue' (line 142) is never defined; provider acronyms SES/SNS/FCM/APNs/Twilio (lines 72-76) are listed as bare bracketed options with no explanation of what they are. EventBridge and Lambda get functional role descriptions in the Components list, but that satisfies assertion 3 (component responsibilities), not a term/acronym definition."
+    },
+    {
+      "text": "Includes a version-history table (version, date, author, description)",
+      "passed": true,
+      "evidence": "'## Version history' has a table with columns Version | Date | Author | Description and one row: '1.0 | 2026-09-08 | Lucas Marques | Document created — retrospective scaffold, authored without direct access to the production system (see Sourcing note).' Date and author are also consistent with the session's actual date (2026-09-08) and git user (Lucas Marques)."
+    },
+    {
+      "text": "Written entirely in English",
+      "passed": true,
+      "evidence": "Both document.md and reply.md are written entirely in English throughout, with no non-English text found."
+    },
+    {
+      "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+      "passed": true,
+      "evidence": "Header states 'Status: documented, post-implementation (already running in production)'. The prior-situation and architecture sections describe what the cron pod did and what the EventBridge/Lambda system does in the present/past tense, not as options to choose from. Even '### Alternatives considered during the migration' is framed as a historical question ('Was a single Lambda handling all three channels considered...?') to confirm what was weighed during the actual migration, not a live decision for the reader to make now."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 2,
+    "total": 10,
+    "pass_rate": 0.8
+  },
+  "execution_metrics": {
+    "note": "metrics.json not present in outputs/ — skipped per instructions."
+  },
+  "timing": {
+    "total_duration_seconds": 180.7
+  },
+  "claims": [
+    {
+      "claim": "Asynchronous Lambda invocations retry automatically (twice, by default) before going to an on-failure destination/DLQ if configured",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches AWS Lambda's documented default behavior for asynchronous invocation (2 automatic retries before optional destination/DLQ routing); stated correctly in the Dynamic flow step 7."
+    },
+    {
+      "claim": "EventBridge/Lambda async invocation is at-least-once, so a retry can invoke a handler twice for the same event",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with AWS's documented at-least-once delivery semantics for EventBridge-to-Lambda targets; used correctly to justify the duplicate-delivery risk in the Risks table."
+    },
+    {
+      "claim": "The document was authored with no access to the service's codebase, IaC, AWS console, dashboards, or tickets",
+      "type": "process",
+      "verified": true,
+      "evidence": "Consistent throughout — every unverifiable detail (producer names, provider choices, retry/DLQ config, motivations, alternatives, lessons) is tagged [CONFIRM], [ASSUMED], or [UNKNOWN] rather than stated as fact; reply.md repeats and itemizes the same gaps."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Has a lessons-learned section",
+        "reason": "This assertion checks only for a section's presence/header, not for actual lessons-learned content. This run's 'Lessons learned' section contains no lessons at all — only a disclaimer and a list of unanswered questions — and would satisfy a shallow presence check. A stronger version would require the section to state at least one concrete lesson (even a generic/hypothetical one, clearly labelled as such) rather than accepting an empty template of questions."
+      },
+      {
+        "assertion": "Includes a version-history table (version, date, author, description)",
+        "reason": "Satisfied by any table with those four column headers regardless of whether the row content is accurate; it happened to be accurate here (author matches the git user, date matches the session date), but the assertion itself doesn't verify that and would pass an equally well-formatted table with a fabricated author or date."
+      }
+    ],
+    "overall": "8/10 assertions pass with genuine, non-superficial evidence — the document is unusually disciplined about separating sourced facts from assumptions (a real strength given the prompt supplied almost no verifiable detail). The two failures are real gaps, not close calls: no glossary or inline acronym definitions exist anywhere (DLQ, SQS, IAM, FIFO, SES, SNS, FCM, APNs all appear undefined), and the lessons-learned section is functionally empty (a question list, not a record of anything learned) even though the adjacent risks section shows the author was willing to produce substantive generic content under the same information constraints. Worth noting as an outcome no assertion directly covers: the document is exceptionally transparent about its own epistemic limits (a 'Sourcing note' up front, per-claim [CONFIRM]/[ASSUMED] tags, and a reply.md that itemizes every open gap) — this is a genuine quality signal that a content-accuracy-focused assertion set doesn't reward but arguably should against a 'don't fabricate' rubric."
+  }
+}

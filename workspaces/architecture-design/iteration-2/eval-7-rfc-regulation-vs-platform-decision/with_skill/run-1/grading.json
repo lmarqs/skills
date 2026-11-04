@@ -1,0 +1,134 @@
+{
+  "expectations": [
+    {
+      "text": "The 20-year retention and the Brazil data-residency rule are recorded as constraints with the law and article (or the regulator's rule) named as their source, in a section separate from the requirements",
+      "passed": true,
+      "evidence": "A '### Constraints' section sits under Context, structurally separate from the later '## Requirements' section, and is scoped as 'Externally imposed limitations only. Each row cites the clause'. Retention is C1 with the instrument named and quoted: 'Lei 13.787/2018, art. 6: \"Decorrido o prazo minimo de 20 (vinte) anos a partir do ultimo registro...\"', plus art. 6, §1 as the power to change the period. Residency is C5, whose Source cell names the instruments asserted in the request ('Asserted in the request as coming from LGPD art. 16 plus the sector regulator's health-records rule'), explains why neither imposes it ('Art. 16 is the elimination rule quoted in C2; LGPD arts. 33-35 permit international transfer'), and records the origin it does have ('Carried as assumed with the requester as its origin, pending BQ1'). Sourcing is recorded, not dropped."
+    },
+    {
+      "text": "The platform team's Postgres and Kubernetes standardization is recorded as a prior decision, internal decision or given with its author and a cost to reverse, and is not presented as equivalent to the regulation",
+      "passed": true,
+      "evidence": "'### Prior decisions' table, scoped 'Decided by people inside the organization. None of these excludes an option.' Row P1: 'All new services use Postgres and Kubernetes | Platform team, 2025 | ... | Store: high. Postgres is what the platform team can operate... a second database engine needs an owner for twenty years... Runtime: low.' Author and cost to reverse are both explicit, split by dimension. Non-equivalence to the regulation is stated repeatedly, e.g. in the drivers list: 'Note what is not a driver: that the platform team standardized on Postgres. That is P1, a prior decision, and it appears as a cost in the rows below... rather than as a reason.'"
+    },
+    {
+      "text": "At least one alternative to the platform team's standardized stack (a different store or runtime) is analysed in the tradeoff table with pros, cons and risks, rather than excluded upfront",
+      "passed": true,
+      "evidence": "The tradeoff table carries store alternatives B (managed MySQL, '(the alternative to P1)'), C (Postgres plus append-only ledger / write-once storage), D (keep the monolith's MySQL), E (hosted consent-management platform), and runtime alternative I ('A managed container runtime outside the cluster (the alternative to P1's runtime half)'), each with pros, cons and a full risk row (risk / impact / probability / mitigation / contingency). Row B is analysed on its merits and loses on ownership, not on the standard: 'B is genuinely the lower-risk migration, and it lost because nobody would commit to operating a second database engine until 2046.'"
+    },
+    {
+      "text": "Any option excluded on the basis of the regulation cites the clause or rule that excludes it",
+      "passed": true,
+      "evidence": "Every regulation-based exclusion names the constraint and its clause. Option C: 'C2's elimination duty fights write-once media directly - art. 16 obliges elimination, and the medium is designed to prevent it.' Option E: 'missed: N4 if the vendor hosts outside Brazil and BQ1 says C5 binds' and 'the burden of proof stays with the controller regardless - C3'. Option G: 'multiplying the surfaces subject to C1, C2 and N4' with '(LGPD art. 11)' named. Baseline and D: 'C3's burden of proof and C1's twenty-year floor eliminated the baseline and option D outright'. Each C-row itself carries the clause ('What it excludes, and the clause'). No exclusion found that rests on the regulation without a cited rule."
+    },
+    {
+      "text": "The four items the user called objectives are not presented as goals; the document says which are requirements, prior decisions or design choices, and states goals as outcomes for a role without a feature, technology or system metric",
+      "passed": true,
+      "evidence": "'What was reclassified, and why. None of the four objectives in the request survives as a requirement in the form it arrived': objective 2 becomes prior decision P1, objective 1 is 'a mechanism' whose capability is F4, objective 3 becomes N1 with the target labelled assumed, objective 4 is 'the mechanism whose capability is F3'. The separate '### Goals' table states outcomes for roles with no technology or metric in the goal text: 'G2 A clinician never delivers care under a consent that is absent or withdrawn', 'G3 The organization can prove to a regulator that a consent was validly obtained', 'G5 Erasing a patient's data on request does not destroy what the law obliges the organization to keep'. Measurement is confined to a separate 'How we will know' column."
+    },
+    {
+      "text": "Every non-functional requirement's target states where its number comes from (a current measured value, an external reference, or a named stakeholder commitment) or is explicitly labelled assumed",
+      "passed": true,
+      "evidence": "The non-functional table has a dedicated 'Derived from' column, filled for all five rows. N1: 'Nothing. The figure came from the request with no current measurement behind it... Target labelled assumed, origin: the requester'. N2: RPO 0 justified from C1/C3, 'RTO 10 min is derived from N1's budget - four independent failovers of 10 minutes fit inside the 43.2-minute monthly allowance (4 x 10 = 40 <= 43.2; estimated)'. N3: 'C1's twenty-year floor (Lei 13.787/2018 art. 6)', with the five-year Postgres support figure inside it labelled assumed. N4: 'C5, whose binding source is contested (BQ1)'. N5: derived from the ~4M rows (labelled assumed) plus C1/C3. The document also declines an unanchored number rather than inventing one: 'No latency target is set. There is no current measurement to derive one from and no stakeholder has committed to a number.' No NFR target found without provenance or an assumed label."
+    },
+    {
+      "text": "The 4-million-row figure and the MySQL location carry a source or a label for how they are known",
+      "passed": true,
+      "evidence": "Context, first sentence: 'Patient consents are stored today as JSON blobs in a table inside the monolith's MySQL database, about 4 million rows (stated in the request, undated, no query attached; assumed. SELECT count(*) on the table plus one row of information_schema.tables would confirm the count and the size in under a minute).' Repeated in Sources: 'The requester's statement, 2026-09-08: 4 million consent rows as JSON blobs in the monolith's MySQL... Undated, no query attached, therefore assumed throughout, with the confirming query named at each use.'"
+    },
+    {
+      "text": "Reaches an explicit decision with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "'## The decision' states the choice in one sentence ('Store patient consents as an append-only sequence of consent events in a managed Postgres instance in a Brazilian region... Options A, F and H'). Decider: 'Decision style: autocratic, with one approval gate. The engineering lead owning the consent domain owns the call... The data protection officer is the approver, not a consultee, on C1-C5, F5, F6 and N3' (with the caveat that role names are placeholders). '### Consequences' names what is gained and paid ('the care flow gains a dependency that can fail... every migration script and every incident fix now has a rule it must not break'). '### Confirmation' lists four named checks: the CI grant policy check, the residency policy check, the previous version's contract tests, and the annual restore-and-read drill, plus what will be measured and when it is reviewed."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 80618
+  },
+  "timing": {
+    "total_tokens": 142022,
+    "duration_ms": 712651,
+    "total_duration_seconds": 712.7
+  },
+  "claims": [
+    {
+      "claim": "99.9% permits about 43 minutes of unavailability in a 30-day month (0.001 x 30 x 24 x 60 = 43.2 min)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: 0.001 x 43200 min = 43.2 min."
+    },
+    {
+      "claim": "Four independent 10-minute failovers fit inside the 43.2-minute monthly allowance (4 x 10 = 40 <= 43.2)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks."
+    },
+    {
+      "claim": "At an assumed 1 KB average blob, 4 million rows is about 4 GB",
+      "type": "factual",
+      "verified": true,
+      "evidence": "4e6 x 1 KB = 4e6 KB = ~4 GB; the document labels both the row count and the row size as assumed/estimated."
+    },
+    {
+      "claim": "The legal citations (Lei 13.787/2018 art. 6; LGPD arts. 8 §2, 11, 16, 18 VI, 19, 33-35, 41) say what the document says they say",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Not checked - the grading brief instructs the grader not to research Brazilian law. The document itself dates each citation ('Verified against the published text, 2026-09-08') and flags the one it could not verify: 'The sector regulator's health-records resolution referenced in the request. Its number was not supplied and this analysis could not verify it.'"
+    },
+    {
+      "claim": "Postgres major versions receive about five years of community support",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Unverified here, but the document does not assert it as fact: it is labelled 'assumed: the versioning policy should be confirmed against the project's published schedule before the archive format is fixed'."
+    },
+    {
+      "claim": "Every requirement ID appears in the Design section and every component names the requirements it serves",
+      "type": "quality",
+      "verified": true,
+      "evidence": "F1-F6 and N1-N5 all appear in Design prose or in the figure captions (Figures 1-4 each list the IDs they answer); the store, runtime, contract, migration and read-path subsections each name their requirement or prior-decision IDs."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "No database, dashboard or repository was available, so the row count, reader count, blob history and all availability/latency baselines are labelled assumed with the requester as origin",
+      "Two blocking legal questions left open (BQ1 residency source, BQ2 retention clock reference date); the document's status is held at 'proposed' because of them",
+      "The sector regulator's resolution referenced in the prompt could not be identified or verified"
+    ],
+    "needs_review": [
+      "Decider, approver and reviewer names are placeholders - 'the decision is not final until real people sit in those slots'",
+      "No latency target set at all, deliberately; it is to be set from the first month's measurement in an amendment"
+    ],
+    "workarounds": [
+      "Hash-chain integrity is stated as detecting tampering only by actors without database-level write access; the stronger external anchor is deferred to the roadmap"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Any option excluded on the basis of the regulation cites the clause or rule that excludes it",
+        "reason": "Non-discriminating as written: both configurations passed, and both did so largely by citing their own internal constraint IDs (C2, C3) in the rejection cells. A document can satisfy this while the cited constraint itself has no instrument behind it - the old-skill run rejects options 'Disqualified by C2' where C2's source is admitted to be unknown. Consider requiring the exclusion to reach the instrument or clause, not just the document's own constraint label."
+      },
+      {
+        "assertion": "The 20-year retention and the Brazil data-residency rule are recorded as constraints with the law and article (or the regulator's rule) named as their source, in a section separate from the requirements",
+        "reason": "The 'section separate from the requirements' clause is ambiguous and forced a judgment call: the old-skill run puts its Constraints table as a subsection nested under '## Requirements' (alongside '### Requirements' and '### Preferences'), which is separate from the requirement statements but inside the requirements section. It is also unclear whether the source must appear in the constraint record itself or anywhere in the document - the old-skill run's C1 cites only an assumption ID in the table and names the regulator's rule three sections earlier in Context. Both readings deserve to be pinned down."
+      },
+      {
+        "assertion": "The four items the user called objectives are not presented as goals; the document says which are requirements, prior decisions or design choices, and states goals as outcomes for a role without a feature, technology or system metric",
+        "reason": "This bundles three independent checks, and only the third one discriminated here: both runs reclassified all four objectives explicitly and well, but only one stated goals at all (the other contains the word 'goal' zero times). Splitting it into 'the four objectives are reclassified with their new kind named' and 'goals are stated as role outcomes without feature, technology or metric' would locate the failure instead of collapsing a strong reclassification section and a missing goals section into one verdict."
+      },
+      {
+        "assertion": "Reaches an explicit decision with its decider, consequences and confirmation",
+        "reason": "Coarse: it passed for both, but for very different artifacts - one has named 'Consequences' and 'Confirmation' sections with four specific checks (three automated, one filed annually), the other has consequences scattered across an accepted-risk row, a staleness commitment and a 'strongest objection' paragraph, with confirmation implied by phase exit criteria. If the eval cares about a document a reviewer can act on, require the confirmation to be a named check with an owner or trigger."
+      },
+      {
+        "reason": "No assertion covers the behaviour that separated these two documents most sharply besides assertion 6: whether the document refuses to invent a target it has no basis for. One run explicitly declines to set a latency target and says why; the other sets p95 <= 50 ms / p99 <= 150 ms, a 99.5% endpoint SLO, a 60 s staleness bound and >90% coverage with no stated derivation. Assertion 6 catches this for NFR targets only by accident of scope - an assertion aimed directly at 'no unanchored number is introduced anywhere' would be more discriminating."
+      }
+    ],
+    "overall": "The suite discriminated 3 of 8 assertions (5, 6, 7); assertions 1, 2, 3, 4 and 8 passed in both configurations and are currently non-discriminating for this comparison. Assertion 4 is the weakest - satisfiable by citing an internal constraint ID whose own source may be unknown. Assertion 6 is the strongest: it failed the old-skill run on four separate unsourced targets and is hard to satisfy without doing the provenance work. Assertion 1 needs its 'separate section' and 'named source' clauses tightened, and assertion 5 should be split."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "blinky-platformio-multiboard",
+  "prompt": "Firmware project with PlatformIO. It targets two boards \u2014 an ESP-01S (ESP8266) and an ESP32. I want mise tasks to build, flash, and open the serial monitor, selecting the board, plus a task that turns the binary files in assets/ into C headers I can #include. There's some Python build tooling involved too.",
+  "assertions": [
+    "mise.toml exists with [tools], no inline [tasks]",
+    "pio tasks build/upload/monitor/setup exist",
+    "both boards reachable (ESP-01/ESP8266 + ESP32 envs in platformio.ini)",
+    "a custom asset->C-header task exists",
+    "every task file follows the contract",
+    "project 'mise' house-rules skill generated",
+    "no command-skill for trivial tasks"
+  ]
+}

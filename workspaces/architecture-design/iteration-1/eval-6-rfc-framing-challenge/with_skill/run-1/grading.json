@@ -1,0 +1,86 @@
+{
+  "expectations": [
+    {
+      "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+      "passed": true,
+      "evidence": "Section 'A framing risk this RFC flags before going further' states: 'A rewrite in a faster language only fixes the problem if the 12 seconds is actually dominated by CPU-bound PDF rendering ... rather than by I/O.' And: 'If A1 is false ... neither Rust nor Go will meaningfully help, and the right fix is pipeline/query optimization or parallel fetching, not a language rewrite.' This is carried through: the launch strategy makes a profiling spike step 1 'before writing Go code,' and the decision section calls this 'the single largest risk to the value of this entire effort.' This is substantive engagement, not a token caveat -- it genuinely contests whether the language axis matters at all pending root-cause data."
+    },
+    {
+      "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+      "passed": true,
+      "evidence": "'No profiling data for the current service was available to this RFC's author, so this is stated as an assumption, not a verified fact.' Open verification item 1: 'Profile the current Python service on the 40-page case to confirm Assumption A1 (CPU-bound rendering vs. I/O-bound data fetch).' The dynamic diagram section also says: 'instrumenting the boundary between them [data assembly vs. render] ... is the cheapest way to de-risk this whole RFC' -- naming a stage breakdown explicitly."
+    },
+    {
+      "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+      "passed": false,
+      "evidence": "The 'Alternatives analysis (Tradeoff)' section opens with: 'Only one dimension is actually open in this RFC -- the implementation language -- since the rewrite itself and the general architecture above are treated as given by the request.' The tradeoff table has exactly two rows: 'Go' and 'Rust'. The document explicitly relegates the non-rewrite option to 'Out of scope': 'Whether to rewrite at all vs. optimize the existing Python service (the request already decided on a rewrite; this RFC only picks the language).' No third alternative (e.g., optimizing/parallelizing the existing Python service, swapping to a different PDF library, offloading the hot path via a native extension, using an off-the-shelf renderer) is ever analysed with pros/cons/risk in the tradeoff section itself."
+    },
+    {
+      "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+      "passed": true,
+      "evidence": "The table gives Go pros (compiled speedup, mature invoice-shaped PDF libraries, simple concurrency, fast iteration, possible ecosystem fit) and cons (GC pauses, less feature-complete PDF ecosystem for advanced typography) plus two risk rows. Rust gets symmetric treatment: pros (no GC, predictable tail latency, memory safety) and cons (smaller/less mature PDF ecosystem, steeper learning curve, no confirmed in-house experience) plus two risk rows. Neither side is analysed as a strawman; the write-up gives each a real edge case."
+    },
+    {
+      "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+      "passed": true,
+      "evidence": "Non-functional requirements: 'This RFC proposes p95 <= 2s for a 40-page invoice as a working target -- this number is not validated against finance's actual tolerance and should be confirmed with them before being treated as an SLO.' Unit (seconds) and measurement method (p95 percentile) are both present, and the target is framed around the finance-facing case, not any language's benchmark. Caveat noted in eval_feedback below: the actual number is invented/unconfirmed rather than derived from a real finance input."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency",
+      "passed": true,
+      "evidence": "All four risk rows in the table are fully populated: 'GC pause spikes tail latency...' (Impact: Medium, Probability: Low-Medium, Mitigation: 'Tune GOGC / use a pooled-object pattern...', Contingency: 'Fall back to bounded worker-pool concurrency...'); the Go PDF-ecosystem gap risk (Medium/Medium, with diff-testing mitigation and patch/secondary-renderer contingency); the Rust learning-curve risk (High/High, with spike+pairing mitigation and 'fall back to Go mid-project' contingency); and the Rust PDF-library-gap risk (Medium/Medium, with a spike-evaluation mitigation and a wrap-a-mature-renderer contingency). No risk row is missing any of the four fields."
+    },
+    {
+      "text": "Reaches an explicit decision rather than only listing options",
+      "passed": true,
+      "evidence": "'## The decision \\n\\n**Decision: rewrite the PDF generation service in Go.**' followed by reasoning tied to each requirement -- an unambiguous single-language recommendation, not a menu of options."
+    },
+    {
+      "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+      "passed": true,
+      "evidence": "reply.md: 'Since you said \"pick one,\" I picked -- but a few things in your framing don't hold up as given, and I want to be upfront about them rather than bury the caveats,' followed by: 'I don't know whether that 12 seconds is actually CPU-bound rendering, or if it's dominated by data fetching ... if the bottleneck is I/O, rewriting in either Rust or Go won't fix it -- you'd be solving the wrong problem.' This states plainly, in the reply, that the framing was challenged and why."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.875
+  },
+  "timing": {
+    "total_duration_seconds": 161.1
+  },
+  "claims": [
+    {
+      "claim": "Repository naming conventions suggest the existing backend leans Go",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Document itself flags this as unconfirmed: 'this RFC could not confirm the org's language inventory directly' and lists it as open verification item 5. Cannot be independently checked from the outputs alone; correctly hedged by the author rather than stated as fact."
+    },
+    {
+      "claim": "Both Go and Rust would 'likely blow past Python's interpreter overhead' for this workload",
+      "type": "quality",
+      "verified": true,
+      "evidence": "This is a well-established, generally true property of compiled vs. interpreted languages for CPU-bound work, and the document itself scopes the claim correctly by conditioning it on Assumption A1 (CPU-bound bottleneck) rather than asserting it unconditionally."
+    },
+    {
+      "claim": "The p95 <= 2s target reflects finance's actual tolerance",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Document itself says the opposite: 'this number is not validated against finance's actual tolerance and should be confirmed with them before being treated as an SLO' -- the target is a placeholder, not a verified requirement, and is correctly labeled as such."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+        "reason": "This assertion would also pass for a document that simply invents a plausible-sounding number ('p95 <= 2s') with no attempt to derive it from any real finance input, as long as it's phrased with a unit and a percentile method and framed around the invoice case rather than a language. That's exactly what happened here: the number is admittedly fabricated as a placeholder. The assertion checks form (unit + method + framing) but not substance (whether the target is actually grounded in a finance-team constraint). Consider requiring the document to either derive the target from a stated finance constraint or explicitly show the derivation is missing and gate the decision on it -- otherwise a well-hedged invented number passes indistinguishably from a real one."
+      },
+      {
+        "assertion": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+        "reason": "Worth noting for future grading: this document threads a needle -- it substantively challenges the rewrite's premise in the framing-risk section (good), but then formally places 'whether to rewrite at all vs. optimize' in its own Out of Scope list and states in the tradeoff section that language is 'the only dimension actually open.' The net effect is a genuine challenge that stops short of ever presenting 'don't rewrite' as an analysed alternative. This run happens to land on the right side of the assertion, but a future run could do the same performative hedge-then-scope-out move with much thinner follow-through (no profiling-spike-as-step-1, no revisiting in the decision section) and still likely pass under a lenient read. A stricter assertion would require the framing challenge to actually change what gets analysed, not just what gets caveated."
+      }
+    ],
+    "overall": "7 of 8 assertions pass, with genuine substance behind each pass (not just keyword matches) -- the document's Assumption A1 framing, the fully-populated risk table, and the explicit Go decision are real, well-reasoned artifacts. The one clear failure is structural and unambiguous: the tradeoff table analyses only Rust and Go, with the 'optimize existing Python' path explicitly fenced into Out of Scope rather than analysed as a third alternative. Two soft spots flagged above: the performance target is an admittedly invented placeholder (honestly labeled as such, but still ungrounded), and the framing-challenge assertion passes on real substance here but is structurally gameable by a document that hedges without following through."
+  }
+}

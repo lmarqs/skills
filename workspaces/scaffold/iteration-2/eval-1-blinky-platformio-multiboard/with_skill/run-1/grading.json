@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists with [tools], no inline [tasks]",
+      "passed": true,
+      "evidence": "inline=False"
+    },
+    {
+      "text": "pio tasks build/upload/monitor/setup exist",
+      "passed": true,
+      "evidence": "pio=['build', 'monitor', 'setup', 'upload']"
+    },
+    {
+      "text": "both boards reachable (ESP-01/ESP8266 + ESP32 envs in platformio.ini)",
+      "passed": true,
+      "evidence": "esp01=True esp32=True"
+    },
+    {
+      "text": "a custom asset->C-header task exists",
+      "passed": true,
+      "evidence": "task files=['headers', 'monitor', 'setup', 'upload', 'build', 'setup']"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": true,
+      "evidence": "6 files ok"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": true,
+      "evidence": "['.claude/skills/blinky-mise/SKILL.md']"
+    },
+    {
+      "text": "no command-skill for trivial tasks",
+      "passed": true,
+      "evidence": "cmd-skills=['pio-upload']"
+    }
+  ],
+  "pass_count": 7,
+  "total": 7,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

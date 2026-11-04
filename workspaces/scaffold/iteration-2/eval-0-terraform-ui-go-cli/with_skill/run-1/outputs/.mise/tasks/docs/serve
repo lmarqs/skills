@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Serve the documentation locally with live reload"
+set -e
+mkdocs serve

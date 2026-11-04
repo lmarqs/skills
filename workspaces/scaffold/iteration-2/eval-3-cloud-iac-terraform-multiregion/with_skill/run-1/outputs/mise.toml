@@ -1,0 +1,12 @@
+[settings]
+experimental = true
+
+[tools]
+# Pinned major.minor, resolved at scaffold time.
+terraform = "1.13"
+aws-cli   = "2"
+kubectl   = "1.32"
+helm      = "3.16"
+
+[env]
+_.file = ".env.yaml"

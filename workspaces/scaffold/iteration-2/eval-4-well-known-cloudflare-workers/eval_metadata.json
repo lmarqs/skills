@@ -1,0 +1,14 @@
+{
+  "eval_id": 4,
+  "eval_name": "well-known-cloudflare-workers",
+  "prompt": "Bootstrap a Cloudflare Workers project \u2014 TypeScript on Node, deployed with wrangler. I need mise tasks for setup, dev, lint, test, and deploy to Cloudflare. One of the build steps reads a config value from AWS, so I need to be authenticated to AWS as part of it too.",
+  "assertions": [
+    "mise.toml exists, no inline [tasks]",
+    "node tasks setup/lint/test exist",
+    "EXTENSIBILITY: a cloudflare/cf namespace with deploy+dev was invented",
+    "the invented cloudflare tasks still follow the contract",
+    "aws-auth present (a build step needs AWS)",
+    "project 'mise' house-rules skill generated",
+    "command-skill for cf:deploy, none for lint/test"
+  ]
+}

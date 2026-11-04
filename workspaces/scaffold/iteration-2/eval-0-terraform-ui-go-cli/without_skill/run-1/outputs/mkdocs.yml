@@ -1,0 +1,9 @@
+site_name: mycli
+site_description: A cross-platform Go CLI tool
+docs_dir: docs
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md

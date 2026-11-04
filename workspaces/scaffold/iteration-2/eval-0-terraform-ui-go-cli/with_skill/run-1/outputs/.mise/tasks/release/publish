@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Cut a release: cross-compile and publish artifacts for the current git tag"
+set -e
+# Requires a pushed git tag (e.g. v1.2.3) on HEAD and GITHUB_TOKEN in the environment.
+goreleaser release --clean

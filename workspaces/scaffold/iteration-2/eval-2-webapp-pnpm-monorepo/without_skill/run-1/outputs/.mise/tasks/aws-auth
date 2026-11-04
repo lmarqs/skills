@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Sourced helper — NOT a task. Usage in another task:
+#   source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+# All account-specific values come from .env.yaml; nothing internal is committed.
+set -e
+
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+
+if ! aws sts get-caller-identity --query Account --output text >/dev/null 2>&1; then
+  echo "You must be authenticated to AWS to run this task (try: aws sso login)." >&2
+  exit 1
+fi
+
+# Fetch a short-lived CodeArtifact auth token for the private npm registry.
+get_codeartifact_authorization_token() {
+  aws codeartifact get-authorization-token \
+    --domain "$CODEARTIFACT_DOMAIN" --domain-owner "$CODEARTIFACT_OWNER" \
+    --query authorizationToken --output text
+}
+
+get_ecr_login_password() { aws ecr get-login-password --region "$AWS_REGION"; }

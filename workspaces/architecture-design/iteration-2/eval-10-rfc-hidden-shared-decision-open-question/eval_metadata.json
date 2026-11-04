@@ -1,0 +1,14 @@
+{
+  "eval_id": 10,
+  "eval_name": "rfc-hidden-shared-decision-open-question",
+  "prompt": "RFC needed: we want to replace the paid third-party address and geocoding APIs (costing us around $4k/month) with our own service. Options: Lambda + Aurora Serverless, Lambda + DynamoDB, or Fargate + Aurora Serverless, all in Go. Target p95 under 100 ms. One caveat: legal hasn't confirmed yet whether we can use the public postcode dataset commercially. Recommend one.",
+  "assertions": [
+    "The document states what all three proposed options have in common (building an in-house service, the language, the cloud) and treats each shared element as a prior decision with a row or adds an option outside it",
+    "At least one option outside 'build our own service' is analysed in the tradeoff table (for example keep the providers behind a proxy and cache, license the official dataset, renegotiate the contract), plus a do-nothing baseline",
+    "The legal question is marked as blocking with an owner and a date (or explicitly escalated), and the recommendation is stated as conditional on it or the status is kept at proposed",
+    "The p95 under 100 ms target carries a derivation (a current measured value, an external reference, or a stakeholder commitment) or is explicitly labelled assumed",
+    "The $4k/month figure is labelled by how it is known and the document names what would confirm it (for example the billing report by SKU)",
+    "The title and the opening paragraph name the problem to solve, not the product or stack to build",
+    "Still reaches an explicit recommendation with its decider, consequences and confirmation"
+  ]
+}

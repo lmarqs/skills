@@ -1,0 +1,14 @@
+{
+  "eval_id": 5,
+  "eval_name": "attiny-arduino-sketch",
+  "prompt": "Arduino project for a Digispark (ATtiny85) USB device. I'm using arduino-cli, not PlatformIO. Set up mise so I can compile the sketch, upload it to the board, and a single 'run' that compiles then uploads. Add a setup task for installing the core and libraries.",
+  "assertions": [
+    "mise.toml pins arduino-cli, no inline [tasks]",
+    "arduino tasks setup/compile/upload/run exist",
+    "every task file follows the contract",
+    "board FQBN/port parameterized via env (not hard-coded)",
+    "'run' chains compile+upload",
+    "project 'mise' house-rules skill generated",
+    "no aws-auth helper (no AWS)"
+  ]
+}

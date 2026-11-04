@@ -1,0 +1,16 @@
+name = "cloudflare-worker"
+main = "src/index.ts"
+compatibility_date = "2024-09-09"
+compatibility_flags = ["nodejs_compat"]
+
+# Vars injected at deploy time. The APP_CONFIG value is sourced from AWS
+# (e.g. SSM Parameter Store / Secrets Manager) by the `setup` / `deploy`
+# mise tasks before wrangler runs. See mise.toml.
+[vars]
+ENVIRONMENT = "development"
+
+[observability]
+enabled = true
+
+[dev]
+port = 8787

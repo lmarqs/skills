@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "existing package.json left byte-for-byte unchanged",
+      "passed": true,
+      "evidence": "unchanged"
+    },
+    {
+      "text": "existing pnpm-lock.yaml left unchanged",
+      "passed": true,
+      "evidence": "unchanged"
+    },
+    {
+      "text": "mise.toml created, pins node and pnpm, no inline [tasks]",
+      "passed": true,
+      "evidence": "pins=True inline=False"
+    },
+    {
+      "text": "node tasks setup/lint/test/build/dev exist as files",
+      "passed": true,
+      "evidence": "node/=['build', 'dev', 'lint', 'setup', 'start', 'test']"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": true,
+      "evidence": "6 ok"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": true,
+      "evidence": "['.claude/skills/acme-web-mise/SKILL.md']"
+    },
+    {
+      "text": "NO command-skills (node-only, non-destructive)",
+      "passed": true,
+      "evidence": "none"
+    }
+  ],
+  "pass_count": 7,
+  "total": 7,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 7,
+    "failed": 0,
+    "total": 7
+  }
+}

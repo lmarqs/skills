@@ -1,0 +1,43 @@
+{
+  "eval_id": 0,
+  "eval_name": "session-epic-twelve-beads",
+  "prompt": "We just created the beads epic for the billing export feature in this session. Run it with ralph.",
+  "assertions": [
+    {
+      "text": "Defaults the scope to the session epic and lists its 12 beads in dependency order (a linear chain)"
+    },
+    {
+      "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)"
+    },
+    {
+      "text": "Flags that there is no git remote and what that blocks"
+    },
+    {
+      "text": "Flags that the beads' acceptance criteria (\"<title> works\") cannot be checked"
+    },
+    {
+      "text": "Offers only models ralph-tui's agent accepts (for claude: haiku, sonnet, opus; no fable)"
+    },
+    {
+      "text": "States how the chosen effort will reach the subagents, not just a level"
+    },
+    {
+      "text": "States that with ralph-tui's defaults (auto-commit off, prompt forbids commits) the run produces no commits"
+    },
+    {
+      "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose"
+    },
+    {
+      "text": "Proposes an iteration budget above 12 and states the headroom"
+    },
+    {
+      "text": "States the subagent permission default for the chosen agent (claude skips permission prompts)"
+    },
+    {
+      "text": "Sends one plan for confirmation and does not start ralph-tui"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, no beads changed)"
+    }
+  ]
+}

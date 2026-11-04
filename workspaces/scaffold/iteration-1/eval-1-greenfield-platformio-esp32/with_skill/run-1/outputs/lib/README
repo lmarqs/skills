@@ -1,0 +1,12 @@
+This directory is for project-specific (private) libraries.
+PlatformIO compiles each library here into a static archive and links it into the executable.
+
+Each library should live in its own subdirectory, e.g.:
+
+  lib/
+    SomeLib/
+      src/
+        SomeLib.cpp
+        SomeLib.h
+
+More info: https://docs.platformio.org/page/librarymanager/index.html

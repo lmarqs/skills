@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Run the test suite"
+#USAGE arg "[pattern]" help="Optional test name/path filter"
+set -e
+npm run test ${usage_pattern:+-- "$usage_pattern"}

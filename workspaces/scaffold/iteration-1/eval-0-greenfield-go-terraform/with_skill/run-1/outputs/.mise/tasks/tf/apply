@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Apply Terraform changes for a module"
+#USAGE arg "<module>" help="Module directory under modules/"
+#USAGE flag "--auto-approve" default="false" help="Skip the confirmation prompt"
+set -e
+source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+AUTO=""; [ "$usage_auto_approve" = "true" ] && AUTO="-auto-approve"
+terraform -chdir="modules/$usage_module" apply $AUTO

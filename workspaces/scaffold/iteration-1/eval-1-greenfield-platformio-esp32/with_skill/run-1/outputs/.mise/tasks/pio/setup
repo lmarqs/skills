@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Install PlatformIO platform & library dependencies"
+set -e
+pio pkg install

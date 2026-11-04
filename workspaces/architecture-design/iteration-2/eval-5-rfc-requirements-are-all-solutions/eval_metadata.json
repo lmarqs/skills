@@ -1,0 +1,15 @@
+{
+  "eval_id": 5,
+  "eval_name": "rfc-requirements-are-all-solutions",
+  "prompt": "I need an RFC for the checkout refactor. Requirements: use the saga pattern, split into microservices, add Redis caching, use gRPC between services, and introduce a feature flag system. Checkout currently fails about 2% of the time and when it does we don't know which step broke.",
+  "assertions": [
+    "The document states explicitly that the items the user listed are design choices rather than requirements",
+    "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+    "At least one requirement is derived from the 2% checkout failure rate, with a goal, and a target that is either derived from a stated fact or explicitly labelled as assumed",
+    "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+    "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+    "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+    "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+    "Every requirement in the document carries a goal and a stated way to prove it is met"
+  ]
+}

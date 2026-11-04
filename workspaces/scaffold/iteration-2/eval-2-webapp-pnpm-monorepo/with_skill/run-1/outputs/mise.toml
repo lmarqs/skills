@@ -1,0 +1,15 @@
+[settings]
+experimental = true
+# Read node/python versions from .node-version/.python-version:
+idiomatic_version_file_enable_tools = ["node", "python"]
+
+[tools]
+# Pinned major.minor, resolved at scaffold time.
+node    = "24"
+pnpm    = "10.16"
+python  = "3.13"
+aws-cli = "2"
+
+[env]
+_.file = ".env.yaml"
+_.python.venv = { path = ".venv", create = true }

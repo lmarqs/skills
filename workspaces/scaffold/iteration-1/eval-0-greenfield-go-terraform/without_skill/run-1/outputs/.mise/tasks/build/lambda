@@ -1,0 +1,8 @@
+#!/bin/bash
+#MISE description="Build the Lambda binary (target: AWS arm64)"
+
+set -e
+
+mkdir -p dist
+GOARCH=arm64 GOOS=linux go build -tags lambda.norpc -o dist/bootstrap ./cmd/lambda/
+(cd dist && zip -q -j lambda.zip bootstrap)

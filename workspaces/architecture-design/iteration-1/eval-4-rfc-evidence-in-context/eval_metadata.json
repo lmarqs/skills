@@ -1,0 +1,15 @@
+{
+  "eval_id": 4,
+  "eval_name": "rfc-evidence-in-context",
+  "prompt": "We need an RFC on splitting the reporting queries off the main database. Reports are slow and they're hurting the app. I know p95 on the dashboard endpoint was around 8 seconds last month, that's on the 'api-latency' Grafana board. The report queries are all in reports/queries.py. I think reporting is maybe 40% of our database load but honestly I'm not sure, nobody has measured it. We have around 300 active tenants.",
+  "assertions": [
+    "The p95 dashboard-endpoint figure is stated with its source (the Grafana 'api-latency' board) next to the claim",
+    "The location of the report queries is cited concretely (reports/queries.py)",
+    "The 40% database-load figure is explicitly marked as unverified, an assumption, or an estimate rather than stated as fact",
+    "For the unverified 40% figure, the document names what would confirm it (a specific query, tool, or measurement)",
+    "Quantitative claims in the context carry either a source or a label indicating how they are known",
+    "At least one requirement traces explicitly back to a specific fact stated in the context",
+    "The reasoning can be followed without opening any linked or external resource",
+    "Provenance for the facts appears in the document (for example a sources section or inline citations) rather than only as a list of related documents at the top"
+  ]
+}

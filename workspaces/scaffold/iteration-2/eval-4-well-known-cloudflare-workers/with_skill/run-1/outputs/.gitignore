@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+
+# Local env — never commit real values (commit .env.example instead)
+.env.yaml
+.env

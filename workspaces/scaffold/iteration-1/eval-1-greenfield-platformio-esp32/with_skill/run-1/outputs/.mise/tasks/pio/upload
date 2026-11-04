@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Build and flash firmware to the board"
+#USAGE arg "[env]" help="platformio.ini environment (board); defaults to default_envs"
+set -e
+# Serial port comes from the env file (PIO_UPLOAD_PORT); unset = PlatformIO auto-detect.
+pio run -t upload \
+  ${usage_env:+-e "$usage_env"} \
+  ${PIO_UPLOAD_PORT:+--upload-port "$PIO_UPLOAD_PORT"}

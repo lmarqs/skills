@@ -1,0 +1,27 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# Build artifacts
+*.elf
+*.bin
+*.hex
+*.map
+
+# IDE / editor
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.swp
+*~
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# mise (keep .mise.toml tracked; ignore local installs/state)
+.mise/
+mise.local.toml

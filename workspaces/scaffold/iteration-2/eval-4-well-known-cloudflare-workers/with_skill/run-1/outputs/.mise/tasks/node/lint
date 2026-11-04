@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Lint and type-check the codebase"
+set -e
+npm run lint

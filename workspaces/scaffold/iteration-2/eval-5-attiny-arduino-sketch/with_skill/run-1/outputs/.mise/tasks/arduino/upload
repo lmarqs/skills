@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+#MISE description="Upload the compiled sketch to the board"
+#USAGE flag "--port <port>" help="Serial port (defaults to ARDUINO_PORT). Leave unset for a micronucleus Digispark; plug it in when prompted."
+set -e
+
+# The Digispark uses the micronucleus USB bootloader, which is portless — arduino-cli
+# waits for you to plug the board in. Only pass -p when a port is actually provided
+# (via --port or $ARDUINO_PORT), so a stock Digispark upload works with no port.
+PORT="${usage_port:-${ARDUINO_PORT:-}}"
+if [ -n "$PORT" ]; then
+  arduino-cli upload --fqbn "$ARDUINO_FQBN" -p "$PORT" .
+else
+  arduino-cli upload --fqbn "$ARDUINO_FQBN" .
+fi

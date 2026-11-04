@@ -1,0 +1,7 @@
+# Local mise env (commit .env.yaml.example instead)
+.env.yaml
+
+# arduino-cli build output
+/build/
+*.hex
+*.elf

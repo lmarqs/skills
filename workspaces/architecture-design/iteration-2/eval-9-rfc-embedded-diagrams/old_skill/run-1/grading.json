@@ -1,0 +1,107 @@
+{
+  "expectations": [
+    {
+      "text": "At least one static diagram (context, container or component) is embedded in the document as Mermaid or another text-rendered diagram, not merely described in prose or linked",
+      "passed": true,
+      "evidence": "Section '### Static diagram — components' embeds a ```mermaid flowchart LR (document.md lines 164-223) with External / SYNC / CORE / ASYNC / CONS subgraphs covering components 1-11. A collapsible ASCII box drawing follows it as a non-Mermaid fallback (lines 228-256). Embedded source, not prose or a link."
+    },
+    {
+      "text": "At least one dynamic diagram (sequence or flow) is embedded in the document as Mermaid or another text-rendered diagram",
+      "passed": true,
+      "evidence": "Two ```mermaid sequenceDiagram blocks: 'Dynamic diagram 1 — happy path, and the duplicate path' (lines 266-297, with an alt/else branch for the on-conflict duplicate case) and 'Dynamic diagram 2 — a consumer fails, and what recovery looks like' (lines 329-356). Each is followed by a numbered step list as a fallback."
+    },
+    {
+      "text": "Each diagram caption states its type or zoom level and the requirement IDs it addresses",
+      "passed": false,
+      "evidence": "None of the three embedded diagrams has a caption at all — only a section heading, and no heading carries requirement IDs: '### Static diagram — components', '### Dynamic diagram 1 — happy path, and the duplicate path', '### Dynamic diagram 2 — a consumer fails, and what recovery looks like'. The headings do state type/zoom, so the first half of the assertion is met, but the requirement IDs are not in any caption position. IDs appear only inside diagram bodies ('Note over T,D: Subscriptions 1 and 3 are unaffected throughout — F6') and in surrounding prose that does not enumerate what the diagram addresses — the static diagram's reading note mentions only 'the mechanism behind F6 and F9' while the component table attributes F1-F9, N1-N3 and N6-N8 to the same eleven components. Assertion fails on all three diagrams, not one."
+    },
+    {
+      "text": "The static diagram stays at one level of zoom: it does not mix external actors and systems with the internal modules of a single component",
+      "passed": false,
+      "evidence": "Reading applied: the violation condition is a diagram that carries external actors/systems and, at the same time, the internal parts of one of its own components. The document defines component 8 as a single component — '8 | **Event topic** with **three independent durable subscriptions** | ... each subscription tracks its own position, retries, and failures | F6, F8, F9' — yet the diagram decomposes it into four peer nodes, TOPIC[\"8. Event topic\"], S1[\"Subscription 1\"], S2, S3, drawn alongside the external actors P1[\"Partner A\"], P2[\"Partner B\"], P3[\"Partner N\"] in the EXT[\"External\"] subgraph. The same mixing appears in CORE, where OUTBOX[\"6. Outbox\"] is a peer box even though the Vendor mapping states it is 'A table in the same database as #5. **Not** a separate system' — a schema-level element drawn as a peer of partner organizations. The rest of the diagram is level-consistent, but these nodes drop below the component zoom the diagram otherwise holds, and the ASCII fallback reproduces the same structure."
+    },
+    {
+      "text": "The 200 events per second figure is carried with its 'measured' label and used to derive at least one non-functional target with a stated condition",
+      "passed": true,
+      "evidence": "The label travels with the figure: 'Peak load is **≈200 events/s**, measured last month (Assumption **A1** — the measurement basis, the window, and the averaging interval are unverified here)', repeated as 'at the **measured** 200 events/s' and '(2× measured peak)'. A derivation table shows the arithmetic (17,280,000 events/day; 400 events/s design target; 800 writes/s; 1,200 deliveries/s). N1 is the derived non-functional target with its condition: 'Sustains **400 events/s** (2× measured peak) with no error-rate increase, validated by load test before launch | Derived from A1'; N6 adds 'p95 end-to-end (accepted → delivered) ≤ 5 s under normal operation'."
+    },
+    {
+      "text": "The tradeoff table scores options against requirement IDs and includes a baseline row (do nothing or the smallest change)",
+      "passed": true,
+      "evidence": "Requirement IDs are scored in the tradeoff table cells ('violates F6 and F9 outright', 'violating N3', 'violates F3', 'violates F5', 'contradicting F4's spirit', '(F4, F5)') and then tabulated per option in 'Checking the finalists against the requirements', which rates A2/A1/A3/B1/B4/C3/C2/C4 against F3, F4, F5, F6, F7, F9 and N2/N3 with the failures in bold. Smallest-change rows are present and scored, though not labelled 'baseline': A1 ('no broker, no outbox, no lag to monitor; simplest possible tracing') and C1/C4 ('No broker and no outbox; fewest moving parts' / 'genuinely fewer systems to run'), with C4 argued at length in 'The strongest objection to this recommendation' as the option that 'would ship in a fraction of the time'. No do-nothing/status-quo row exists, consistent with the document's stance that no current pipeline was described (Q1), so the assertion is met by its 'or the smallest change' clause rather than by a status-quo row."
+    },
+    {
+      "text": "Reaches an explicit decision with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "'## The decision' states it explicitly — '**Decision: A2 + B1 + C3 + D1**' with four numbered specifics (accept-then-process; unique constraint on `(partner_id, event_id)` with a payload-hash guard; transactional outbox + relay + topic with three subscriptions; per-partner HMAC with two live keys). Decider is recorded: 'Decision style: autocratic. This is the author's call to make as the owner of the ingestion path ... published here for comment rather than for a vote', with the consumer teams holding 'a veto on exactly one clause — **N5, the at-least-once contract**'. Consequences are stated, though distributed rather than in a section of their own: consumer idempotency becomes a 'published, non-negotiable clause of the consumer contract', and 'The honest summary is that this design buys isolation and a no-loss guarantee at the cost of two extra moving parts, and that trade only makes sense because three teams and an unbounded stream of future ones depend on it.' Confirmation likewise: 'Evidence still needed before implementation' (re-derive A1/A2, measure the duplicate rate, 'Load test at 2× peak — 400 events/s ingest, 800 writes/s including the outbox — plus a soak test with one consumer stopped for 24 h ... (validates N1, N6, F6, F7)') plus per-phase exit criteria in the launch strategy ('unpublished-outbox-age alert proven by deliberately stopping the relay') and 'What would flip this decision' as the revisit trigger list."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 2,
+    "total": 7,
+    "pass_rate": 0.71
+  },
+  "execution_metrics": {
+    "output_chars": 59157
+  },
+  "timing": {
+    "total_tokens": 91206,
+    "duration_ms": 446954,
+    "total_duration_seconds": 447.0
+  },
+  "claims": [
+    {
+      "claim": "17,280,000 events/day at 200 events/s; 400 events/s at 2x headroom; 800 writes/s; 1,200 deliveries/s",
+      "type": "factual",
+      "verified": true,
+      "evidence": "200 x 86,400 = 17,280,000; 200 x 2 = 400; 400 ingest + 400 outbox = 800; 400 x 3 = 1,200. All four rows of the derivation table check out."
+    },
+    {
+      "claim": "≈69 GB/day and ≈2.07 TB over 30 days at a 4 KB payload, rising to 20.7 TB at 40 KB",
+      "type": "factual",
+      "verified": true,
+      "evidence": "200 x 4 KB = 800 KB/s; 800 x 86,400 = 69,120,000 KB = 69.12 GB/day; x 30 = 2,073.6 GB = 2.07 TB; a 10x payload gives 20.7 TB. Correct, and A2 is declared an assumption ('the single most important number to replace with a measurement')."
+    },
+    {
+      "claim": "Three diagrams, all embedded as Mermaid code blocks, with a plain-text equivalent after each so the page carries its meaning with no rendering at all (reply)",
+      "type": "process",
+      "verified": true,
+      "evidence": "Three ```mermaid fences (lines 164, 266, 329). The static diagram is followed by an ASCII box drawing inside a <details> block; each sequence diagram is followed by a numbered step list. No external URL appears in document.md."
+    },
+    {
+      "claim": "'You did not name a cloud, a database, or a broker, so I deliberately did not pick products' / 'nobody reads a product name into the decision' (reply and Vendor mapping)",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Defensible as stated: components are specified as capabilities, and the Vendor mapping table is explicitly framed as 'Non-exhaustive implementations that satisfy it' with 'Picking a row is a follow-up decision, not part of this RFC'. Eight products are nonetheless named in that table (PostgreSQL, MySQL, Kafka, Pulsar, NATS/JetStream, RabbitMQ, NGINX, Envoy), so 'no product is named' would be false; 'no product is chosen' is what holds."
+    },
+    {
+      "claim": "'No component in the list lacks a requirement, and no requirement lacks a component'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The Requirement coverage table maps F1-F9 and N1-N9 to components, with N9 explicitly satisfied as a declared non-guarantee ('no component needed'); components 1-11 all appear on the right-hand side of that mapping or in the component table's own 'Requirements served' column."
+    },
+    {
+      "claim": "'nothing here is justified by 200 events/s' — the design buys failure isolation, not throughput",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The claim is argued rather than asserted: the objection section attributes the design to F6/N3 (failure isolation), F9 (adding consumers) and F4 (atomic 'accepted' + 'will be published'), and concedes 'A single modest database node handles 800 writes/s comfortably (inference — to be confirmed by the load test in N1)', with the inference labelled as such."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Whether the wiki renders Mermaid could not be verified; ASCII and numbered-step fallbacks were added as insurance, and the reply asks which format the wiki accepts",
+      "A1 (200 events/s basis and averaging window) and A2 (4 KB average payload) are unverified and drive all sizing",
+      "A8 (no consumer needs strict per-key or global ordering) is flagged as the highest-risk assumption"
+    ],
+    "needs_review": [
+      "Q1 — whether an ingestion path already exists; if so the document needs a migration and decommissioning section and its Out of scope is wrong",
+      "Q2 — who the three consumers are and what each needs; answers could collapse or complicate the fan-out dimension",
+      "A9 — the autocratic decision style and the consumer teams' veto limited to N5 are assumed, not established"
+    ],
+    "workarounds": [
+      "Products deferred: components specified as capabilities with a Vendor mapping table, since no deployment target was stated (A5)",
+      "Plain-text equivalents added after every diagram to survive a wiki that does not render Mermaid"
+    ]
+  }
+}

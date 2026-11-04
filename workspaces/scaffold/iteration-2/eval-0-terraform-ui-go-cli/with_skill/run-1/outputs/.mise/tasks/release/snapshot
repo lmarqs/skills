@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build a local cross-platform release snapshot (no publish, no tag required)"
+set -e
+goreleaser release --snapshot --clean

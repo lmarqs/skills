@@ -1,0 +1,18 @@
+#!/bin/bash
+#MISE description="Install toolchain, Go deps, and wire up local tooling"
+
+set -e
+
+mise install
+
+go mod download
+
+GOLANGCI="$(mise which golangci-lint)"
+
+tmp="$(mktemp)"
+jq --arg val "$GOLANGCI" '."go.alternateTools".customFormatter = $val' .vscode/settings.json > "$tmp"
+mv "$tmp" .vscode/settings.json
+
+if [ ! -f .env ]; then
+  cp .env.example .env
+fi

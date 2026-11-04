@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#MISE description="Deploy local infrastructure into LocalStack (S3/SQS/Lambda)"
+set -e
+
+# LocalStack emulates AWS locally — point the CLI at it, no real credentials needed.
+export AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:4566}"
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-test}"
+export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-test}"
+
+# Wait for LocalStack to be ready before provisioning.
+until aws --endpoint-url "$AWS_ENDPOINT_URL" sts get-caller-identity >/dev/null 2>&1; do
+  echo "Waiting for LocalStack at $AWS_ENDPOINT_URL ..."
+  sleep 1
+done
+
+# Provision the resources the app needs locally. Add buckets/queues/functions as the app grows.
+# Examples (idempotent):
+#   aws --endpoint-url "$AWS_ENDPOINT_URL" s3 mb s3://acme-local || true
+#   aws --endpoint-url "$AWS_ENDPOINT_URL" sqs create-queue --queue-name acme-local || true
+echo "LocalStack ready at $AWS_ENDPOINT_URL — add resource provisioning here."

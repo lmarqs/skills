@@ -1,0 +1,31 @@
+{
+  "eval_id": 1,
+  "eval_name": "dirty-tree-pr-per-bead",
+  "prompt": "Run epic bd-42 with ralph-tui, codex at max effort, one PR per bead, no worktree. I have some uncommitted local changes, don't worry about them.",
+  "assertions": [
+    {
+      "text": "Flags that the uncommitted changes could be swept into a bead's commit and proposes a worktree or a clean tree despite the user's 'no worktree'"
+    },
+    {
+      "text": "Flags that one PR per bead needs one commit per bead naming the bead, and states ralph-tui's auto-commit setting"
+    },
+    {
+      "text": "Checks that `max` is a supported effort for the chosen codex model from codex's own catalog, not from memory"
+    },
+    {
+      "text": "States how effort will reach codex subagents (ralph-tui passes no effort to codex)"
+    },
+    {
+      "text": "Spells out the per-bead PR units: branches, PR bases and merge order"
+    },
+    {
+      "text": "Says what it could not determine about the forge (merge methods, branch protection) instead of assuming"
+    },
+    {
+      "text": "Does not start ralph-tui before the user confirms the adjusted plan"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, no beads changed)"
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+      "passed": true,
+      "evidence": "Context, 'A note on scope and how this document was built': \"a requirement is a non-negotiable, checkable constraint on the *problem* ... — not a pre-selected technology. Naming a technology before the problem is pinned down is the specific failure mode this method is built to catch ... this RFC treats the five named technologies as **candidate solutions**, evaluated on their merits in the *Alternatives analysis* section.\""
+    },
+    {
+      "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+      "passed": true,
+      "evidence": "Grepped the '## Requirements' section (Functional + Non-functional bullets) for 'saga', 'microservice', 'redis', 'grpc', 'feature flag' — zero matches. The section instead lists atomicity/no-partial-state, durable failure attribution, deterministic retry/compensation, independent deployability, observability, a reliability target, no latency regression, blast-radius containment, and rollout safety — all framed as problem constraints, none naming a technology."
+    },
+    {
+      "text": "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+      "passed": true,
+      "evidence": "Non-functional: \"**Reliability target:** checkout failure rate is measured continuously (not estimated after the fact) and has an explicit target — proposed **≤ 0.5% p95 weekly**, pending validation once real failure causes are known (some fraction of the current 2% may be external, e.g. a card decline, which is not a system defect and shouldn't be counted against this target).\" Target = ≤0.5% p95 weekly; goal (why it matters) is carried by the surrounding Context tying the 2% rate to abandoned/retried purchases and trust damage."
+    },
+    {
+      "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+      "passed": true,
+      "evidence": "Non-functional: \"**Observability:** every checkout attempt is traceable end-to-end with a single correlation ID across every step it touches, and step-level success/failure is visible on a dashboard within seconds of occurring — this is the requirement that most directly closes the stated gap.\" Also Functional: \"Every failed checkout attempt must produce a durable record identifying which step failed and the failure reason ... automatically.\" Both are measurable (correlation ID + seconds-latency dashboard visibility; a durable per-attempt record)."
+    },
+    {
+      "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+      "passed": true,
+      "evidence": "Alternatives analysis table has one row per named technology, each explicitly cross-referenced to a requirement: saga ('Matches the atomicity/compensation requirement directly'), microservices ('matches the \"blast radius\" requirement *if* done well ... does not by itself solve step attribution'), Redis ('No requirement above calls for a cache'), gRPC ('using synchronous RPC *between saga steps* couples their failure domains together, working against the atomicity/compensation requirement'), feature flags ('Directly satisfies the rollout-safety requirement')."
+    },
+    {
+      "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+      "passed": true,
+      "evidence": "'The decision' section: \"Redis caching and gRPC do not map to any stated requirement today and are **not recommended as part of this phase**\"; microservices split is deferred in favor of a modular monolith ('Large, essentially irreversible undertaking ... does not by itself solve step attribution')."
+    },
+    {
+      "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+      "passed": true,
+      "evidence": "'Assumptions made in the absence of system access' explicitly lists four labeled assumptions (2% rate/attribution gap taken as reported and unverified; checkout assumed monolithic; a specific 4-step flow assumed; no known SLO/runbook), each flagged 'for correction against the real system before any of this is acted on.'"
+    },
+    {
+      "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+      "passed": false,
+      "evidence": "Only the Reliability-target requirement gestures at a verification mechanism ('measured continuously'), and even that never names a source (which dashboard/query, what window). The other eight requirements/bullets (no-partial-state, durable failure record, deterministic retry/compensation, independent deployability, the correlation-ID/dashboard observability bullet, no-latency-regression, blast-radius containment, rollout safety) state a goal and sometimes a target, but none states how fulfilment would be demonstrated (a test, drill, audit, or measurement method) — e.g. 'a defect or outage in any single checkout step must not require a full rollback of the entire checkout flow to recover from' has no stated way to verify it holds. The skill's own reference (context-and-requirements.md) treats 'Proof' — 'how fulfilment gets demonstrated when implementation ends' — as a mandatory field precisely because a requirement without it 'is not a requirement; it is a goal.' This document has no Proof field or equivalent for almost every requirement."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.875
+  },
+  "timing": {
+    "total_duration_seconds": 197.5
+  },
+  "claims": [
+    {
+      "claim": "The document derives requirements from the stated problem rather than the requested technology list",
+      "type": "process",
+      "verified": true,
+      "evidence": "Requirements section header states 'Derived from the stated problem (a 2% failure rate with no step-level attribution), not from the requested technology list' and the requirement bullets that follow contain no technology names."
+    },
+    {
+      "claim": "Redis and gRPC are deferred to a later phase, not simply dropped",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Launch strategy: 'Explicitly deferred, not rejected: Redis caching and gRPC. Both get a one-line re-evaluation checkpoint at the end of Phase 1.' Tasks table includes a 'Redis/gRPC re-evaluation checkpoint' line item."
+    },
+    {
+      "claim": "The recommended design (orchestrated saga, modular monolith, feature flags) is traced back to two specific requirements",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Design section: 'Two requirements above are the ones that actually shape the architecture: (1) atomic-or-compensated multi-step execution with no partial state, and (2) step-level observability with a correlation ID' — and the component table maps each component back to one of these named requirements."
+    },
+    {
+      "claim": "The proposed 0.5% p95 weekly reliability target is a validated number",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The document itself flags this as unvalidated: '≤ 0.5% p95 weekly, pending validation once real failure causes are known' — this is disclosed rather than hidden, so it is not a defect, but the number itself carries no independent justification beyond being 'proposed.'"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+        "reason": "This is satisfied here with real rigor, but the assertion as worded would also pass a document that just loosely gestures at a requirement name next to each technology (e.g. a one-clause 'helps with reliability') without actually deriving the tie from a specific, previously-stated requirement. Tightening it to require each tie to reference a specific requirement (by ID or verbatim phrase already defined in the Requirements section) would make it harder to satisfy superficially."
+      },
+      {
+        "reason": "No assertion checks for requirement traceability via IDs (F1, N1, ...) that the design and tradeoff sections can cite, which the skill's own reference document (context-and-requirements.md) treats as a first-class field ('So Design and the tradeoff analysis can cite it instead of paraphrasing it'). This document never assigns IDs to requirements — Design and the Alternatives table instead re-paraphrase requirement text prose-to-prose, which works here because the document is well-organized, but is a structural gap an assertion could catch in a messier run (ambiguous cross-references, requirements that drift in wording between sections)."
+      }
+    ],
+    "overall": "7 of 8 pass with genuine substance — the document does the hard part (reclassifying technologies as candidate solutions, deriving real requirements, and running a serious tradeoff analysis that defers Redis/gRPC on the merits). The one failure (assertion 8, requirement proof) is real and matches a documented gap in the skill's own methodology reference: almost every requirement states a goal and often a target, but none states a verification method (test, drill, audit, measurement source) the way the skill's reference example does ('measured by a k6 run in staging', 'game-day drill'). This is a substantive quality gap, not a nitpick — a reviewer cannot check off any of these requirements as 'done' without inventing their own proof criteria."
+  }
+}

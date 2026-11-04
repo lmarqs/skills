@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Install Python build tooling (incl. PlatformIO) into the project venv"
+set -e
+python -m pip install --upgrade pip
+pip install -r requirements.txt

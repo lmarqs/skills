@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Format Go code"
+set -e
+go fmt ./...

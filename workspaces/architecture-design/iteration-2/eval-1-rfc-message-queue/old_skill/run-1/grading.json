@@ -1,0 +1,147 @@
+{
+  "configuration": "old_skill",
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "'## Context' starts from zero knowledge: 'We are building a pipeline that processes orders. An order arrives, and a sequence of steps has to happen to it — validation, payment, fulfilment, notification — each owned by a different piece of the system, each able to fail and need retrying independently.' Current state is stated plainly: 'Right now that hand-off mechanism does not exist. We have to pick one, and it has to be picked before the pipeline is built'. Both candidates are then explained for a reader who knows neither ('**AWS SQS** — a fully managed queue. No servers, no upgrades, no clustering'), and the two seams where loss actually occurs are explained mechanically. An 'Out of scope' subsection bounds it."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "'## Requirements' contains '### Functional' (F1-F6) and '### Non-functional' (N1-N7) as separate labelled subsections, plus a 'Deliberately not requirements' list."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": false,
+      "evidence": "Several requirements are requirement text with no goal or rationale attached. '**F5 — Independent stage failure.** One stage being down or slow must not block the others, and must not lose the work queued for it.' — no goal or rationale. '**N1 — Durability: zero acknowledged-message loss, surviving the loss of one availability zone.** The transport must replicate an accepted message to more than one AZ before acknowledging the producer.' — restates the requirement mechanically. '**F2 — Per-order processing is serialized.** Two events for the *same* order are never processed concurrently or out of sequence (assumption A3).' — scoping, not rationale. Also F3 (elaboration only) and N5 (observability, no rationale). Others do carry a reason (N3 'because it sits inside ... a synchronous customer request'; N7 'This is the *real* requirement behind \"supports complex routing we might need later\"'), and the requirements have no Goal column, so the assertion's 'every' is not met. There is no goals list anywhere in the document for requirements to be traced to."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "Four of the seven NFRs carry no number with a unit and rest on adjectives. '**N4 — Operability within the team we actually have.** No new full-time operational commitment, and no component whose recovery procedure only one person understands' — no metric at all, yet the document later calls it 'a hard requirement' and it is the driver that decides the whole comparison. '**N6 — Cost is proportional to volume and small relative to the pipeline's business value at our scale**' — 'small' is exactly the adjective the assertion excludes. '**N5 — Observability: queue depth, message age, redelivery count, and DLQ depth are all metrics we can alert on**' — names metrics but sets no target. '**N2 — Availability of the enqueue path ≥ the availability of the order API**' — a relation, not a number with a unit. Only N1 ('zero ... loss, surviving the loss of one availability zone') and N3 ('p95 ≤ 100 ms') are quantified."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": false,
+      "evidence": "No requirement carries a proof or verification method. The requirements are prose bullets with no verification column or clause, and the '### Traceability check' table that follows maps each requirement only to the design element that satisfies it ('F1 no lost orders | D1 outbox + D3 ack-after-commit + N1 broker replication'; 'N4 operability | Broker choice'), which is design linkage rather than a way to prove fulfilment. Verification exists elsewhere but is partial and not attached to requirements: Phase 0's harness 'asserts zero loss and correct redelivery' (F1/N1) and Phase 3's reconciliation must 'show zero divergence'. Nothing names how F2, F5, F6, N2, N4, N5, N6 or N7 will be verified."
+    },
+    {
+      "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+      "passed": true,
+      "evidence": "The slogan is converted twice over. As a target: 'N1 — Durability: zero acknowledged-message loss, surviving the loss of one availability zone. The transport must replicate an accepted message to more than one AZ before acknowledging the producer', with F1 scoped to a testable boundary ('Once the order API returns success to the customer, every pipeline stage that should see that order eventually sees it, including across broker failover, consumer crashes, and deploys'). As a verification method: Phase 0 'Write a harness that publishes through the outbox relay, kills the consumer mid-processing, kills the relay mid-publish, and asserts zero loss and correct redelivery' plus task P0-2 'Durability harness ... asserting zero loss; run in CI', and Phase 3's 'orders accepted vs. orders that reached the final stage. Reconciliation must show zero divergence for a sustained window'. The assertion's bar ('a durability target, an acceptable loss rate, or a verification method') is met on two of three counts."
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Components named: Order API, Orders DB with outbox table, Outbox relay, per-stage queues and DLQs, validation/payment/fulfilment workers, metrics and alerting, plus the internal messaging port. Static: '### Static diagram' as a mermaid `flowchart LR`, additionally given a full prose restatement ('Described in words, in case the diagram does not render: the customer calls the Order API, which writes the order row and an outbox row in a single database transaction...'). Dynamic: '### Dynamic diagram — happy path plus the two failure modes that matter' as a mermaid `sequenceDiagram` covering the happy path, a worker dying mid-processing, and a poison message dead-lettering."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+      "passed": true,
+      "evidence": "Dimension 1's table has a '**SQS FIFO** (per-order message group)' row (pros: 'Zero operational surface: no nodes, upgrades, clustering, or capacity planning ... Cost is pure per-request with no idle floor'; cons: 'No broker-level routing ... Retention capped at 14 days ... AWS-specific API') and a '**Self-hosted RabbitMQ on our cluster** (quorum queues)' row (pros: 'Genuinely powerful routing today, not later ... No per-message cost'; cons: 'We become the operator of a stateful, clustered, Erlang-based system ... Kubernetes is a hostile home for a quorum-based broker'). A follow-up matrix scores both across N1/N4/N5/N6/N7/F2/F3."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "'**Amazon MQ for RabbitMQ** (managed RabbitMQ)' is argued as the steelman and named the runner-up: 'This is the honest steelman of \"we want RabbitMQ\" — it keeps almost every advantage the routing argument depends on.' Also '**SQS Standard**' and '**Amazon MSK / Kafka**', plus separate dimensions adding change-data-capture (Debezium), publish-first ordering, SNS/EventBridge fronting and application-level fan-out."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes (impact, probability, mitigation, contingency), each with a reason or fact behind it; a bare 'unknown', 'TBD' or 'N/A' does not count",
+      "passed": false,
+      "evidence": "Two failures. First, bare placeholders in the Mitigation column: the MSK/Kafka row reads '| We adopt streaming complexity to solve a queueing problem, and F3 becomes bespoke code we maintain | High | High | — | Reject the alternative...' — the mitigation is a literal em dash. The change-data-capture row does the same: '| We adopt streaming infrastructure to avoid writing a small relay | Medium | Medium | — | Reject for now...'. Second, and applying to every risk in all three dimension tables, Impact and Probability are bare ratings with no reason or fact behind them: 'Medium | Medium', 'High | Low', '**High** | **High**'. Compare the same eval's other configuration, where each rating is followed by its reason ('Medium: disk alarms are among the most common RabbitMQ incidents'). The assertion requires all four attributes 'each with a reason or fact behind it', and roughly twenty risk rows give none for two of the four."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "'## The decision' opens: '**Chosen: AWS SQS FIFO queues — one queue plus one dead-letter queue per pipeline stage, `MessageGroupId` = order id — fronted by a transactional outbox at the producer and idempotent, ack-after-commit consumers.**' The reasoning is then given in five ranked points, FIFO over Standard is decided explicitly, and the runner-up is named. '**Decision style: autocratic, pending review.**'"
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "Consequences are recorded, though scattered rather than in a dedicated section: D1 states and accepts them ('The cost is honest and worth stating: an extra table, a relay process to run and monitor, added publish latency (the relay's poll interval), and the outbox becomes a thing that can lag and needs its own alert. We accept all of that'), the decision records the FIFO price consequence ('costs about 20% more per request') and the deferred-routing consequence ('If complex routing lands in six months, we will pay a migration'). Confirmation: a '**Conditions that would flip the decision** — recorded now so we recognize them later rather than arguing from scratch' list of six named triggers, Phase 0's durability harness run in CI, Phase 3's 'Reconciliation must show zero divergence for a sustained window before the pipeline owns real orders' with a divergence alert (task P3-1), and a 'review at 90 days' on the operational-time risk. Passed on the assertion's 'a metric, check, or review' bar, but see eval_feedback in the with_skill file: this is weaker evidence than the other configuration's named fitness function, and the assertion does not separate them."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "'## Launch strategy' gives five phases, each independently valuable, from 'Phase 0 — Prove durability before building on it (before any pipeline code)' through 'Phase 4 — Game day', and names what is explicitly not in the plan. '## Tasks and roadmap' follows with a fourteen-row table (R1-R2, P0-1..3, P1-1..5, P2-n, P3-1, P4-1) with descriptions and estimates, followed by an 'Open questions for review' section."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "Both document.md and reply.md are entirely in English; no non-English text appears in headings, tables, diagram labels or the assumptions table."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 4,
+    "total": 14,
+    "pass_rate": 0.71
+  },
+  "execution_metrics": {
+    "output_chars": 52189
+  },
+  "timing": {
+    "total_tokens": 89293,
+    "duration_ms": 394815,
+    "total_duration_seconds": 394.8
+  },
+  "claims": [
+    {
+      "claim": "1,000,000 orders/month x 5 messages x 3 requests = 15,000,000 requests; (15M - 1M free) x $0.50/M ≈ $7/month",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: 14M x 0.50 per million = $7.00. The document flags the price for verification ('verify against the pricing page for our region before quoting this to finance')."
+    },
+    {
+      "claim": "SQS Standard is '~20% lower per-request cost' than FIFO",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with the $0.50/M FIFO figure the document itself uses against the standard $0.40/M rate: 0.40 is 20% below 0.50. Internally coherent; the underlying list prices were not verifiable here."
+    },
+    {
+      "claim": "SQS max payload is 1 MiB, and '256 KB' is a stale figure many references still quote",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Stated flatly in the table ('Max payload 1 MiB (64 KB per billed request unit)') and asserted again in reply.md as a correction of the commonly cited number. I could not verify this without network access, and the with_skill document in the same eval states the cap as 256 KiB. The two are in direct conflict and only one can be right; unlike the with_skill figure, this one carries no 'to re-confirm' label, so a wrong value would propagate as fact. The reply's related process claim, 'SQS quotas in the doc are from current AWS docs', cannot be checked at all — there is no transcript for this grading."
+    },
+    {
+      "claim": "Classic mirrored queues were removed in RabbitMQ 4.0, so quorum queues are the only replicated option",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches published RabbitMQ 4.0 behaviour as far as I can check offline, and the document links a supporting source."
+    },
+    {
+      "claim": "N3 constrains enqueue latency 'because it sits inside (or adjacent to) a synchronous customer request'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Contradicted by the document's own design. D1 removes publishing from the request path, and the traceability table then says 'N3 enqueue p95 ≤ 100 ms | Relay publishes off the request path; the customer path only writes to the DB'. The requirement's stated rationale does not survive the chosen design; the number is left in place without being re-derived."
+    },
+    {
+      "claim": "The self-hosted cost side is deliberately left unquantified rather than invented",
+      "type": "process",
+      "verified": true,
+      "evidence": "Held consistently: the Cost note says '**The self-hosted comparison is deliberately left unquantified** ... I have not measured our instance pricing or the hours this team would actually spend', open question 4 asks for it, and no invented instance figure appears anywhere in the document. The reply repeats the same limitation."
+    },
+    {
+      "claim": "Self-hosted RabbitMQ 'fails N4 outright under assumption A6, and that is decisive rather than a matter of weighting'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The dependency on A6 is stated honestly and the flip condition is recorded, but N4 carries no metric or target ('Operability within the team we actually have'), so 'fails N4 outright' is a judgment presented as a requirement failure. The load-bearing requirement in the whole comparison is the one that is not measurable."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Nine assumptions A1-A9 stated as 'stated assumptions, not findings', each with what breaks if it is wrong; A4 (no dated routing requirement) and A6 (no existing RabbitMQ operator) are the two that decide the outcome",
+      "SQS FIFO list price could not be read off the AWS pricing page; the reply says it was 'corroborated across third-party summaries'",
+      "Real peak order volume and messages-per-order are guesses gating the cost and quota analysis"
+    ],
+    "needs_review": [
+      "Six open questions for review, including who owns the DLQ alert and whether 5 delivery attempts is right per stage",
+      "The self-hosted cost side is blank and someone with instance pricing and an hours estimate should fill it in"
+    ],
+    "workarounds": [
+      "Cost comparison left one-sided rather than filled with an invented self-hosting figure"
+    ]
+  }
+}

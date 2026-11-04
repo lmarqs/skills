@@ -1,0 +1,125 @@
+{
+  "expectations": [
+    {
+      "text": "The document questions the premise that a language rewrite is the right axis of decision, rather than accepting Rust-versus-Go as given",
+      "passed": true,
+      "evidence": "Opening callout: \"The request was 'Rust or Go, pick one'. This document picks one ... but it does not recommend acting on that pick yet, and it narrows the unit of work from 'the service' to 'the renderer' ... roughly 94% of the 12 seconds is unexplained by page layout, so a language rewrite is being aimed at a bottleneck nobody has located.\" The Prior decisions table records \"The decision is 'Rust or Go' | The requester, today | ... Cost to reverse: **None.** It is a framing in a message, not a commitment\", and the Requirements section reclassifies \"in Rust\"/\"in Go\"/\"rewrite the service\" as design choices rather than requirements."
+    },
+    {
+      "text": "Notes that the 12-second figure has not been attributed to a root cause, and names what would attribute it (a profile, a benchmark, or a breakdown by stage)",
+      "passed": true,
+      "evidence": "Context: \"12 seconds ... (reported by the requester; no dashboard, timing or trace was cited, so this figure is ***assumed***\"; \"Nobody has separated the two. That separation is blocking question B1, and it decides this RFC.\" B1 names the instrument: \"Run: a profile of one 40-page invoice with a sampling profiler plus per-query timing, and identify the PDF library from the dependency manifest. Pass criterion: the 12 s is attributed to named phases summing to at least 90% of wall clock\". Phase 0 repeats it as ~3 engineer-days of work."
+    },
+    {
+      "text": "The tradeoff analysis includes at least one alternative that is not a rewrite in Rust or Go",
+      "passed": true,
+      "evidence": "The tradeoff table carries six non-rewrite rows: \"[Storage] Render once at issue, serve stored bytes\", \"[Interaction] Deliver asynchronously with a notice\", \"[Data access] Targeted fixes inside the current Python pipeline\", \"[Engine, same language] Replace the layout engine, keep the service in Python\", \"[Buy] Third-party document-rendering service\", and \"Baseline: do nothing\" — each with requirements met/partial/missed, pros, cons and risk rows."
+    },
+    {
+      "text": "Both alternatives the user named are still analysed fairly, with pros, cons and risks",
+      "passed": true,
+      "evidence": "\"[Language] Rewrite the renderer only, in Rust, using Typst as a library\" has pros (Typst Apache-2.0, embeddable, 0.3 ms/page), cons (steepest ramp, new document language, extra toolchain) and two risk rows. \"[Language] Rewrite the renderer only, in Go\" has pros (\"Shortest ramp for a team coming from Python, and the easiest to hire and staff; a static binary and simple deployment; goroutines suit fanning out a month-end batch\"), cons (library licensing/maintenance) and two risk rows. The losing option gets an explicit steelman: \"**Go** is the right call the moment the answer to 'can the templates be ported?' is no\", and the decision names two conditions that flip the pick to Go."
+    },
+    {
+      "text": "The performance requirement is stated as a target with a unit and a measurement method, and is tied to what the finance team needs rather than to a language",
+      "passed": true,
+      "evidence": "N1: \"p95 wall-clock time from an analyst's request to a document they can open, at or below **2 s**, for invoices at the 95th percentile of page count, whenever the analyst is waiting on screen\", with a Proof column \"Timing instrumented at the endpoint and reported per percentile; plus a load run at the concurrency B3 establishes\" and a Derived-from column tying 2 s to the analyst's attention band (Nielsen 1993 after Miller 1968). The goal it serves is \"A finance analyst gets the invoice they asked for without parking the task\" — no language appears in either requirement. N2 adds a second measured target (interactive p95 rise ≤10% during concurrent renders)."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency, each with a reason or fact behind it; a bare 'unknown' or 'TBD' does not count",
+      "passed": false,
+      "evidence": "Eleven of the twelve risk rows satisfy this — e.g. the Rust row: \"Impact: High: invoice rendering is business-critical | Probability: Medium: the component is small and stable, which cuts the exposure | Mitigation: Keep the component under ~2k lines ... two engineers minimum ... the Python renderer stays behind a flag for one quarter | Contingency: Revert the flag; the Python renderer is still there\". The \"Baseline: do nothing\" row violates it: risk \"The complaint escalates into a mandate to rewrite, decided under pressure and without B1\" carries Impact \"Medium\" with no reason attached (every other row appends one, e.g. \"High: invoices cannot be issued\") and Contingency \"None\" bare, with no reason for the absence — unlike the whole-rewrite row, whose empty mitigation is reasoned (\"None available while B1 is open; that is why B1 blocks\"). Under the strict every-instance reading, one bare Impact and one bare Contingency fail the assertion."
+    },
+    {
+      "text": "Reaches an explicit decision rather than only listing options",
+      "passed": true,
+      "evidence": "\"**Do not rewrite the service in either language yet. Commit to three things instead: (1) the B1 profile ... (2) ... render an issued invoice once and serve the stored bytes, and move rendering off the interactive request path; (3) a conditional, pre-committed answer to the language question — if a native renderer turns out to be needed, it is Rust with Typst, replacing the renderer only, behind a flag, not the service.**\" and \"**The pick, stated as asked: Rust, not Go**\". Decision style (autocratic, owner of the invoicing service) is recorded, as are consequences, residual risks and a confirmation metric."
+    },
+    {
+      "text": "Says plainly, in the document or in the reply, that the framing was challenged and why",
+      "passed": true,
+      "evidence": "reply.md heading \"## I challenged the framing, once, with evidence\", followed by the why: \"'Rust or Go, pick one' narrows the option space before the bottleneck is located ... Roughly **94% of the time is unexplained by page layout at benchmark rates**, and a language rewrite only pays on the layout part\", plus \"I also narrowed the **unit of work** ... Rewriting the service is a one-way door; replacing the renderer is a two-way door.\" The document's opening callout says the same thing (\"A note on the request\")."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.88
+  },
+  "execution_metrics": {
+    "output_chars": 61883,
+    "output_files": {
+      "document.md": 53554,
+      "reply.md": 8329
+    }
+  },
+  "timing": {
+    "total_tokens": 142444,
+    "duration_ms": 694123,
+    "total_duration_seconds": 694.1
+  },
+  "claims": [
+    {
+      "claim": "40 pages of WeasyPrint layout is about 0.7 s at 17.3 ms/page, so roughly 94% of the 12 s (11.3 s) is unexplained by per-page layout",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks: 40 x 17.3 ms = 692 ms; (12 - 0.7)/12 = 94.2%. This is the load-bearing number for the whole framing challenge and it is internally consistent."
+    },
+    {
+      "claim": "An independent benchmark (speedata, published 2026-02-10) measured WeasyPrint at 8.7 s / 500 pages and Typst at 157 ms / 500 pages",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Cannot be verified from the outputs and I did not have the source. 8.7 s / 500 = 17.4 ms/page, while the document quotes 17.3 ms/page — a rounding-level discrepancy, not a material one. The document labels the figure *third-party measurement* and reply.md flags the caveat that the benchmark used a mail-merge template, not an invoice."
+    },
+    {
+      "claim": "Go has no maintained, permissively licensed HTML/CSS-to-PDF layout engine: gofpdf archived read-only 2021-11-13; unipdf is AGPL-or-commercial and watermarks unlicensed output",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Consistent with my knowledge of both projects (gofpdf was archived by its maintainer; unipdf is dual-licensed with watermarking), but neither the date nor the licence text is checkable from the outputs. This is the sole decisive fact behind 'Rust, not Go', so a wrong date or licence status would move the decision."
+    },
+    {
+      "claim": "Every current-state figure is labelled assumed, with what would replace it",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Holds on inspection: the 12 s, the complaint's nature, all six usage rows, N1's 2 s target and N2's 10% tolerance each carry an ***assumed*** or ***estimated*** label plus the run that would replace it. The Constraints table honestly reports \"None identified\" rather than inventing constraints."
+    },
+    {
+      "claim": "Typst is stable at 0.15.1 dated 2026-07-17",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Sourced in the document to an \"encyclopedia entry\"; not checkable from the outputs. Low decision weight — the argument rests on Typst being maintained and permissively licensed, not on the exact version."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "The 12 s baseline, the nature of the complaint, and which Python PDF pipeline is in use are all unverified (blocking question B1)",
+      "N1's 2 s target is the author's, not finance's, and is flagged for renegotiation",
+      "The ~84 s / 52-page WeasyPrint figure came from a search summary and was not verified against the issue thread",
+      "Newer pure-Go and pure-Rust HTML-to-PDF engines were not evaluated; their immaturity is assumed"
+    ],
+    "needs_review": [
+      "B1 (profile), B2 (statutory fidelity) and B3 (month-end batch) are declared blocking; the RFC's status stays proposed until they are closed",
+      "Both interactive checkpoints (after requirements, after the tradeoff table) were skipped because the request was one-shot"
+    ],
+    "workarounds": [
+      "The language pick is pre-committed conditionally rather than executed, so the requester's 'pick one' is answered without authorizing the rewrite"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every risk in the tradeoff analysis carries impact, probability, mitigation and contingency, each with a reason or fact behind it; a bare 'unknown' or 'TBD' does not count",
+        "reason": "This is the only assertion either configuration failed, and both failed it — but for very different reasons, which the binary verdict hides. The old skill's table has no reason behind any impact or probability (twelve risks, all bare 'High'/'Medium'/'Low'); the new one reasons eleven of twelve rows and slips only on the 'do nothing' baseline. Consider splitting it into a coverage assertion ('every risk row has all four fields populated') and a quality assertion stated as a proportion or applied only to rows for options that are actually in contention, so a single lapse on the baseline row does not read the same as a table-wide absence of reasoning."
+      },
+      {
+        "reason": "Assertions 1, 2, 3, 4, 7 and 8 were all passed by both configurations, and assertions 5 and 7 are close to free: any document with a latency target and a 'The decision' heading passes them. As written this eval does not separate the two versions at all (7/8 vs 7/8). The differences I actually observed are unchecked: whether the challenged premise is backed by a checkable external fact rather than a list of generic hypotheses; whether the language pick is grounded in a decisive fact (library ecosystem and licensing) rather than in team-familiarity inference; and whether current-state numbers are individually labelled with the instrument that would replace them. Adding one assertion on each of those three would make the eval discriminating again."
+      },
+      {
+        "assertion": "Reaches an explicit decision rather than only listing options",
+        "reason": "Both documents gate execution on a profile, so 'explicit decision' is satisfied by a conditional pick. If the intent is to test that the skill still answers 'pick one' under a challenged framing, the assertion should require the named pick to be unconditional as a recommendation (even if execution is gated) and to state what would flip it — both documents happen to do that, but the assertion does not ask for it."
+      }
+    ],
+    "overall": "This eval no longer discriminates: with_skill and old_skill both score 7/8, failing the same assertion. Six of the eight assertions are satisfied by any document that reframes the question at all, and the one discriminating assertion (risk reasoning) collapses both configurations to 'fail' despite a large real quality gap between them. It needs at least one assertion keyed to evidence quality (an external, checkable fact behind the challenge and behind the language pick) and a proportional rather than all-or-nothing form for the risk-reasoning check."
+  }
+}

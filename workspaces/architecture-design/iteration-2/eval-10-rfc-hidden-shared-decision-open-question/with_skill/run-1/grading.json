@@ -1,0 +1,121 @@
+{
+  "expectations": [
+    {
+      "text": "The document states what all three proposed options have in common (building an in-house service, the language, the cloud) and treats each shared element as a prior decision with a row or adds an option outside it",
+      "passed": true,
+      "evidence": "Stated explicitly under 'What every option shares': 'All three options in the request are *build an internal service, in Go, on AWS, on the public postcode dataset, with a managed database behind it*. Five decisions, none of them with a row of its own'. Each shared element is then accounted for: (a) build in-house has a Prior-decisions row ('Replace the paid providers with a service we build and run ... options D, E and F below are the alternatives beside it') plus options outside it in the tradeoff table ('[Build vs buy] D. Keep the providers, put our own cache and proxy in front', '[Data source] E. License the postal operator's own dataset product'); (b) Go has a Prior-decisions row ('The service is written in Go') AND a tradeoff row ('[Language] Go (the team's prior decision)' with contingency 'Any compiled runtime the team can operate'); (c) AWS has a Prior-decisions row ('The service runs on the current cloud provider (AWS, inferred from Lambda, Aurora, DynamoDB and Fargate being the only candidates)') with cost-to-reverse stated, and the document says why it gets no tradeoff row ('High, and out of proportion to this decision. Recorded here rather than given a row') — which the assertion's 'prior decision with a row' branch permits. Two further shared elements it found on its own (the postcode dataset, and 'a managed database at all') get options F and G."
+    },
+    {
+      "text": "At least one option outside 'build our own service' is analysed in the tradeoff table (for example keep the providers behind a proxy and cache, license the official dataset, renegotiate the contract), plus a do-nothing baseline",
+      "passed": true,
+      "evidence": "Two non-build options carry full rows with pros / cons / risk / impact / probability / mitigation / contingency: '[Build vs buy] D. Keep the providers, put our own cache and proxy in front (the smallest change that would work)' and '[Data source] E. License the postal operator's own dataset product'. A separate baseline row is present: 'Baseline: do nothing | met: F1, F2, F3, N2; missed: N3; unknown: N1 ... USD 4,000/month (*assumed*) that grows with traffic ... Contingency: None'. The baseline also appears priced in the cost table at 4,000."
+    },
+    {
+      "text": "The legal question is marked as blocking with an owner and a date (or explicitly escalated), and the recommendation is stated as conditional on it or the status is kept at proposed",
+      "passed": true,
+      "evidence": "Q1 sits in a table headed '**Blocking.**' with explicit Owner and Date columns: 'Q1. May the public postcode dataset be used commercially ... | Legal counsel | 2026-09-22', plus an if-yes / if-no consequence. Status is held at proposed in the header ('Status: proposed — three blocking questions are open ... the status cannot move to accepted while any of them is') and again in the Decision ('The build is not approved by this document, and the status is *proposed*. Recommending a build on top of an unresolved licence question is not deciding, it is hoping'). A 'What each blocking answer changes' table states the conditionality ('Q1 = no | Options A, B, C and G are excluded outright')."
+    },
+    {
+      "text": "The p95 under 100 ms target carries a derivation (a current measured value, an external reference, or a stakeholder commitment) or is explicitly labelled assumed",
+      "passed": true,
+      "evidence": "N1's 'Derived from' cell reads: '**Assumed.** The request stated 100 ms with no condition and no current value. Today's number is unmeasured and probably worse, since it includes a cross-internet call to the provider. Until phase 1 measures the current p95, 100 ms is a stated preference, not a derived target'. Source column: 'The request (*assumed*); condition to be supplied by Q2'. Repeated in the non-blocking assumptions and in Residual risks ('N1's 100 ms ... are all assumptions this document labels rather than hides')."
+    },
+    {
+      "text": "The $4k/month figure is labelled by how it is known and the document names what would confirm it (for example the billing report by SKU)",
+      "passed": true,
+      "evidence": "Context: 'at **USD 4,000/month** (*assumed*: stated in the request with no invoice attached; three months of the provider invoice, split by endpoint, would confirm it and would also give the request volume that everything below needs)'. The non-blocking assumptions add 'The USD 4,000/month is all address and geocoding, and it is one provider, not several (*assumed*). The invoice closes it.' Sources section repeats the provenance: 'The request itself, for the USD 4,000/month ... Every figure originating here is labelled *assumed*, with the user as its origin.'"
+    },
+    {
+      "text": "The title and the opening paragraph name the problem to solve, not the product or stack to build",
+      "passed": true,
+      "evidence": "Title: 'RFC: How the company resolves addresses and coordinates' — a capability/problem framing with no product or stack named. The opening body content is likewise not solution-framed: the 'Read this first' note is about evidence provenance, the Reversibility section opens 'Two decisions of very different sizes were folded into one request', and Context opens on the problem ('The company pays a third-party provider ... at USD 4,000/month. Every address a customer types ... is a metered call to somebody else's API') and states it outright: '**The problem.** Address resolution is priced per request, so its cost grows with traffic while its value per request stays flat, and the terms are set by a supplier the company does not control.' Minor: the literal first paragraph is the evidence caveat rather than the problem statement, but nothing in the opening names a product or stack."
+    },
+    {
+      "text": "Still reaches an explicit recommendation with its decider, consequences and confirmation",
+      "passed": true,
+      "evidence": "Recommendation: '**Of the three options in the request: Fargate + Aurora Serverless v2, in Go.** Not Lambda, and not DynamoDB'. Decider: header 'Decider: the engineering lead who owns the address entry path' and 'Decision style: autocratic. The engineering lead who owns address entry makes the call, having consulted legal (Q1), finance (Q3) ...'. A 'Consequences' section lists five ('The company gains a reference-data pipeline to own ...', 'Address resolution stops being priced per request ...', 'Coordinate accuracy becomes our problem and our number ...'). A 'Confirmation' section names the gate (F1 comparison suite in CI, 99.5% agreement), how N1/N2/N3/N5 are measured, and 'Review date 2026-12-01'. A separate phase-1 decision is also recorded with its own decider, consequence and confirmation date."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 70008
+  },
+  "timing": {
+    "total_tokens": 141306,
+    "duration_ms": 692323,
+    "total_duration_seconds": 692.3
+  },
+  "claims": [
+    {
+      "claim": "Cost does not discriminate between the three requested options: A ≈ USD 177, B ≈ USD 4, C ≈ USD 228 per month at 1M lookups",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks against the stated list rates: Aurora 2 ACU × 730 h × 0.12 = 175.20; Lambda 0.20 + (1e6 × 0.05 s × 0.25 GB × 0.0000166667) = 0.41; A = 175.20 + 0.41 + 1.00 ≈ 177. Fargate 2 × 730 × (0.5×0.04048 + 1×0.004445) = 36.04; C = 175.20 + 36.04 + 16.43 ≈ 228. DynamoDB 0.5M RRU × 0.125/M = 0.06; B ≈ 4. G = 36.04 + 16.43 ≈ 53. The rates themselves (0.12/ACU-h, 0.04048/vCPU-h, 0.004445/GB-h, 0.20/M Lambda requests, 0.125/M RRU) match current us-east-1 list prices."
+    },
+    {
+      "claim": "A 50-engineer-day build pays back inside a year unless the loaded day rate exceeds about USD 900 (3,750 × 12 ÷ 50)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "3750 × 12 = 45,000; 45,000 ÷ 50 = 900. Consistent with the roadmap, whose task estimates sum to 46 engineer-days (8+0+0+1+8+5+15+4+2+3), i.e. the 'about 50' it uses."
+    },
+    {
+      "claim": "Aurora Serverless v2 scale-to-zero resume takes up to 15 s, and over 30 s after a day paused, so it is incompatible with a 100 ms p95",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the AWS Aurora User Guide's documented auto-pause behaviour (0 ACU minimum, 300 s default idle timeout, resume latency in the tens of seconds after long pauses); the document cites that page and dates the read. The inference that a 15 s first request breaks N1 is sound."
+    },
+    {
+      "claim": "No number in the document is measured; every figure is labelled assumed or estimated, apart from vendor list prices",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Spot-checked the Current-usage table (every cell 'Unknown (*assumed*)'), N1/N3/N4 targets (labelled assumed), the USD 4,000 (assumed), the 1M-lookup volume (assumed) and the 200 MB dataset size (estimated, arithmetic shown). The cost table's price basis is disclosed as third-party pricing summaries rather than the AWS pricing page, with 'Confirm on the vendor's pricing page before planning against them' — an honest caveat rather than an overclaim."
+    },
+    {
+      "claim": "DynamoDB misses F2 (prefix/typo-tolerant matching) and F3 (radius search) as a query engine",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Justified in the store row and the Decision: DynamoDB has no native full-text/fuzzy matching and no spatial index, so both require hand-built inverted-index and geohash key designs or a second search system. Technically accurate."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "All cost figures rest on an assumed 1M lookups/month and on pricing read from public summaries rather than the vendor pricing page",
+      "Jurisdiction assumed Brazil (Correios CEP / DNE); if wrong, Q1's subject changes",
+      "Dataset size (~10^6 records, ~200 MB) is estimated and the whole option-G argument rests on it"
+    ],
+    "needs_review": [
+      "Decider was never named by the requester; the document assumes 'the engineering lead who owns address entry' and flags it as Q4 in the reply",
+      "The 2026-09-22 dates on Q1/Q2/Q3 are self-declared placeholders ('move the dates, they are placeholders')"
+    ],
+    "workarounds": [
+      "Committed only the phase-1 front door (option D) and left the build at status proposed, rather than approving a build over an open licence question"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "At least one option outside 'build our own service' is analysed in the tradeoff table ... plus a do-nothing baseline",
+        "reason": "Non-discriminating in this pair: both configurations pass. old_skill's Dimension-3 table carries S2 (licensed dataset) and S3 (keep/renegotiate the vendor, labelled 'the honest baseline'), so the assertion is satisfied even though that document declares build-vs-buy out of scope. Consider requiring the non-build option to be comparable on the same axes as the build options (same table, same requirement-coverage column) or requiring the baseline to be priced, which would separate 'mentioned in a side dimension' from 'actually weighed against the build'."
+      },
+      {
+        "assertion": "Still reaches an explicit recommendation with its decider, consequences and confirmation",
+        "reason": "Also non-discriminating: both pass. It is close to free for any document that ends with a recommendation, since 'consequences' and 'confirmation' can be satisfied by scattered prose (old_skill has no Consequences section but earns the pass through cost-model findings, the maintenance ceiling and phase gates). If the intent is a structured decision record, name what must appear (e.g. consequences the team takes on, plus a named measurement and a review date)."
+      },
+      {
+        "reason": "Assertion 1's 'with a row' is genuinely ambiguous — a row in a prior-decisions table, or a row in the tradeoff table? with_skill passes on the former for AWS while explicitly declining the latter. Worth pinning down, because the two readings give different verdicts on the same document."
+      },
+      {
+        "reason": "No assertion checks the shared element the prompt hides most effectively: that all three options assume a database at all for a read-only monthly reference file. with_skill found it and added option G (≈ USD 53/month, the cheapest row); old_skill found the adjacent in-process-index option (D3) as well. An assertion rewarding an option that removes the database — or more generally, an option outside the 2x2 the requester implied — would test the 'hidden shared decision' the eval is named for more directly than assertion 1 does."
+      },
+      {
+        "reason": "No assertion checks internal consistency of the cost claims, and this is where a wrong answer would be costly. Both documents assert 'cost does not discriminate between the three options', which is the load-bearing finding; only one of them shows arithmetic that can be checked (with_skill's does check out; old_skill's line items check out but its Context asserts the USD 4,000 is 'pure variable cost' while its own A3 says it 'could equally be a flat enterprise licence'). An assertion that the cost figures be derivable and internally consistent would catch that."
+      }
+    ],
+    "overall": "Assertions 3, 4, 5 and 6 are the discriminating ones in this pair and they held up well — each failed old_skill for a reason visible in the text (no date on the blocking legal question, an unlabelled 100 ms target, an unlabelled USD 4,000, a solution-named title). Assertions 2 and 7 are passed by both and carry little signal. Assertion 1 discriminates but only because of the strict reading of 'prior decision with a row'; it would benefit from saying which table."
+  }
+}

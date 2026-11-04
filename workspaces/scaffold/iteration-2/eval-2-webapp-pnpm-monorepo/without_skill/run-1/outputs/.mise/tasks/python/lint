@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Lint and type-check the API"
+#MISE dir="packages/api"
+set -e
+ruff check .

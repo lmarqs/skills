@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Build the documentation site with mkdocs"
+set -e
+mkdocs build

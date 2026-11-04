@@ -1,0 +1,30 @@
+{
+  "expectations": [
+    {
+      "text": "Finds both task sources: the beads epic and tasks/prd.json",
+      "passed": true,
+      "evidence": "'Beads epic e4-old-uuo \"Billing export\"' and 'tasks/prd.json \"Invoice PDF rendering\"'"
+    },
+    {
+      "text": "Asks which source to run, naming both, instead of picking one silently",
+      "passed": true,
+      "evidence": "'Blocker 1: two task sources ... Which one should run? I won't pick'; reply with '(a) which scope'"
+    },
+    {
+      "text": "Does not start ralph-tui",
+      "passed": true,
+      "evidence": "'Nothing started yet'; actions: 'ralph-tui was not started'"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, no beads changed)",
+      "passed": true,
+      "evidence": "actions step 11: 'git status --porcelain | wc -l' = 0; 'No project files changed'"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  }
+}

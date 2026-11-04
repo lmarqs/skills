@@ -1,0 +1,99 @@
+{
+  "expectations": [
+    {
+      "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints, prior decisions or givens in a section separate from the requirements",
+      "passed": false,
+      "evidence": "Three of the four are recorded outside the requirements, in '§3 What was asked, and how it is classified': Kafka as 'Constraint C1, not a requirement', AWS as 'Constraint C2', the coverage gate as 'Not architecturally relevant — an engineering standard, tracked in CI' (and §4 confirms 'Dropped from the drivers: 90% test coverage'). The API standard is not: the classification table records it as '| 2 | Endpoints follow the company API standard | **Requirement N5** (architecturally relevant) | A public contract is expensive to change ... Passes the *hard to reverse* test.' and §4 lists it among the non-functional requirements — 'N5 — Endpoints follow the company API standard (C2/item 2): resource naming, pagination shape, filter syntax, error envelope, auth.' So one of the four items the assertion names is recorded as a requirement, not as a constraint, prior decision or given."
+    },
+    {
+      "text": "Each of those items carries a source (who or what imposed or decided it)",
+      "passed": false,
+      "evidence": "Only Kafka is attributed: 'C1 — Kafka is the event transport. Decided by the platform team.' AWS is given its rationale but no decider ('C2 — Runs on AWS. Everything else runs there; a second cloud would add a network boundary...'), which I am reading as a provenance statement (the existing estate) and letting stand. The coverage gate carries no attribution at all — 'an engineering standard, tracked in CI' classifies the item without saying who set 90% or who could change it. The API standard likewise names no author or owning body; the nearest thing is the owner column of an open question, '| Q2 | Where is the company API standard ... | API governance |', which attributes the question rather than the standard. A reader cannot tell who to approach to challenge either item."
+    },
+    {
+      "text": "Each of those items carries an indication of the cost or difficulty of challenging or reversing it",
+      "passed": false,
+      "evidence": "Three of four are covered. Kafka: §7 gives the cost of the constraint on this problem and 'What would reopen it: if topic onboarding blocks Phase 2 for more than about two weeks, or if the platform team confirms that no second consumer is planned within a year ... it is worth asking them to reconsider — cheaply, because Phase 1 ships without the topic'. AWS: 'a second cloud would add a network boundary, a second security model, and a second on-call surface for no benefit'. API standard: 'A public contract is expensive to change once compliance and a future UI depend on it. Passes the *hard to reverse* test.' The coverage gate has none. The only adjacent text is 'It does not force a component, a boundary, or an integration to exist; the design is identical at 90% and at 70%', which speaks to the architecture's insensitivity to the number, not to what challenging or reversing the gate would cost; §9 only restates that it is 'enforced in CI'."
+    },
+    {
+      "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+      "passed": true,
+      "evidence": "Absent from F1-F5 and N1-N10. Recorded in §2 Out of scope: '**A browsing UI.** The user named it as a nice-to-have; it is deferred deliberately (§9, Phase 4)', classified in §3 as '**Non-goal for v1**, with a design obligation', and reappears only as launch Phase 4. §4 closes with 'Dropped from the drivers: ... and the browsing UI (§2, out of scope)'."
+    },
+    {
+      "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+      "passed": true,
+      "evidence": "Both halves are done. §3: '\"It should be fast\" — **Not a requirement as stated** — replaced by N1, N2, N3, N4 ... \"Fast\" hides the decision instead of making it.' The replacements are quantified: 'N1 — Write-path overhead <= 10 ms p95', 'N2 — Freshness: an event is queryable within 60 s p95', 'N3 — Interactive query <= 2 s p95 ... Cold-window queries ... asynchronous, <= 15 min', 'N4 — Export: 1,000,000 rows in <= 15 min'. All four are labeled as assumption A4 ('these are *proposed* budgets for compliance to confirm, not measured or agreed ones')."
+    },
+    {
+      "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+      "passed": true,
+      "evidence": "Not among N1-N10. §3 classifies it '**Not architecturally relevant** — an engineering standard, tracked in CI ... Kept as a delivery gate in §9, out of the drivers'; §4 states '**Dropped from the drivers:** 90% test coverage (an engineering standard, enforced in CI — §9)'; it recurs only as a §9 delivery gate."
+    },
+    {
+      "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated and the compliance role named",
+      "passed": true,
+      "evidence": "F3 names the role and states the objective inside the requirement: '**F3 — Structured query by the compliance team.** They must be able to filter by actor, action type, entity type + entity id, and time range, in any combination, and page through the results — without engineering assistance and without writing SQL.' The derivation is explicit — §3 records the closing sentence as '**The requirement** (F1-F4, N1-N4) ... it is the only item that would still matter if all the others were withdrawn' — and §2 states the goal it serves: 'Every action taken in the admin panel must land in a durable, tamper-evident store that the compliance team can query themselves, without engineering in the loop.' F4 (bulk export 'so compliance can attach it to a case file or hand it to an external auditor') is derived the same way. The document has no goals table, so the goal is carried in the requirement sentence and the problem statement rather than in an explicit traced link; the assertion's words do not require the latter."
+    },
+    {
+      "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+      "passed": true,
+      "evidence": "§3 is exactly this: a six-row table with columns '# | As stated | Classified as | Why', introduced by 'The request arrived as six numbered items plus a closing sentence. The closing sentence is the actual requirement; several of the numbered items are not requirements at all. Sorting this out is the first piece of architectural work ... three of the six items would otherwise silently decide the design for us.' The reply points the reader at it first: 'Read §3 first — I reclassified most of what you sent'."
+    },
+    {
+      "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+      "passed": true,
+      "evidence": "Passes on substance, in §7 rather than in the §6 tables. §7 argues both sides and names the no-broker design as a live option: 'the delivery guarantee F1 needs is supplied by the outbox and the idempotent write, not by the broker. What Kafka adds is a schema contract, a DLQ, a consumer group, offset semantics, a partitioning-key decision, and a second team's onboarding process, for a stream assumed at roughly 6 events/second ... For a single-producer, single-consumer path, the simplest design that meets every requirement in §4 is outbox -> worker -> Aurora + S3, with no broker at all', followed by 'What would reopen it' with two named triggers. §6 also rejects the naive Kafka shape ('A2 — Produce to Kafka directly from the request path') on requirements. So Kafka is not treated as the only option. Caveat recorded under assertion 10: the non-Kafka option never enters the alternatives analysis, whose transport dimension is titled '### Dimension D — Kafka flavour (within C1)'."
+    },
+    {
+      "text": "Where an alternative conflicts with a stated given, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+      "passed": false,
+      "evidence": "The given narrows the option set instead of being priced inside an option. The transport dimension of the alternatives analysis is scoped by the constraint on its face — '### Dimension D — Kafka flavour (within C1)' — and its three rows (D1 reuse the platform MSK cluster, D2 dedicated MSK Serverless, D3 self-operated provisioned MSK) are all Kafka, so the one option that conflicts with C1 gets no row and therefore no pros/cons/risk/impact/probability/mitigation/contingency treatment while every other option in §6 gets one. §7 opens from acceptance rather than from analysis — 'C1 is accepted, and this section exists so that acceptance is *informed* rather than silent' — and §8 records it as settled by ownership rather than by weighing: '**C1 (Kafka) belongs to the platform team and is taken as given**'. What §7 prices is the cost of honouring the constraint and of asking the platform team to revisit it; what it never does is carry the conflict as a cost attached to an evaluated alternative. (No option in §6 conflicts with C2/AWS, so AWS is untested by this assertion here.)"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 4,
+    "total": 10,
+    "pass_rate": 0.6
+  },
+  "execution_metrics": {
+    "output_chars": 56528
+  },
+  "timing": {
+    "total_tokens": 82188,
+    "duration_ms": 378587,
+    "total_duration_seconds": 378.6
+  },
+  "claims": [
+    {
+      "claim": "\"Amazon QLDB was placed on an end-of-support path, which would disqualify it as the foundation of a seven-year retention obligation\"",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Consistent with my knowledge of AWS's QLDB end-of-support announcement, but I could not check it in this environment. The document handles it correctly regardless: it is labeled in place as '**Inference, needs verification before review closes (Q6):**', routed to an open question, and the reply repeats the caveat ('That is **inference from memory, not verified**'). Not load-bearing — the recommendation stands on Object Lock plus a hash chain."
+    },
+    {
+      "claim": "Storage sizing: \"~1 GB/day raw -> ~350 GB/year -> ~380 GB for the hot window\" from A1 (500,000 actions/day at ~2 KB) and A5 (13-month hot window)",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Arithmetic checks out and is internally consistent: 500,000 x 2 KB = ~1 GB/day; ~350 GB/year at that rate; 350 x 13/12 = 379 GB, matching the stated ~380 GB. Both inputs are labeled Low-confidence assumptions."
+    },
+    {
+      "claim": "\"every number in the RFC is a labelled guess\" (reply), backed by the A1-A9 table",
+      "type": "quality",
+      "verified": true,
+      "evidence": "The load-bearing numbers are all traced to a labeled assumption — latency budgets to A4, volume and event size to A1/A2, retention to A5, sizing to A1/A5 — and each assumption carries a confidence rating and a settling question in §11. The §10 roadmap estimates are unlabeled but are explicitly caveated as 'rough'. The one number stated without an assumption label, the MSK Serverless per-cluster-hour charge, is flagged in the table itself as '**pricing unverified — check before deciding**'."
+    },
+    {
+      "claim": "\"Requirements I added that you didn't ask for. Three, and I'd defend all three\" (F5 tamper evidence, N6 provable completeness, N7 durability over availability)",
+      "type": "process",
+      "verified": true,
+      "evidence": "All three appear in §4 and are disclosed as additions in the reply and inside the document ('This is the requirement that most shapes the design, and it is the one nobody asked for' for N6). N7's cost is stated against itself in §8 ('The strongest objection to this decision, stated plainly: it puts the audit write inside the admin panel's business transaction'), so the additions are argued rather than asserted."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  }
+}

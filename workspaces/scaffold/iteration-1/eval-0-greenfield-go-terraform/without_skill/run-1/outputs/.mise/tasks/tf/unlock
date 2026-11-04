@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#MISE description="Unlock Terraform state (infra/)"
+#USAGE arg "lock-id" help="Lock ID"
+
+set -ex
+
+cd "${MISE_PROJECT_ROOT}/infra"
+
+LOCK_ID="$usage_lock_id"
+
+echo "Unlocking: $LOCK_ID"
+
+terraform force-unlock "$LOCK_ID"

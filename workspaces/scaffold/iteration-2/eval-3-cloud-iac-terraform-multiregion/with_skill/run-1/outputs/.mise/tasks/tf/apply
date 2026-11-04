@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#MISE description="Apply Terraform changes for a module (plan + confirm first)"
+#USAGE arg "<module>" help="Module directory under modules/ (global, sa-east-1, us-east-1)"
+#USAGE flag "--auto-approve" default="false" help="Skip the confirmation prompt (use only in CI)"
+set -e
+source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+
+MODULE_DIR="modules/$usage_module"
+
+if [ "$usage_auto_approve" = "true" ]; then
+  terraform -chdir="$MODULE_DIR" apply -auto-approve
+  exit 0
+fi
+
+# Careful path: produce a saved plan, show it, and require an explicit confirmation
+# before anything changes. Applying the saved plan guarantees we apply exactly what was shown.
+PLAN_FILE="$(mktemp -t tfplan.XXXXXX)"
+trap 'rm -f "$PLAN_FILE"' EXIT
+
+terraform -chdir="$MODULE_DIR" plan -out="$PLAN_FILE"
+
+printf '\nApply this plan to module %s? Type "yes" to continue: ' "$usage_module"
+read -r reply
+if [ "$reply" != "yes" ]; then
+  echo "Aborted — nothing was applied."
+  exit 1
+fi
+
+terraform -chdir="$MODULE_DIR" apply "$PLAN_FILE"

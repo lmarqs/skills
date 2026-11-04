@@ -1,0 +1,62 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists with a [tools] section",
+      "passed": true,
+      "evidence": "/home/lmarqs/Work/skills/workspaces/scaffold/iteration-1/eval-0-greenfield-go-terraform/with_skill/run-1/outputs/mise.toml"
+    },
+    {
+      "text": "mise.toml has NO inline [tasks]",
+      "passed": true,
+      "evidence": "none"
+    },
+    {
+      "text": "go tasks build/test/lint/fmt exist as files",
+      "passed": true,
+      "evidence": "go/=['build', 'fmt', 'lint', 'setup', 'test']"
+    },
+    {
+      "text": "tf tasks init/plan/apply/fmt/check exist as files",
+      "passed": true,
+      "evidence": "tf/=['apply', 'check', 'fmt', 'init', 'plan']"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": true,
+      "evidence": "11 ok"
+    },
+    {
+      "text": "aws-auth sourced helper present",
+      "passed": true,
+      "evidence": "found"
+    },
+    {
+      "text": "no leaked account id / medprev codeartifact domain",
+      "passed": true,
+      "evidence": "clean"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": true,
+      "evidence": "['.claude/skills/backend-service-mise/SKILL.md']"
+    },
+    {
+      "text": "command-skill exists for tf:apply",
+      "passed": true,
+      "evidence": "cmds=['.claude/commands/tf-apply/SKILL.md', '.claude/commands/tf-plan/SKILL.md']"
+    },
+    {
+      "text": "no command-skill for trivial tasks (lint/fmt/etc.)",
+      "passed": true,
+      "evidence": "none"
+    }
+  ],
+  "pass_count": 10,
+  "total": 10,
+  "summary": {
+    "pass_rate": 1.0,
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  }
+}

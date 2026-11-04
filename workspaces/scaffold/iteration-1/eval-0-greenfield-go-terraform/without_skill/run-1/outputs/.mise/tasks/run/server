@@ -1,0 +1,4 @@
+#!/bin/bash
+#MISE description="Run the HTTP API server locally"
+
+go run ./cmd/api/

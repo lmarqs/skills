@@ -1,0 +1,2 @@
+# PlatformIO core is a Python tool — installed into the project venv by python:setup.
+platformio==6.1.16

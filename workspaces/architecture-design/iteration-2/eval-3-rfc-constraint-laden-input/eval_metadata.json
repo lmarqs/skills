@@ -1,0 +1,17 @@
+{
+  "eval_id": 3,
+  "eval_name": "rfc-constraint-laden-input",
+  "prompt": "Write an RFC for the new audit-log service. Here are the requirements: (1) must use Kafka, the platform team already decided that; (2) endpoints follow our company API standard; (3) it should be fast; (4) test coverage above 90%; (5) must run on AWS because that's where everything else is; (6) nice to have: a UI for browsing the logs. Every action taken in the admin panel has to end up queryable by our compliance team, they currently ask us to grep production logs by hand.",
+  "assertions": [
+    "Records Kafka, the company API standard, the coverage gate and AWS as constraints, prior decisions or givens in a section separate from the requirements",
+    "Each of those items carries a source (who or what imposed or decided it)",
+    "Each of those items carries an indication of the cost or difficulty of challenging or reversing it",
+    "The 'nice to have' log-browsing UI does not appear as a requirement",
+    "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+    "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+    "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated and the compliance role named",
+    "The document explicitly tells the reader which of the user's items were reclassified and why",
+    "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+    "Where an alternative conflicts with a stated given, the conflict is recorded as a cost rather than used to exclude the option before analysis"
+  ]
+}

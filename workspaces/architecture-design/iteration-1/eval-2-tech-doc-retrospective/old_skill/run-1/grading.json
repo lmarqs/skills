@@ -1,0 +1,96 @@
+{
+  "expectations": [
+    {
+      "text": "Context section covers the situation before, the motivations for the change, and the scope",
+      "passed": true,
+      "evidence": "document.md has `## Context` with three subsections: `### Prior situation` (\"previously ran as a single monolithic process, scheduled by cron, inside one pod\"), `### Motivations for the change`, and `### Scope` (\"In scope (as described)\" / \"Out of scope\")."
+    },
+    {
+      "text": "Claims about the prior situation are either sourced (file, dashboard, ticket, metric) or explicitly labelled as assumed",
+      "passed": true,
+      "evidence": "The base fact (monolithic cron-in-a-pod) is presented as the confirmed input per the doc's own framing note (\"Treat unmarked statements as the confirmed input\"). Every elaboration beyond that input is explicitly tagged, e.g. the pains list is prefixed \"[inferred \u2014 confirm which of these actually motivated this migration, and add any that aren't listed]\", and Motivations is prefixed \"[inferred \u2014 confirm against the team's actual reasoning]\". No unmarked invented claim about the prior state was found."
+    },
+    {
+      "text": "Architecture section lists the components with their responsibilities (EventBridge, per-channel Lambdas, etc.)",
+      "passed": true,
+      "evidence": "The `### Components` table lists Event producer(s), EventBridge event bus, EventBridge rule(s), Lambda \u2014 email/push/SMS handlers, Dead-letter queue(s), and Observability, each with a Responsibility cell (e.g. \"Route each event to exactly one target Lambda based on a notification-type attribute\")."
+    },
+    {
+      "text": "Includes at least one step-by-step numbered flow of the event-driven process",
+      "passed": true,
+      "evidence": "\"Step by step, [inferred shape...]\" followed by a numbered list 1-5, from \"A producer service decides a user needs to be notified...\" through \"On failure, EventBridge/Lambda's built-in retry behavior applies...\"."
+    },
+    {
+      "text": "Has a risks-and-mitigations section",
+      "passed": true,
+      "evidence": "`## Risks and mitigations` contains a 5-row table with columns Risk | Impact | Probability | Mitigation | Contingency, e.g. the DLQ/silent-failure row and the provider-throttling row."
+    },
+    {
+      "text": "Has a lessons-learned section",
+      "passed": false,
+      "evidence": "Normalized by a single judge across both runs of this eval, because the two per-run graders applied opposite standards to identical section shapes. Standard applied: a lessons-learned section must contain at least one lesson already learned; a header plus a refusal to fabricate plus open questions for the team is a placeholder. This document's section reads '**Not filled in.** ... I'm not going to invent plausible-sounding \"lessons\"' followed only by five question bullets, so it fails, as does the other run's equivalent section."
+    },
+    {
+      "text": "Defines the domain terms and acronyms it uses, in a glossary or inline at first use",
+      "passed": true,
+      "evidence": "Normalized by the same single judge. Neither run has a glossary, so the test is whether the load-bearing acronym both documents use repeatedly (DLQ) is expanded at first use. This document expands it in the components table, 'Dead-letter queue(s) | Capture events/invocations that exhaust retries', before abbreviating it later, so it passes; the other run never expands it."
+    },
+    {
+      "text": "Includes a version-history table (version, date, author, description)",
+      "passed": true,
+      "evidence": "`## Version history` table with header `| Version | Date | Author | Description |` and one row: `| 1.0 | 2026-09-08 | Lucas Marques (drafted with Claude; not yet reviewed by the implementing team) | Initial draft from a verbal description... |`."
+    },
+    {
+      "text": "Written entirely in English",
+      "passed": true,
+      "evidence": "Both document.md and reply.md are written entirely in English; no non-English text found."
+    },
+    {
+      "text": "Frames the document retrospectively (documents what was built) rather than proposing a choice between alternatives",
+      "passed": true,
+      "evidence": "Title is \"Notifications Service \u2014 From Cron-in-a-Pod to Event-Driven Lambda Fan-Out\"; the system is described as already migrated and \"already in production\" per the prompt, and the doc documents the resulting architecture rather than weighing competing designs. No alternatives-comparison section is present."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 1,
+    "total": 10,
+    "pass_rate": 0.9
+  },
+  "timing": {
+    "total_duration_seconds": 182.2
+  },
+  "claims": [
+    {
+      "claim": "The document treats itself as a draft requiring team review rather than an authoritative record.",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Header states \"Status: Draft \u2014 pending review by the team that ran the migration\" and the closing section \"Open items before this document is authoritative\" lists open questions."
+    },
+    {
+      "claim": "The 'Lessons learned' section contains no actual lessons from the migration.",
+      "type": "factual",
+      "verified": true,
+      "evidence": "The section text is \"**Not filled in.**\" followed by an explanation that the author had no migration notes or incident data to draw from, plus a list of prompts for a human to answer."
+    },
+    {
+      "claim": "Key provider acronyms used in the Architecture section (SES, SNS, FCM, APNs) are never expanded or defined.",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Component table rows for the push and SMS Lambdas list \"SNS, FCM, or APNs\" and \"SNS or a carrier gateway like Twilio\" without spelling any of them out, and no glossary exists elsewhere in the document."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Has a lessons-learned section",
+        "reason": "This passes on section-header presence alone. The actual content here is an admission that there are no lessons to report, plus a list of questions for a human \u2014 a document with zero genuine retrospective substance still satisfies this assertion. A more discriminating version would require at least one concrete lesson/finding attributed to the migration (or explicitly accept 'not available' as a valid but flagged outcome, which is arguably what happened here \u2014 worth deciding intentionally)."
+      },
+      {
+        "reason": "No assertion checks whether the document is actually usable for its stated purpose: the user asked for something so 'new folks on the team can understand the architecture and maintain it.' In this run, most of the Architecture section \u2014 component names, providers, DLQ/retry configuration, observability stack, the entire dynamic flow \u2014 is marked [inferred] or [not verified \u2014 confirm]. The document is honest about its own limitations (a legitimate response given only a one-paragraph prompt with no supporting artifacts), but no assertion measures whether the deliverable functions as an onboarding/maintenance reference versus a skeleton-with-caveats. Worth an explicit assertion (or an accepted caveat) about how much of the core content is confirmed vs. placeholder."
+      }
+    ],
+    "overall": "9 of 10 pass with genuine substance behind each pass (real subsections, a real numbered flow, a real 5-column risk table). The one failure (glossary/acronyms) is clear-cut: SES, SNS, FCM, and APNs are used but never defined anywhere. The two suggestions above flag a shallow assertion (lessons-learned presence-only) and an uncovered but important outcome (the document's heavy reliance on inferred/unverified placeholders throughout the core Architecture section, which the eval's source material \u2014 a single terse prompt with no supplied artifacts \u2014 arguably forced).",
+    "normalization_note": "Two assertions were re-judged by one grader across both runs of this eval to remove grader variance. The verdicts swapped but the total did not change: 9 of 10."
+  }
+}

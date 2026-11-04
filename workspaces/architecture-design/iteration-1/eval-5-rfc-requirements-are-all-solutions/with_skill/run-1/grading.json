@@ -1,0 +1,91 @@
+{
+  "expectations": [
+    {
+      "text": "The document states explicitly that the items the user listed are design choices rather than requirements",
+      "passed": true,
+      "evidence": "Context section: 'None of these is a requirement in the architectural sense — a requirement is a constraint on the *problem*... not a prescription of the *solution*.' And: 'This document treats those five items as candidate solutions to evaluate, not as given constraints — each is carried into the Design and Tradeoff analysis sections and judged against the requirements below, exactly like any other alternative.'"
+    },
+    {
+      "text": "None of the saga pattern, microservices, Redis caching, gRPC or feature flags appears in the requirements section as a requirement",
+      "passed": true,
+      "evidence": "The Requirements section (FR1-FR4, NFR1-NFR4, lines 59-98) contains only problem-level statements (explicit steps, failure attribution, no stranded side effects, automatic recovery, 100% attribution, reduced defect rate, incremental/reversible delivery, no consistency regression). None of the five named technologies is used as a requirement; they are explicitly deferred to the Design and Tradeoff sections instead."
+    },
+    {
+      "text": "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+      "passed": false,
+      "evidence": "NFR2 is the requirement derived from the 2% figure ('Reduced defect-driven failure rate. The share of the ~2% failure rate attributable to system defects... should drop measurably after this refactor ships.') but the document explicitly withholds a target: 'No numeric target is set here because the cause breakdown of the current 2% is not available... Setting a target... before that breakdown exists would be a number nobody has verified.' A goal is present; a target is explicitly and deliberately absent, so the assertion's two-part bar (target AND goal) is not met by any requirement tied to the 2% figure."
+    },
+    {
+      "text": "At least one requirement is derived from the inability to identify which checkout step failed, expressed measurably",
+      "passed": true,
+      "evidence": "NFR1 — '100% attribution. Of checkout attempts that fail, 100% must be attributable to a specific step, within the existing observability toolchain, without a code change or ad hoc log-grepping. Today this is effectively 0%...' This gives both a measurable target (100%, vs. today's 0%) and is explicitly derived from the attribution problem."
+    },
+    {
+      "text": "The user's proposed technologies appear in the design or the tradeoff analysis, each tied to the requirement it would serve",
+      "passed": true,
+      "evidence": "Design section maps each technology to a dimension tied to specific requirements: Dimension 1 ties the saga pattern to FR2/FR3/FR4; Dimension 2 ties microservices splitting to independent-scaling/ownership drivers (evaluated against the same FRs/NFRs); Dimension 3 ties gRPC to FR2/NFR1 ('Evaluated against FR2... and NFR1'); Dimension 4 ties Redis to the FR3 idempotency/state-store need; Dimension 5 ties feature flags to NFR3. Each also reappears as a labeled row in the Tradeoff table (e.g., '[Dim 3 — protocol, only if split] gRPC between services, as requested')."
+    },
+    {
+      "text": "At least one of the user's proposed technologies is questioned, deferred, or shown not to be needed for the stated problem",
+      "passed": true,
+      "evidence": "The decision explicitly defers three of the five: 'do **not** commit to a physical microservices split, gRPC, or Redis as part of this phase.' Redis is additionally shown not needed for its most literal reading: the 'Redis as a general checkout-time read cache' row states 'Not connected to FR2/FR3/FR4 (attribution/reliability) at all — solves a latency problem that was never stated as a requirement here.'"
+    },
+    {
+      "text": "Where information is missing, the document either labels an assumption or asks a focused question with a recommended answer",
+      "passed": true,
+      "evidence": "The 'Assumptions and open questions' section lists five explicit assumptions (e.g., 'Current checkout architecture is unknown... This document assumes checkout exists today as some form of single deployable...'), each with its implication stated. The Related documents section also lists what's missing and flags that 'several items below are stated as explicit assumptions rather than verified facts.'"
+    },
+    {
+      "text": "Every requirement in the document carries a goal and a stated way to prove it is met",
+      "passed": false,
+      "evidence": "Only NFR1 states an explicit verification method: 'Target should be validated by deliberately failing each step in a staging environment and confirming attribution works, not just estimated.' The other seven requirements state a goal but no verification method: FR1 ('Checkout must be modeled as an ordered sequence of named, individually observable steps') has no stated way to confirm it's met; FR3 ('Every side-effecting step must have a defined compensating action') has no stated proof procedure; FR4, NFR2, NFR3, and NFR4 likewise state only the goal/constraint with no accompanying verification method. The assertion requires this for 'every requirement,' and 7 of 8 lack it."
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 2,
+    "total": 8,
+    "pass_rate": 0.75
+  },
+  "timing": {
+    "total_duration_seconds": 260.5
+  },
+  "claims": [
+    {
+      "claim": "The document reclassifies the user's five named technologies as candidate solutions rather than requirements",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Context section and Design section intro both state this explicitly; each technology is carried through as a labeled dimension/tradeoff row."
+    },
+    {
+      "claim": "NFR1's 100% attribution target is validated by a concrete method",
+      "type": "process",
+      "verified": true,
+      "evidence": "'Target should be validated by deliberately failing each step in a staging environment and confirming attribution works, not just estimated.'"
+    },
+    {
+      "claim": "All requirements in the document carry a stated verification method",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Only NFR1 has one; FR1-FR4, NFR2-NFR4 state goals/constraints without a stated way to confirm they were met."
+    },
+    {
+      "claim": "The decision defers microservices, gRPC, and Redis rather than rejecting them outright",
+      "type": "factual",
+      "verified": true,
+      "evidence": "'If, after Phase 1 below ships and is measured, a genuine scaling or ownership need for splitting checkout into services is confirmed, this document's Dimension 1 design... is built to carry over unchanged into a split topology.'"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "At least one requirement is derived from the 2% checkout failure rate, with a target and a goal",
+        "reason": "This assertion penalizes exactly the behavior assertion 7 rewards. The document declines to set a numeric target for NFR2 because the cause breakdown of the 2% isn't available, and says so explicitly rather than inventing a number — which is the correct, careful move the skill is designed to encourage. A weaker run that fabricated an unverified target (e.g., '<0.5% system-caused failures') with no more evidence than this run had would pass assertion 3 while being less honest. Consider rephrasing to accept a requirement that either has a numeric target or explicitly defers the target pending named missing data (which assertion 7 already checks for) — as currently worded, assertion 3 and assertion 7 pull in opposite directions on the same requirement."
+      },
+      {
+        "reason": "No assertion checks whether the document's own recommendation is actually justified by the stated requirements rather than by unstated preference — e.g., whether the 'decision' section ties its verdict back to specific FR/NFR IDs. This run does so cleanly ('FR2/FR3/FR4 and NFR1 — the actual stated problem — are fully addressed by Dimension 1 regardless of topology'), which is a meaningful quality signal no current assertion captures."
+      }
+    ],
+    "overall": "6 of 8 pass. Both failures are substantive, not pedantic: assertion 8 catches a real gap (7 of 8 requirements lack any stated verification method, only NFR1 has one), and is a good discriminating assertion. Assertion 3, however, is in tension with assertion 7 — the document's refusal to invent a target for NFR2 is the more rigorous choice, and the assertion as worded fails the more honest document while it would reward a less careful one that fabricated a number. Worth reconciling those two assertions."
+  }
+}

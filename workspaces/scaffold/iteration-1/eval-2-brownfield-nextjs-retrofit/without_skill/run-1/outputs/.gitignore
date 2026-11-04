@@ -1,0 +1,14 @@
+# Local environment (loaded by mise) — never commit real values
+.env.yaml
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# mise local state
+.mise.local.toml

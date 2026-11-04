@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Start the frontend dev server (Next.js)"
+#MISE dir="packages/frontend"
+set -e
+pnpm run dev

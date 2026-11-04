@@ -1,0 +1,13 @@
+# mise / local env
+.env.yaml
+.venv/
+
+# PlatformIO
+.pio/
+
+# Python build tooling
+__pycache__/
+*.pyc
+
+# Generated C headers (regenerate with: mise run assets:headers)
+include/generated/

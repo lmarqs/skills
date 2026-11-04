@@ -1,0 +1,113 @@
+# mise configuration for the firmware project.
+#
+# Tasks wrap PlatformIO so you can build, flash, and monitor either board, and
+# regenerate the C headers from binary assets.
+#
+# Board selection
+# ---------------
+# Every board-aware task reads the BOARD environment variable, which must be one
+# of the PlatformIO environments declared in platformio.ini:
+#
+#     esp01s   ESP-01S (ESP8266)
+#     esp32    ESP32 dev board
+#
+# It defaults to esp32. Override it per invocation:
+#
+#     BOARD=esp01s mise run build
+#     BOARD=esp01s mise run flash
+#     BOARD=esp32  mise run monitor
+#
+# There are also convenience aliases that pin the board for you:
+#
+#     mise run build:esp01s
+#     mise run flash:esp32
+#     mise run monitor:esp01s
+#
+# Quickstart
+# ----------
+#     mise run gen-headers   # assets/*.bin -> include/generated/*.h
+#     mise run build         # compile (defaults to esp32)
+#     mise run flash         # compile + upload
+#     mise run monitor       # open the serial monitor
+
+[env]
+# Default board when BOARD is not set in the environment.
+BOARD = "{% raw %}{{ env.BOARD | default(value='esp32') }}{% endraw %}"
+# Serial baud rate; matches monitor_speed in platformio.ini.
+MONITOR_SPEED = "115200"
+
+[tools]
+# Pin the Python used by the build tooling. PlatformIO itself is expected to be
+# available on PATH (e.g. `pipx install platformio`).
+python = "3.12"
+
+# ---------------------------------------------------------------------------
+# Asset -> C header generation
+# ---------------------------------------------------------------------------
+[tasks.gen-headers]
+description = "Convert binary files in assets/ into C headers under include/generated/"
+run = "python3 tools/bin2header.py --assets-dir assets --out-dir include/generated"
+sources = ["assets/**/*", "tools/bin2header.py"]
+outputs = ["include/generated/**/*.h"]
+
+[tasks.clean-headers]
+description = "Remove generated C headers"
+run = "rm -rf include/generated"
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+[tasks.build]
+description = "Compile firmware for the selected board (BOARD=esp01s|esp32)"
+run = "pio run -e $BOARD"
+
+[tasks."build:esp01s"]
+description = "Compile firmware for the ESP-01S"
+env = { BOARD = "esp01s" }
+run = "pio run -e esp01s"
+
+[tasks."build:esp32"]
+description = "Compile firmware for the ESP32"
+env = { BOARD = "esp32" }
+run = "pio run -e esp32"
+
+# ---------------------------------------------------------------------------
+# Flash / upload
+# ---------------------------------------------------------------------------
+[tasks.flash]
+description = "Build and upload firmware to the selected board (BOARD=esp01s|esp32)"
+run = "pio run -e $BOARD -t upload"
+
+[tasks."flash:esp01s"]
+description = "Build and upload firmware to the ESP-01S"
+env = { BOARD = "esp01s" }
+run = "pio run -e esp01s -t upload"
+
+[tasks."flash:esp32"]
+description = "Build and upload firmware to the ESP32"
+env = { BOARD = "esp32" }
+run = "pio run -e esp32 -t upload"
+
+# ---------------------------------------------------------------------------
+# Serial monitor
+# ---------------------------------------------------------------------------
+[tasks.monitor]
+description = "Open the serial monitor for the selected board (BOARD=esp01s|esp32)"
+run = "pio device monitor -e $BOARD -b $MONITOR_SPEED"
+
+[tasks."monitor:esp01s"]
+description = "Open the serial monitor for the ESP-01S"
+env = { BOARD = "esp01s" }
+run = "pio device monitor -e esp01s -b $MONITOR_SPEED"
+
+[tasks."monitor:esp32"]
+description = "Open the serial monitor for the ESP32"
+env = { BOARD = "esp32" }
+run = "pio device monitor -e esp32 -b $MONITOR_SPEED"
+
+# ---------------------------------------------------------------------------
+# Convenience
+# ---------------------------------------------------------------------------
+[tasks.clean]
+description = "Remove PlatformIO build artifacts"
+run = "pio run -t clean"

@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "Uses the JSON task file as the source (json tracker) and does not require or point to beads",
+      "passed": false,
+      "evidence": "Option 1 is 'Convert to beads (what my run process supports)'; says it 'can't propose or monitor a run' on the json tracker"
+    },
+    {
+      "text": "Lists the 12 stories in dependency order (a linear chain US-001 to US-012)",
+      "passed": false,
+      "evidence": "Only 'US-001 -> US-002 -> ... -> US-012' with an ellipsis; stories not listed"
+    },
+    {
+      "text": "Flags that the quality gates cannot run in this checkout (toolchain not installed)",
+      "passed": true,
+      "evidence": "'The project can't run its quality gates yet ... The gates will fail until those are added'"
+    },
+    {
+      "text": "Flags that there is no git remote and what that blocks",
+      "passed": true,
+      "evidence": "'No PR can be opened yet. The repo has no git remote'"
+    },
+    {
+      "text": "Flags that the stories' acceptance criteria (\"<title> works\") cannot be checked",
+      "passed": true,
+      "evidence": "'Each one says \"<title> works\" ... A subagent can't tell when ... is done'"
+    },
+    {
+      "text": "States that ralph-tui rewrites tasks/prd.json during the run and what that means for commits or the working tree",
+      "passed": false,
+      "evidence": "No mention that ralph-tui rewrites tasks/prd.json during the run"
+    },
+    {
+      "text": "Does not treat branchName as a branch ralph-tui will create; proposes the branch itself following the project's convention (feat/<topic>) or says why not",
+      "passed": false,
+      "evidence": "Says prd.json's branchName 'should be feat/billing-export' (implies editing the field); never states ralph-tui does not create branchName nor proposes its own branch"
+    },
+    {
+      "text": "Plans to start ralph-tui headless with --prd pointing at the task file (not --epic and not the interactive picker)",
+      "passed": false,
+      "evidence": "No start plan; no --prd or headless command"
+    },
+    {
+      "text": "Presents delivery options without picking, recommending or defaulting to one, and asks the user to choose",
+      "passed": false,
+      "evidence": "No delivery options presented; only 'Delivery can only be \"none\"'"
+    },
+    {
+      "text": "Proposes an iteration budget above 12 and states the headroom",
+      "passed": false,
+      "evidence": "No iteration budget proposed"
+    },
+    {
+      "text": "Sends one plan for confirmation and does not start ralph-tui",
+      "passed": false,
+      "evidence": "Did not start ralph-tui, but sent no run plan; asks the user to pick a route instead"
+    },
+    {
+      "text": "Leaves the project unchanged (no files edited, tasks/prd.json untouched)",
+      "passed": true,
+      "evidence": "actions: 'In the project: none'; final 'git status --short' clean"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 8,
+    "total": 12,
+    "pass_rate": 0.33
+  }
+}

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Compile all packages"
+set -e
+go build ./...

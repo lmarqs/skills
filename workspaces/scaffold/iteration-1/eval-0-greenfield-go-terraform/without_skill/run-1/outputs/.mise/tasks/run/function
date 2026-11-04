@@ -1,0 +1,4 @@
+#!/bin/bash
+#MISE description="Run the Lambda handler locally"
+
+go run ./cmd/lambda/

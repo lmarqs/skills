@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Start the local infra stack (docker compose, detached)"
+set -e
+docker compose up -d

@@ -1,0 +1,2 @@
+# Drop binary assets here (logos, fonts, sound clips, certs...).
+# `mise run assets:headers` turns each into a C header under include/generated/.

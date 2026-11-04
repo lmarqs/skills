@@ -1,0 +1,102 @@
+{
+  "expectations": [
+    {
+      "text": "Records Kafka, the company API standard, the coverage gate and AWS as constraints (or givens) in a section separate from the requirements",
+      "passed": false,
+      "evidence": "Only Kafka and AWS get separate-section treatment, in Context: 'Two constraints are handed down, not decided here: Kafka is mandated by the platform team as the event transport... AWS is mandated as the deployment platform, consistent with the rest of the estate.' The company API standard and the coverage gate never receive equivalent treatment outside the Requirements section — the API standard appears only as 'Related documents' known-gap text and as functional requirement FR-4 ('Query endpoints follow the company API standard'), and the coverage gate appears only inside the Requirements section as 'NFR-6 (given): Automated test coverage > 90%...'. Two of the four required items are recorded as constraints separate from Requirements; two are not."
+    },
+    {
+      "text": "Each constraint carries a source (who or what imposed it)",
+      "passed": false,
+      "evidence": "Kafka has a clear source ('mandated by the platform team'). AWS does not name an actor — 'mandated as the deployment platform, consistent with the rest of the estate' is a rationale, not a 'who'. The company API standard has no attributed source anywhere in the document. The coverage gate is attributed only to 'the requester was explicit about it' (NFR-6 intro text), which is not an organizational source. Source attribution is inconsistent and mostly absent across the four constraints."
+    },
+    {
+      "text": "Each constraint carries an indication of the cost or difficulty of challenging it",
+      "passed": false,
+      "evidence": "No constraint in the document states what it would cost or how hard it would be to challenge it. Kafka: 'This RFC does not evaluate alternatives to Kafka; it evaluates what sits around it' — declares it out of scope with no cost-of-challenging statement. AWS: 'Alternatives are chosen from AWS-native or AWS-compatible services only' — same, no cost statement. The API standard and coverage gate likewise carry no such indication."
+    },
+    {
+      "text": "The 'nice to have' log-browsing UI does not appear as a requirement",
+      "passed": false,
+      "evidence": "The UI is correctly identified as optional in prose ('Out of scope: A browsing UI for compliance. Requested as a \"nice to have.\"') but is then also given a formal requirement slot in the Requirements section itself: '**NFR-8 (nice to have, non-binding):** A UI for browsing audit logs.' It is numbered and formatted identically to the other seven non-functional requirements (NFR-1 through NFR-7) under the '### Non-functional' heading — i.e. it does appear in the enumerated requirements list, only annotated as non-binding rather than omitted from it."
+    },
+    {
+      "text": "'It should be fast' is either turned into a non-functional requirement with a quantified metric and target, or explicitly flagged as not yet a requirement because it has no metric",
+      "passed": true,
+      "evidence": "Split into two quantified, explicitly-flagged-as-assumed NFRs: 'NFR-3 (ingestion latency, assumed): ... Assumed budget: ≤ 10ms added to the admin request's critical path... Flagged assumption — confirm with whoever owns admin-panel latency SLAs.' and 'NFR-4 (query latency, assumed): ... Assumed budget: p95 ≤ 2s for a filtered query over the hot retention window... Flagged assumption — no traffic numbers were provided.'"
+    },
+    {
+      "text": "Test coverage above 90% is not listed as a non-functional requirement of the running system",
+      "passed": false,
+      "evidence": "It is listed verbatim as an NFR: '**NFR-6 (given):** Automated test coverage > 90% on the audit-emission and query-API code paths, including a contract test...' under the '### Non-functional' heading. The document's own intro text argues it 'is a testing target, not by itself an architectural requirement' and 'doesn't shape a component or a boundary,' but then keeps it as NFR-6 anyway 'because the requester was explicit about it' — the reasoning undercuts the classification but the document still lists it as a non-functional requirement."
+    },
+    {
+      "text": "At least one functional requirement is derived from the compliance-team pain described in the last sentence, with its goal stated",
+      "passed": true,
+      "evidence": "FR-1 and FR-2 are derived directly from it: 'FR-2: The compliance team can query audit records themselves via an API — filter by actor, action type, affected resource, and time range — without engineering involvement and without shell access to production systems or logs.' The Context section states the goal explicitly: 'every action taken in the admin panel must end up in a durable, structured record that the compliance team can query themselves — without shell access to production and without engineering in the loop.'"
+    },
+    {
+      "text": "The document explicitly tells the reader which of the user's items were reclassified and why",
+      "passed": true,
+      "evidence": "The Requirements section opens with: 'The requester's list mixed hard constraints, a vague quality bar, a code metric, and the actual functional driver into one flat list. Restated and separated below, with the reclassifications made explicit' followed by named reclassifications for 'It should be fast', 'Test coverage above 90%', and 'The compliance-queryability requirement, buried as a trailing sentence in the request, is promoted to the primary functional requirement' — each with a stated reason."
+    },
+    {
+      "text": "The tradeoff analysis evaluates at least one alternative to Kafka rather than treating the platform team's choice as the only option",
+      "passed": false,
+      "evidence": "The document states outright: 'Kafka and AWS are given, so they are not re-analyzed here' and earlier, 'This RFC does not evaluate alternatives to Kafka; it evaluates what sits around it (topic/schema design, ingestion pattern, downstream store).' The Alternatives analysis table covers only ingestion pattern (direct producer vs. outbox+CDC, both still using Kafka), audit store, and schema management — no messaging/streaming alternative to Kafka itself (e.g. Kinesis, SNS/SQS, RabbitMQ) is analyzed anywhere in the document. This is the exact anti-pattern the grading instructions flag as a fail: declaring Kafka a fixed constraint and analyzing nothing else."
+    },
+    {
+      "text": "Where an alternative conflicts with a stated constraint, the conflict is recorded as a cost rather than used to exclude the option before analysis",
+      "passed": false,
+      "evidence": "The document does the opposite: it pre-filters options rather than analyzing and costing conflicts. 'Alternatives are chosen from AWS-native or AWS-compatible services only' excludes non-AWS options before they ever reach the tradeoff table, and 'This RFC does not evaluate alternatives to Kafka' excludes any non-Kafka transport before analysis. No row in the Alternatives analysis table presents an option that conflicts with a stated constraint (Kafka/AWS) alongside a recorded cost of that conflict — conflicting options are simply never listed."
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 7,
+    "total": 10,
+    "pass_rate": 0.3
+  },
+  "execution_metrics": {
+    "note": "No metrics.json present in outputs/; no transcript available for this run (grading performed from document.md and reply.md only per instructions).",
+    "output_chars": 25236
+  },
+  "timing": {
+    "total_duration_seconds": 210.7
+  },
+  "claims": [
+    {
+      "claim": "The outbox+CDC ingestion pattern prevents the dual-write problem present in a direct Kafka producer call",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Correct and well-argued: the table entry for 'Direct Kafka producer call' identifies the standard dual-write failure mode (DB commits, Kafka publish fails) and the outbox+CDC row correctly identifies transactional atomicity as the fix, which is a standard, sound pattern."
+    },
+    {
+      "claim": "The retention placeholder of 5 years is not a researched figure",
+      "type": "process",
+      "verified": true,
+      "evidence": "Document explicitly self-flags this: 'This RFC assumes a placeholder of 5 years hot+cold retention pending legal/compliance confirmation — this number is a placeholder, not a researched figure' (NFR-7). Honest and correctly labeled as an assumption rather than presented as fact."
+    },
+    {
+      "claim": "Test coverage above 90% is kept as NFR-6 'because the requester was explicit about it'",
+      "type": "process",
+      "verified": true,
+      "evidence": "This is a self-contradiction the document itself surfaces but does not resolve: it argues coverage 'doesn't shape a component or a boundary' and is 'not by itself an architectural requirement,' yet still formally lists it as a non-functional requirement (NFR-6) rather than moving it to a constraints/non-architectural-notes section, which is the outcome assertion 6 and (partly) assertion 1 are checking for."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The 'nice to have' log-browsing UI does not appear as a requirement",
+        "reason": "This is a genuine borderline case worth the eval author's attention: the document correctly treats the UI as non-binding and non-gating in every substantive sense (Out of scope section, Phase 3 placement, reply.md explanation), but still assigns it a formal 'NFR-8' slot inside the enumerated Non-functional requirements list. A model could satisfy the letter of this assertion by moving optional items to a distinct 'nice to have / non-binding' list outside the FR/NFR enumeration instead of inline-annotating an NFR entry. Consider clarifying whether the assertion cares about literal list membership or substantive treatment (gating vs. non-gating), since the current document sits exactly on that line."
+      },
+      {
+        "reason": "An important outcome not covered by any assertion: the document repeatedly and explicitly separates 'given' constraints from assumptions it invented to fill genuine gaps (retention period, traffic volume, the real API standard doc), each flagged as an open question needing sign-off rather than silently assumed. This kind of assumption-hygiene is a strong positive property of the output that no assertion currently rewards or checks."
+      },
+      {
+        "reason": "Assertions 1-3 and 9-10 together point at a single coherent failure mode in this document: it treats Kafka and AWS purely as fixed constraints to route around, never surfacing an organizational source beyond 'the platform team' for Kafka, never stating what it would cost to challenge either constraint, and never analyzing a non-Kafka or non-AWS alternative anywhere (even briefly, to be dismissed with a stated cost). Since five of ten assertions independently detect this same gap, the eval suite is doing its job here, but a future version of the skill should be checked specifically against 'treat the given constraint as unchallengeable and analyze nothing else' as the single highest-value failure mode for this eval."
+      }
+    ],
+    "overall": "3 of 10 assertions pass, and the 7 failures cluster around one real skill gap: fixed constraints (Kafka, AWS, the API standard, the coverage gate) are acknowledged in prose but not handled with the rigor the assertions demand — no consistent source attribution, no cost-of-challenging language, and critically, no alternative-to-Kafka analysis at all in the tradeoff table (the document states outright it will not evaluate one). The two NFRs assertions asked to be excluded from the running-system requirements (the UI and the coverage gate) are both still formally listed as numbered NFRs despite correct-sounding caveats attached to them. The 3 passes (fast->quantified NFRs, compliance-derived FR, explicit reclassification narrative) are genuine, not superficial — each is backed by concrete, quoted document text."
+  }
+}

@@ -1,0 +1,16 @@
+#!/bin/bash
+#MISE description="Lint Go"
+#USAGE arg "<pattern>" help="packages/files to check" default="./..."
+#USAGE flag "--fix" default="false" help="Apply fixes/formatting automatically"
+
+set -e
+
+pattern="${usage_pattern:-./...}"
+
+if [[ "${usage_fix:-false}" == "true" ]]; then
+  golangci-lint fmt --config .golangci.yml
+  golangci-lint run --config .golangci.yml --fix "${pattern}"
+  golangci-lint run --config .golangci.yml "${pattern}"
+else
+  golangci-lint run --config .golangci.yml "${pattern}"
+fi

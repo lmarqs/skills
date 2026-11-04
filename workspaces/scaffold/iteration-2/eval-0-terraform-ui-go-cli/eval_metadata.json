@@ -1,0 +1,15 @@
+{
+  "eval_id": 0,
+  "eval_name": "terraform-ui-go-cli",
+  "prompt": "I'm building a new Go CLI tool \u2014 single Go module, ships as a cross-platform binary. Set me up with mise: build, test, lint, and fmt for day-to-day work, plus a release flow using goreleaser. It's just one Go module so I'd rather have flat task names than a `go:` prefix on everything. Docs get built with mkdocs if that matters.",
+  "assertions": [
+    "mise.toml exists with [tools], no inline [tasks]",
+    "FLAT task names honored: build/test/lint/fmt at top level (no go: prefix)",
+    "every task file follows the contract",
+    "a goreleaser release flow was generated (asked-for niche task)",
+    "project 'mise' house-rules skill generated",
+    "command-skill for the destructive release/publish step",
+    "no command-skill for trivial tasks (build/test/lint/fmt)",
+    "no aws-auth helper (no AWS in this project)"
+  ]
+}

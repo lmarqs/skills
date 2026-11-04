@@ -1,0 +1,24 @@
+RFC drafted: `document.md` — forward-looking shape (decide before building), since you're choosing rather than recording a choice already made.
+
+**Verdict: AWS SQS FIFO** (one queue + DLQ per stage, `MessageGroupId` = order id), wrapped in a transactional outbox at the producer and idempotent ack-after-commit consumers. Routing stays outside the broker; SNS/EventBridge goes in front only when a real fan-out requirement appears. Runner-up, and the option I'd switch to under the conditions listed below, is **Amazon MQ for RabbitMQ** — not self-hosted RabbitMQ.
+
+**The reframing that drives the document.** "We can't lose messages" barely discriminates between your two candidates. SQS replicates across AZs by default; RabbitMQ quorum queues plus publisher confirms reach a comparable place when configured correctly. Both then lose orders identically if the producer commits the order and dies before publishing. So the durability requirement is met by the *pattern* (outbox + ack-after-commit + DLQ), not by the broker, and the broker choice reduces to operability, observability, cost, and routing. Once framed that way, self-hosting a Raft-based clustered broker on Kubernetes — where pod eviction and node drain are routine and are exactly what quorum systems dislike — works against the very requirement that motivated the question. I added a third and fourth option (Amazon MQ for RabbitMQ, and MSK/Kafka as a rejected steelman) because the two you named don't span the real option space: managed RabbitMQ keeps almost every advantage your routing argument depends on while removing the operator burden, and it deserved to be on the table.
+
+**Two reclassifications you should push back on if you disagree:**
+- **"Complex routing we might need later"** is treated as requirement N7 ("adding a consumer must not require changing the producer") rather than as "we need RabbitMQ exchanges". Framed that way it's satisfiable on either side, so it stops selecting the broker. This is the load-bearing move in the analysis and the most legitimate place to attack it.
+- **SQS Standard is eliminated on ordering, not cost.** If per-order sequencing genuinely doesn't matter, Standard is cheaper and simpler and the recommendation changes.
+
+**Assumptions I had to make (A1–A9 in the doc, table near the top).** The three that actually decide the outcome:
+- **A4** — no named, dated routing requirement today. If one exists, the decision should change to Amazon MQ for RabbitMQ.
+- **A6** — nobody is currently on-call for a stateful clustered broker and we have no RabbitMQ operational experience. This is what makes self-hosting fail the operability requirement outright. If you already run RabbitMQ with a named owner and a rehearsed runbook, self-hosting returns to genuine contention.
+- **A1** — the cluster is in AWS, same region. If it's on-prem or another cloud, Dimension 1 needs re-running from scratch.
+
+Also assumed: per-order (not global) ordering required, peak under ~100 orders/s, payloads well under 64 KB, no AMQP-only consumers, single-region durability acceptable, consumers can be made idempotent.
+
+**Questions I'd have asked, now recorded in the doc's Open Questions section:** is A4 right (routing requirement with a date)? is A6 right (existing RabbitMQ in production)? what's the real peak volume and messages-per-order? what does an hour of platform on-call plus a 3-node broker actually cost us? is 5 delivery attempts right per stage? who owns the DLQ alert?
+
+**Caveats on the numbers.** SQS quotas in the doc are from current AWS docs — retention default 4 days / max 14 days, max payload 1 MiB, 64 KB per billed request unit, FIFO regional throughput quotas. Note the payload ceiling is 1 MiB now, not the 256 KB figure many references still quote. The $0.50/M FIFO price is AWS list price corroborated across third-party summaries but I could not get the numbers off the AWS pricing page itself — confirm in the pricing calculator for our region before repeating it to finance. The worked example (~$7/month at 1M orders × 5 messages) is my arithmetic from that rate and holds only under A2.
+
+**I deliberately left one number blank.** The self-hosted side of the cost comparison is unquantified, because its dominant cost is engineering and on-call hours and I have neither our instance pricing nor a defensible hours estimate. It's flagged as open question 4 rather than filled with an invented figure. The only cost claim I'll defend is the qualitative one: at these volumes, message volume is nowhere near where per-request pricing loses to running your own broker.
+
+One process note: Phase 0 in the launch strategy is a durability harness (kill the consumer mid-processing, kill the relay mid-publish, assert zero loss) run *before* any pipeline code. Worth not cutting — it's the only part of the plan that actually tests the requirement everything else is justified by.

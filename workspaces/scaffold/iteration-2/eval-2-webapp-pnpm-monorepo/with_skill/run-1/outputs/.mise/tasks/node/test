@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Run the Node test suite across all workspaces (pnpm -r test)"
+#USAGE arg "[pattern]" help="Optional test name/path filter passed to the test runner"
+set -e
+pnpm -r test ${usage_pattern:+"$usage_pattern"}

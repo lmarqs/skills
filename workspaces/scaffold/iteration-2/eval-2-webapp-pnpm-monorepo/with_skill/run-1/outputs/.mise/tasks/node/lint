@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Lint all Node workspaces (pnpm -r lint)"
+set -e
+pnpm -r lint

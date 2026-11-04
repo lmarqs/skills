@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Validate the goreleaser config"
+set -e
+goreleaser check

@@ -1,0 +1,17 @@
+{
+  "eval_id": 0,
+  "eval_name": "greenfield-go-terraform",
+  "prompt": "I'm starting a new backend service in an empty repo. It'll be a Go API plus a bit of Terraform for its AWS infra (an S3 bucket and a Lambda). Set me up with mise the way our other repos do it \u2014 task runner, the usual setup/test/build/lint commands, and the terraform plan/apply flow. Use our conventions.",
+  "assertions": [
+    "mise.toml exists with a [tools] section",
+    "mise.toml has NO inline [tasks]",
+    "go tasks build/test/lint/fmt exist as files",
+    "tf tasks init/plan/apply/fmt/check exist as files",
+    "every task file follows the contract",
+    "aws-auth sourced helper present",
+    "no leaked account id / medprev codeartifact domain",
+    "project 'mise' house-rules skill generated",
+    "command-skill exists for tf:apply",
+    "no command-skill for trivial tasks (lint/fmt/etc.)"
+  ]
+}

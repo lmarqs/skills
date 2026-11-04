@@ -1,0 +1,126 @@
+{
+  "expectations": [
+    {
+      "text": "Produces the full decision document with a tradeoff table that includes sticky sessions, signed cookies, a shared store and a baseline row",
+      "passed": true,
+      "evidence": "document.md tradeoff table has rows \"Shared server-side session store (the team's agreed option)\", \"Sticky sessions (balancer affinity) on per-replica memory\", \"Signed cookies (session data held by the browser, signed by the server)\" and \"**Baseline: do nothing (per-replica memory, round-robin)**\"."
+    },
+    {
+      "text": "Writes a new record file at docs/adrs/0003-<slug>.md, numbered one above the highest existing record",
+      "passed": true,
+      "evidence": "Wrote docs/adrs/0003-keep-login-sessions-in-a-shared-session-store.md, one above existing 0002."
+    },
+    {
+      "text": "The record's title states the decision taken (e.g. keep sessions in a shared store), not the problem or a product name",
+      "passed": true,
+      "evidence": "Title \"# 3. Keep login sessions in a shared session store\" states the decision."
+    },
+    {
+      "text": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+      "passed": false,
+      "evidence": "Headings are only Status/Context/Decision/Consequences, but the record embeds labelled extra sections: Context contains an \"Options considered:\" bulleted block and Consequences contains a \"Confirmation: a CI test signs out on one replica ...\" paragraph with a review date; Status also adds \"Decider ... Reviewer ... Relates to ADR-0002\". These are exactly the Options and Confirmation sections the assertion excludes, inlined under Nygard headings."
+    },
+    {
+      "text": "The record's Context states the problem and the decision drivers in priority order",
+      "passed": false,
+      "evidence": "Context states the problem and facts (20 KB, the security rule, RFC 6265 limit) and then lists options, but never names decision drivers or ranks them. The only ordering hint is in Consequences (\"the security requirement was put ahead of staying signed in\"), not a priority-ordered driver list in Context."
+    },
+    {
+      "text": "Each rejected option appears in the record with what it offers and the driver it fails",
+      "passed": false,
+      "evidence": "\"Options considered\" gives offer + failure for do nothing (\"Sign-out already ends the session, but users keep being signed out\"), sticky (\"The smallest change, but a deploy ... still discards the sessions\") and signed cookies (\"No server state, but a copied cookie stays valid after sign-out\"). But \"Hosted identity or session service. Rewrites sign-in and still needs a server-side home...\" states no offer, the hybrid entry states no offer beyond the failure, and the document's rejected \"[Store] Table in a relational database\" row is absent from the record."
+    },
+    {
+      "text": "The record links the full document",
+      "passed": false,
+      "evidence": "The record contains no reference to document.md or any link to the full analysis (grep for \"link\"/\"document\" finds nothing)."
+    },
+    {
+      "text": "The record's status matches the document's decision status",
+      "passed": true,
+      "evidence": "Record \"Accepted, 2026-10-30\"; document \"**Status:** accepted, 2026-10-30 (recorded in the repository as ADR-0003)\"."
+    },
+    {
+      "text": "Record 0002 is not marked superseded, since the decision does not reverse it",
+      "passed": true,
+      "evidence": "0002 not modified; record Status says \"Relates to ADR-0002 (completes it; does not supersede it)\"."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 4,
+    "total": 9,
+    "pass_rate": 0.556
+  },
+  "execution_metrics": {
+    "output_chars": 43259
+  },
+  "timing": {
+    "total_tokens": 129833,
+    "duration_ms": 333869,
+    "total_duration_seconds": 333.9
+  },
+  "claims": [
+    {
+      "claim": "A 20 KB session needs five or more cookies under RFC 6265 6.1",
+      "type": "factual",
+      "verified": true,
+      "evidence": "20480/4096 = 5 (before any encoding overhead), so 'five or more' is correct."
+    },
+    {
+      "claim": "Delete then WAIT 1 before responding to sign-out so a failover cannot resurrect the session",
+      "type": "factual",
+      "verified": true,
+      "evidence": "WAIT numreplicas timeout is a real Redis command that blocks until replicas acknowledge prior writes; it reduces but does not strictly guarantee no loss on failover, which the document handles as a residual risk."
+    },
+    {
+      "claim": "Record is 'written in their short four-section shape'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Four headings, but 4.5 KB with inlined Options and Confirmation blocks; existing records are 4-6 lines each."
+    },
+    {
+      "claim": "No existing file was modified",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Caller verified 0002 unmodified; only new files in outputs."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Security team's reading of 'immediately' unconfirmed",
+      "20 KB and traffic figures unmeasured"
+    ],
+    "needs_review": [
+      "Store product left for Dana to confirm",
+      "ADR left uncommitted"
+    ],
+    "workarounds": [
+      "Placed the full document at the requested output path, not in the repo; inlined options and confirmation into the Nygard record"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The record uses exactly Nygard's sections as the existing records do (Status, Context, Decision, Consequences) and adds no other section such as Requirements, Options or Confirmation",
+        "reason": "Discriminates only if labelled inline blocks (\"Options considered:\", \"Confirmation:\") count as sections; reword to say 'no extra headings or labelled blocks' to make grading unambiguous."
+      },
+      {
+        "assertion": "The record's Context states the problem and the decision drivers in priority order",
+        "reason": "Discriminates: with_skill writes 'Drivers, in order:' in Context; old_skill has no driver list."
+      },
+      {
+        "assertion": "Each rejected option appears in the record with what it offers and the driver it fails",
+        "reason": "Fails both; ambiguous whether 'each rejected option' means every row of the document's table or only the options the user raised. Specify the set (e.g. sticky, signed cookies, baseline)."
+      },
+      {
+        "assertion": "The record links the full document",
+        "reason": "Fails both, for different reasons (with_skill defers to a PR URL because the document lives outside the repo; old_skill omits any reference). Clarify whether naming the document plus a placeholder counts, or whether the eval setup should give the document a repo path."
+      },
+      {
+        "reason": "A1-A3, A8, A9 pass for both and do not discriminate. Missing: an assertion that the record stays short like 0001/0002, and one that the record does not repeat implementation detail (store config, rollout) that belongs in the document."
+      }
+    ],
+    "overall": "Discriminating assertions are A4 (sections) and A5 (ranked drivers in Context), both favouring with_skill. A6 and A7 fail both runs and need sharper wording; the rest are non-discriminating sanity checks."
+  }
+}

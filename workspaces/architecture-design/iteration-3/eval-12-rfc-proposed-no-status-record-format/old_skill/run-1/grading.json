@@ -1,0 +1,87 @@
+{
+  "expectations": [
+    {
+      "text": "The document's status is proposed and the EU data-residency question is listed as blocking with an owner",
+      "passed": true,
+      "evidence": "Line 3: \"**Status:** proposed. Two blocking questions are open (B1 legal, B2 hosting location).\" Blocking table (lines 103-107): B1 asks about personal data, contract restrictions, EU region of non-EU provider vs EU-controlled provider, DPF/SCC basis; Owner \"Legal counsel\", date \"2026-11-20 (*proposed date*; legal to confirm)\". Restated at line 407: \"**B1** (owner: legal counsel; date 2026-11-20, proposed)\"."
+    },
+    {
+      "text": "No new file is written in docs/adrs/ for this proposed decision",
+      "passed": true,
+      "evidence": "Judge brief states the repository was unchanged after the run. reply.md: \"Nothing created or modified in the repository (`git status` is clean).\" and \"Adding `docs/adrs/0002-...` now would break the repo's own rule\"."
+    },
+    {
+      "text": "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+      "passed": true,
+      "evidence": "Tasks table line 491: \"| Record the decision | When accepted, write ADR 0002 in `docs/adrs/` from that directory's template, linking this document | 0.5d |\". Refers to the repo template (Context, Options, Decision, Consequences) without naming the sections or the NNNN-<slug> filename pattern."
+    },
+    {
+      "text": "The document does not claim a decision record already exists for this choice",
+      "passed": true,
+      "evidence": "Line 514: \"`docs/adrs/README.md`: decision records are written only for decisions that have been taken; this document stays outside that directory until it is accepted.\" Only ADR 0001 is cited as existing; ADR 0002 appears only as a future task."
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "output_chars": 50217
+  },
+  "timing": {
+    "total_tokens": 139426,
+    "duration_ms": 343563,
+    "total_duration_seconds": 343.6
+  },
+  "claims": [
+    {
+      "claim": "ADR 0001 says one static binary per release, a deploy is one file copy, no container runtime, deploys drifted between hosts",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches ADR 0001 text exactly (line 511-513 of document)."
+    },
+    {
+      "claim": "docs/adrs/README.md: records written only for decisions taken; template has no Status field",
+      "type": "factual",
+      "verified": true,
+      "evidence": "README and template.md as rebuilt confirm both."
+    },
+    {
+      "claim": "'May files leave the EU?' does not by itself separate the options, since all can be kept in the EU; real question is non-EU provider's EU region",
+      "type": "quality",
+      "verified": true,
+      "evidence": "Lines 110-115 argue this and add B2 (host country) as a second blocking question; reasoning is sound."
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "Decider assumed to be the API tech lead",
+      "Postgres use and hosting country assumed; B2 blocking"
+    ],
+    "needs_review": [
+      "Two added requirements (erasure, file-location report) and 4-hour restore target not confirmed",
+      "Review checkpoints skipped"
+    ],
+    "workarounds": [
+      "Document written to output path only; ADR 0002 deferred to a roadmap task"
+    ]
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The document's tasks list includes writing the decision record in docs/adrs/ (in the repository's format: Context, Options, Decision, Consequences) once the decision is accepted",
+        "reason": "Both runs pass by pointing at the template; neither lists the four sections. If the intent is that the task name the sections or the NNNN-<slug> filename, say so explicitly; as written it does not discriminate."
+      },
+      {
+        "assertion": "No new file is written in docs/adrs/ for this proposed decision",
+        "reason": "Verified externally by the harness (repo unchanged); both pass. Non-discriminating for these runs but a valid guard."
+      },
+      {
+        "reason": "Add an assertion that the doc does not place itself in docs/adrs/ or recommend a status field be added to the template, and one checking that the record task uses the README's filename pattern NNNN-<slug>.md (with_skill does, old_skill only says 'ADR 0002')."
+      }
+    ],
+    "overall": "All four assertions pass for both runs, so none discriminates. Both docs are proposed with legal-owned blocking residency questions, defer the record to a post-acceptance task, and leave docs/adrs untouched. Differences are below the assertions: with_skill cites the exact path pattern and template file; old_skill splits out a hosting-location blocker (B2) and reframes the legal question more sharply. Both documents are long (36-47 KB)."
+  }
+}

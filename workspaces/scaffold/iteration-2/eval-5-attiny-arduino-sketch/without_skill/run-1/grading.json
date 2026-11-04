@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml pins arduino-cli, no inline [tasks]",
+      "passed": false,
+      "evidence": "inline=True arduino=True"
+    },
+    {
+      "text": "arduino tasks setup/compile/upload/run exist",
+      "passed": false,
+      "evidence": "tasks=[]"
+    },
+    {
+      "text": "every task file follows the contract",
+      "passed": false,
+      "evidence": "0 files ok"
+    },
+    {
+      "text": "board FQBN/port parameterized via env (not hard-coded)",
+      "passed": true,
+      "evidence": "FQBN in env/toml=True"
+    },
+    {
+      "text": "'run' chains compile+upload",
+      "passed": false,
+      "evidence": "run chains=False"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "no aws-auth helper (no AWS)",
+      "passed": true,
+      "evidence": "n/a"
+    }
+  ],
+  "pass_count": 2,
+  "total": 7,
+  "summary": {
+    "pass_rate": 0.2857142857142857,
+    "passed": 2,
+    "failed": 5,
+    "total": 7
+  }
+}

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Validate formatting and configuration"
+set -e
+terraform fmt -recursive -check
+terraform validate

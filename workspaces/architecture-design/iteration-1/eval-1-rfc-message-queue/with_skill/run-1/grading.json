@@ -1,0 +1,116 @@
+{
+  "expectations": [
+    {
+      "text": "Has a contextualization section describing the current state, written for a newcomer (no prior knowledge assumed)",
+      "passed": true,
+      "evidence": "## Context section (lines 15-40) explains the pipeline shape from scratch: 'order creation will fan out into a sequence of steps handled by separate services... Doing this well requires services to communicate asynchronously rather than through direct, blocking calls.' It also states its own scope/assumptions ('Related documents: None available... it was written from the problem statement alone') and an explicit 'Out of scope' subsection, both newcomer-friendly framing devices."
+    },
+    {
+      "text": "Requirements are present and explicitly split into functional and non-functional",
+      "passed": true,
+      "evidence": "Document has '### Functional' (F1-F4) and '### Non-functional' (N1-N6) subsections under '## Requirements'."
+    },
+    {
+      "text": "Every requirement states the goal or rationale it serves, not just the requirement text",
+      "passed": false,
+      "evidence": "Most functional requirements carry rationale (e.g. F3: 'No mainstream durable queue... guarantees exactly-once delivery... so idempotent consumers are a requirement of the pipeline'). But several non-functional requirements are stated as bare requirement text with no separate goal/rationale clause: N1 Durability reads only 'A message acknowledged as received by the broker must survive a single broker-node crash and a single availability-zone failure without being lost' (no 'so that...'); N3 Operability reads only 'Ongoing operational load... must fit within the team's actual bandwidth'; N5 Security reads only 'Messages must be encrypted in transit and at rest; publish/consume access must be restricted per service (least privilege)'. None of these three add a rationale beyond restating the requirement, so 'every requirement' is not satisfied."
+    },
+    {
+      "text": "Every non-functional requirement carries a quantified metric and target (a number with a unit), not an adjective",
+      "passed": false,
+      "evidence": "None of N1-N6 contain a number+unit target. N1 Durability says 'survive a single broker-node crash and a single availability-zone failure' with no RPO/loss-rate/percentage. N2 Availability says 'must not be a single point of failure' with no uptime % or RTO. N3 says 'must fit within the team's actual bandwidth' (no metric). N4 Observability names dashboards/alerting but no target latency or threshold number. N5 Security has no metric. N6 Cost says only 'should scale with actual order volume' with no dollar figure or ratio. A grep of the whole document for '%|RPO|RTO|SLA|seconds|ms|minutes|hours' turns up only prose like 'high-SLA managed service' (an adjective) in the tradeoff table risk rows -- none in the Requirements section itself."
+    },
+    {
+      "text": "Every requirement names how its fulfilment will be proven or verified at the end",
+      "passed": false,
+      "evidence": "No requirement in the Requirements section (F1-F4, N1-N6) states a verification method inline. The only verification-shaped item in the whole document is a single 'Chaos/failure test' row in the later 'Tasks and roadmap' table ('Kill a consumer mid-processing, verify redelivery and eventual DLQ, zero message loss'), which covers F2/N1 only and is not attached to the requirement statements themselves. F1, F3, F4, N2, N3, N4, N5, N6 have no stated verification method anywhere in the document."
+    },
+    {
+      "text": "The no-message-loss requirement is expressed measurably (a durability target, an acceptable loss rate, or a verification method) rather than as a slogan",
+      "passed": true,
+      "evidence": "F2 replaces the slogan with a checkable invariant: 'Every message must end in one of exactly three states: successfully processed, currently retrying, or parked in a dead-letter destination for investigation. \"Lost with no trace\" must not be a reachable state.' This is reinforced by a concrete verification method in the Tasks table: 'Chaos/failure test... verify redelivery and eventual DLQ, zero message loss.'"
+    },
+    {
+      "text": "Design section names the components and includes or precisely describes at least one static diagram AND at least one dynamic (flow/sequence) diagram",
+      "passed": true,
+      "evidence": "Components are named and tied to requirements (Order Service, Message broker, Downstream consumers, Dead-letter destination, Observability). A static component diagram is given as a mermaid 'graph LR' ('Static diagram — components') and a dynamic diagram as a mermaid 'sequenceDiagram' ('Dynamic diagram — one order, happy path and failure path') showing publish/ack/retry/DLQ/alert flow."
+    },
+    {
+      "text": "Tradeoff analysis compares both named alternatives (AWS SQS vs self-hosted RabbitMQ) with pros and cons",
+      "passed": true,
+      "evidence": "The tradeoff table has dedicated rows for 'AWS SQS (Standard, managed)' and 'RabbitMQ, self-hosted on existing cluster', each with populated Pros and Cons columns (e.g. SQS pros: 'Fully managed... usage-based pricing'; RabbitMQ cons: 'Team now owns broker operations end-to-end... durability is opt-in, not default')."
+    },
+    {
+      "text": "Tradeoff analysis includes at least one credible alternative the user did not propose",
+      "passed": true,
+      "evidence": "A third full row, 'Amazon MQ for RabbitMQ (managed RabbitMQ, cluster deployment)', is analyzed with its own pros/cons/risk. Kafka and standalone EventBridge are also briefly considered and explicitly set aside with reasoning ('this pipeline's problem is durable work-queueing, not event replay/streaming')."
+    },
+    {
+      "text": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+      "passed": true,
+      "evidence": "All 7 risk rows in the table have non-empty Impact/Probability/Mitigation/Contingency cells, e.g. the RabbitMQ durability-misconfiguration risk: Impact 'High', Probability 'Medium (this is the most common RabbitMQ production misconfiguration industry-wide)', Mitigation 'Mandate durable + quorum queues... run a chaos test...', Contingency 'Producer-side outbox/audit log as a replay source of truth'. Two rows are weaker but still populated: the 'Region-wide SQS incident' row's contingency is 'None practical — cross-region SQS failover is rarely justified...' and the RabbitMQ 'operational-knowledge gap' row's probability is 'Unknown (team's RabbitMQ/K8s experience not stated)' -- both are present text, just low-content answers rather than missing fields."
+    },
+    {
+      "text": "States an explicit decision (which alternative was chosen) rather than leaving it open",
+      "passed": true,
+      "evidence": "'## The decision' opens with 'Recommended: AWS SQS (Standard queues to start, with a redrive policy to a dead-letter queue; move to FIFO only if the ordering requirement in F4 is confirmed...)' -- an unambiguous single choice, not multiple options left dangling."
+    },
+    {
+      "text": "Records the consequences of the decision and how it will be confirmed later (a metric, check, or review)",
+      "passed": true,
+      "evidence": "The decision reasoning states the accepted tradeoff as a consequence ('\"Complex routing we might need later\" is the stated reason to prefer RabbitMQ, but it does not pass this document's own bar... Building the business-critical path around a speculative future requirement... is optimizing for a need that may never arrive' -- i.e. the team accepts no native complex routing for now, per the SQS row's own contingency of bolting on SNS/EventBridge later). Confirmation mechanisms are recorded in the Tasks table: 'Chaos/failure test... verify... zero message loss' and 'Re-evaluate FIFO/ordering | Only if F4 confirmed; otherwise close as not needed'."
+    },
+    {
+      "text": "Includes a conclusion with a rollout/launch strategy or a task roadmap",
+      "passed": true,
+      "evidence": "Both are present: '## Launch strategy' with four numbered phases (backbone, full pipeline, ordering-if-confirmed, deferred routing), and '## Tasks and roadmap' with a 7-row task/estimate table."
+    },
+    {
+      "text": "Written entirely in English (matching the request language)",
+      "passed": true,
+      "evidence": "The entire document.md and reply.md are in English; the eval prompt was in English."
+    }
+  ],
+  "summary": {
+    "passed": 11,
+    "failed": 3,
+    "total": 14,
+    "pass_rate": 0.79
+  },
+  "timing": {
+    "total_duration_seconds": 266.6
+  },
+  "claims": [
+    {
+      "claim": "SQS FIFO queues support 300 msg/s without batching and 3,000 msg/s with batching (per message group), with high-throughput mode raising this to 'tens of thousands/s, region-dependent'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Web search of AWS documentation confirms: standard FIFO supports up to 300 TPS without batching or 3,000 msg/s with batching; high-throughput mode supports up to 6,000 TPS by default in several regions and up to 70,000 msg/s in some cases -- consistent with the document's hedged 'tens of thousands/s, region-dependent' framing."
+    },
+    {
+      "claim": "RabbitMQ quorum queues + publisher confirms guarantee no message loss only once a message is confirmed and a majority of quorum-queue nodes remain available",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Web search of RabbitMQ docs confirms: 'A message that was successfully confirmed back to the publisher... should not be lost as long as at least a majority of RabbitMQ nodes hosting the quorum queue are not permanently made unavailable.' Matches the document's claim exactly."
+    },
+    {
+      "claim": "The document was built entirely from the task prompt with no access to the team's real systems, and every unconfirmed fact is flagged rather than guessed",
+      "type": "process",
+      "verified": true,
+      "evidence": "The document's 'Related documents' and 'Open questions' sections, plus inline flags (e.g. '*(Unconfirmed: team size and current on-call load...)*', '*(Inference — not confirmed by the task)*'), consistently mark assumptions instead of stating them as fact. Cross-checked against reply.md, which restates the same four open questions -- the claim holds."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Every risk in the tradeoff analysis carries all four attributes: impact, probability, mitigation, and contingency",
+        "reason": "This assertion checks structural presence, not substance. A row with Probability='Unknown' and Contingency='None practical' still passes because the cells aren't empty -- a document that filled every risk cell with a placeholder word (e.g. 'TBD') would pass identically. Consider requiring that at least mitigation and contingency describe a concrete action, not just acknowledge the gap."
+      },
+      {
+        "assertion": "Every requirement states the goal or rationale it serves, not just the requirement text",
+        "reason": "This assertion and the quantified-metric assertion are two of the three clean failures in this run, both concentrated in the non-functional requirements (N1, N3, N5). That is a real, consistent methodology gap in this run's document: functional requirements got rationale and non-functional requirements mostly did not -- worth flagging to whoever iterates on the skill, since it suggests the skill's guidance is weaker for NFRs than for FRs."
+      }
+    ],
+    "overall": "3 of 14 assertions fail, and all three cluster around the same weakness: the non-functional requirements (durability, operability, security in particular) are written as qualitative category labels with a plausible-sounding but unquantified target, no explicit rationale beyond the requirement itself, and no named verification method. Everything else in the document -- diagrams, tradeoff depth, an added alternative (Amazon MQ for RabbitMQ), fully-populated risk attributes, an explicit decision, and a launch/task roadmap -- is genuinely strong, and two verifiable technical claims (SQS FIFO throughput tiers, RabbitMQ quorum-queue + publisher-confirm semantics) checked out against current docs. The document's own honesty about assumptions (an 'Open questions' section, inline '(Inference...)' and '(Unconfirmed...)' tags rather than invented numbers) is a notable, uncredited strength -- no assertion rewards a document for refusing to fabricate numbers it wasn't given, which is arguably why the NFR section stayed qualitative: the model had no real durability/volume figures to quantify with and said so rather than inventing a fake 99.99% SLA. That's a defensible tension the eval doesn't currently account for."
+  }
+}

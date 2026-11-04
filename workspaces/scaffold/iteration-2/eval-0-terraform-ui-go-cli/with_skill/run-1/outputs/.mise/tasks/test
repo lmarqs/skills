@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Run tests"
+#USAGE flag "--cover" default="false" help="Report coverage"
+set -e
+[ "$usage_cover" = "true" ] && exec go test -cover ./...
+exec go test ./...

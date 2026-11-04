@@ -1,0 +1,11 @@
+# PlatformIO
+.pio/
+.pioenvs/
+.piolibdeps/
+
+# mise-loaded environment (machine/account-specific; commit .env.example instead)
+.env.yaml
+
+# Editor / OS
+.vscode/
+.DS_Store

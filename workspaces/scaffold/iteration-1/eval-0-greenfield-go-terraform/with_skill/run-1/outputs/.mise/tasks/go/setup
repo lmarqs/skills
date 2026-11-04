@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+#MISE description="Download Go module dependencies"
+set -e
+go mod download

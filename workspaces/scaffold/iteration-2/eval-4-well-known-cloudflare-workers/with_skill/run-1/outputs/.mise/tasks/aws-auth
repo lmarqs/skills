@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Sourced helper — NOT a task. Usage in another task:
+#   source "$MISE_PROJECT_ROOT/.mise/tasks/aws-auth"
+# All account-specific values come from env (.env.yaml); nothing internal is committed.
+set -e
+
+export AWS_REGION="${AWS_REGION:-us-east-1}"
+
+if ! aws sts get-caller-identity --query Account --output text >/dev/null 2>&1; then
+  echo "You must be authenticated to AWS to run this task (try: aws sso login)." >&2
+  exit 1
+fi
+
+# Read a build-time config value from AWS SSM Parameter Store.
+# The parameter name is supplied via env (${AWS_CONFIG_PARAMETER}) so nothing internal is committed.
+get_build_config_value() {
+  aws ssm get-parameter \
+    --name "$AWS_CONFIG_PARAMETER" \
+    --with-decryption \
+    --query 'Parameter.Value' --output text
+}

@@ -1,0 +1,14 @@
+{
+  "eval_id": 1,
+  "eval_name": "greenfield-platformio-esp32",
+  "prompt": "Bootstrap a new PlatformIO firmware project for an ESP32 in this empty folder. I want mise tasks so I can build, flash, and watch the serial monitor without remembering the raw pio commands.",
+  "assertions": [
+    "mise.toml exists with a [tools] section",
+    "mise.toml has NO inline [tasks]",
+    "pio tasks setup/build/upload/monitor exist as files",
+    "every task file follows the contract",
+    "project 'mise' house-rules skill generated",
+    "NO aws-auth helper and NO AWS tooling (non-cloud project)",
+    "NO command-skills (all tasks non-destructive)"
+  ]
+}

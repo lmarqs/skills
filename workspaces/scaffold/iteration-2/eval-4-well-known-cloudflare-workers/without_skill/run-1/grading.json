@@ -1,0 +1,47 @@
+{
+  "expectations": [
+    {
+      "text": "mise.toml exists, no inline [tasks]",
+      "passed": false,
+      "evidence": "inline=True"
+    },
+    {
+      "text": "node tasks setup/lint/test exist",
+      "passed": false,
+      "evidence": "node=[]"
+    },
+    {
+      "text": "EXTENSIBILITY: a cloudflare/cf namespace with deploy+dev was invented",
+      "passed": false,
+      "evidence": "cf=[]"
+    },
+    {
+      "text": "the invented cloudflare tasks still follow the contract",
+      "passed": false,
+      "evidence": "0 files ok"
+    },
+    {
+      "text": "aws-auth present (a build step needs AWS)",
+      "passed": false,
+      "evidence": "awsauth=False"
+    },
+    {
+      "text": "project 'mise' house-rules skill generated",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "command-skill for cf:deploy, none for lint/test",
+      "passed": false,
+      "evidence": "cmd-skills=[]"
+    }
+  ],
+  "pass_count": 0,
+  "total": 7,
+  "summary": {
+    "pass_rate": 0.0,
+    "passed": 0,
+    "failed": 7,
+    "total": 7
+  }
+}

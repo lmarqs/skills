@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Install the API's Python dependencies into the project venv"
+#MISE dir="packages/api"
+set -e
+python -m pip install --upgrade pip
+# pyproject-based project; install it (editable) with dev extras for ruff/pytest.
+pip install -e ".[dev]" 2>/dev/null || pip install -e .
