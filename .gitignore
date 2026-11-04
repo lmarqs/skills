@@ -23,3 +23,10 @@ workspaces/**/review.html
 
 # baseline skill copy for eval runs (materialized on demand from git history)
 workspaces/*/skill-snapshot/
+# cook:begin io.github.lmarqs.cookbook:git#worktrees/worktrees
+# io.github.lmarqs.cookbook:git#worktrees --instructions=AGENTS.md
+/.worktrees/*
+!/.worktrees/README.md
+!/.worktrees/setup
+!/.worktrees/teardown
+# cook:end io.github.lmarqs.cookbook:git#worktrees/worktrees
