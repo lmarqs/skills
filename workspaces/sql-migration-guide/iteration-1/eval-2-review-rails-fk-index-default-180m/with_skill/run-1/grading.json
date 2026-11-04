@@ -1,0 +1,109 @@
+{
+  "expectations": [
+    {
+      "text": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+      "passed": true,
+      "evidence": "Table row for add_index [:status, :created_at]: 'a second full build over 180M rows ... runs under the exclusive lock'; CREATE INDEX row: 'SHARE lock: blocks writes for a full scan and sort of 180M rows'. Finding 3 says to ship it with algorithm: :concurrently."
+    },
+    {
+      "text": "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+      "passed": true,
+      "evidence": "Step 2 uses disable_ddl_transaction! with add_index ... algorithm: :concurrently; the separate PR for [:status, :created_at] also says 'with disable_ddl_transaction! + algorithm: :concurrently'."
+    },
+    {
+      "text": "Flags the index created by add_reference (index: true) as also non-concurrent",
+      "passed": true,
+      "evidence": "Table row: 'add_reference index: true: CREATE INDEX (not concurrent) on warehouse_id ... SHARE lock: blocks writes'."
+    },
+    {
+      "text": "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+      "passed": true,
+      "evidence": "Table row: 'foreign_key: true: validated FOREIGN KEY | SHARE ROW EXCLUSIVE on both orders and warehouses, plus a validation scan of orders'. Steps 3 and 4: add_foreign_key ... validate: false, then validate_foreign_key in a separate migration."
+    },
+    {
+      "text": "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+      "passed": true,
+      "evidence": "Line 40: with no lock_timeout the ALTER waits behind a long transaction and 'every query that arrives after it queues behind the ALTER, plain SELECTs included'. Steps 1 and 3 use SET LOCAL lock_timeout = '3s'."
+    },
+    {
+      "text": "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+      "passed": true,
+      "evidence": "Finding 1: 'All ~180M existing rows read back fulfilled_at = the timestamp of the migration transaction. Every historical order, shipped or not, now looks fulfilled at deploy time.'"
+    },
+    {
+      "text": "Recommends splitting the change into separate migrations or deployments rather than one migration",
+      "passed": true,
+      "evidence": "Staged alternative: four separate migrations (columns, concurrent index, NOT VALID FK, validate), then a separate code deploy B and a separate PR for the composite index."
+    },
+    {
+      "text": "Mentions checking for or cleaning up an INVALID index if a concurrent build fails",
+      "passed": true,
+      "evidence": "Notes for step A: 'If it fails, it leaves an INVALID index that still costs write overhead: drop it and retry.' The verification query checks pg_index for NOT indisvalid."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "Postgres evaluates it once when the ALTER runs and stores the result as the catalog default",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Imprecise. The evaluated value is stored as pg_attribute.attmissingval for existing rows; the catalog default (pg_attrdef) remains the expression now() and is evaluated on each insert. The output's next bullet correctly says new inserts get now(), so the conclusion holds, but this sentence misdescribes the mechanism."
+    },
+    {
+      "claim": "now() is STABLE, not volatile ... does not cause a rewrite on PG 15",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct: PG 11+ fast default applies to non-volatile defaults."
+    },
+    {
+      "claim": "validated FOREIGN KEY takes SHARE ROW EXCLUSIVE on both orders and warehouses, plus a validation scan of orders",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches PG 15 ALTER TABLE ADD FOREIGN KEY behavior."
+    },
+    {
+      "claim": "Validate: SHARE UPDATE EXCLUSIVE on orders, so reads and writes continue",
+      "type": "factual",
+      "verified": true,
+      "evidence": "VALIDATE CONSTRAINT takes SHARE UPDATE EXCLUSIVE on the altered table (ROW SHARE on the referenced table)."
+    },
+    {
+      "claim": "autovacuum is fine but analytics queries are not",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Mostly correct: regular autovacuum cancels itself when it blocks a conflicting lock request. Exception not mentioned: anti-wraparound autovacuum does not yield."
+    },
+    {
+      "claim": "Rails retries 'cached plan must not change result type' outside a transaction but not inside one",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches the Rails PostgreSQL adapter (raises PreparedStatementCacheExpired inside a transaction)."
+    },
+    {
+      "claim": "Rails 7.1 datetime maps to timestamp(6) without time zone",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Rails 7.0+ default precision 6; datetime_type defaults to :timestamp."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Both runs score 8/8, so the assertions do not separate with_skill from old_skill. Add assertions that need more precise knowledge, e.g. 'States that now() is STABLE so ADD COLUMN with this default does not rewrite the table on PG 11+' (catches a common wrong answer) and 'Notes that new inserts after the migration also receive now() as fulfilled_at'."
+      },
+      {
+        "assertion": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+        "reason": "Inside the single migration transaction the earlier ADD COLUMN already holds ACCESS EXCLUSIVE, so the index build blocks reads too. 'Blocking writes' is a low bar; consider requiring that the output explain the shared transaction escalating the outage to reads."
+      },
+      {
+        "reason": "No assertion checks that the proposed replacement migrations are themselves correct, e.g. reversible (raw execute inside change cannot be reverted) or that the warehouse_id index is built before the FK. The old_skill run's code has execute inside change and would pass regardless."
+      }
+    ],
+    "overall": "Assertions cover the main hazards but are easy to satisfy for any competent review; they do not discriminate between these two runs."
+  }
+}

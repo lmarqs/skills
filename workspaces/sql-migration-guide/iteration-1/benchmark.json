@@ -1,0 +1,537 @@
+{
+  "metadata": {
+    "skill_name": "sql-migration-guide",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "claude-opus-5-5",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-04T21:20:48Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 58.7,
+        "tokens": 72608,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+          "passed": true,
+          "evidence": "Finding 2: 'for about 15 minutes, every v1 pod still serving traffic errors on every read or write of `customers` that names `full_name`.'"
+        },
+        {
+          "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+          "passed": true,
+          "evidence": "Finding 2: 'Redeploying v1 to roll back fails the same way, because v1 cannot run against this schema at all. Rollback would mean writing a reverse-rename migration under incident pressure.'"
+        },
+        {
+          "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+          "passed": true,
+          "evidence": "Finding 1: 'widening back to `VARCHAR(100)` restores the shape, not the values. A Flyway undo/down migration cannot recover them.' and 'MySQL in non-strict mode: over-long values are **silently truncated**.'"
+        },
+        {
+          "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+          "passed": true,
+          "evidence": "Finding 1: '\"We checked\" is not enough evidence' with reasons; verify block: 'SELECT COUNT(*) FROM customers WHERE char_length(phone) > 20; -- run against production, now'; confirm item 4 asks whether the check ran against production."
+        },
+        {
+          "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+          "passed": true,
+          "evidence": "Finding 3: 'v1 pods don't set `loyalty_tier`, so every v1 insert fails for the ~15-minute rollout and after any rollback.'"
+        },
+        {
+          "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+          "passed": true,
+          "evidence": "'Verdict: do not merge as written'; 'Recommended staged plan' Deploy 1 Expand, Deploy 2 Migrate (code), Deploy 3 backfill, verify, Deploy 4 Contract, Deploy 5 Cleanup, each with rollback notes."
+        },
+        {
+          "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+          "passed": true,
+          "evidence": "Deploy 5: 'after the rollback window plus verification; put a date and an owner on it now'; 'Proceed only after confirming that no version reads or writes `full_name` (code search plus statement stats), the backfill converged, and the rollback window expired.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.88,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 198.0,
+        "tokens": 88975,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+          "passed": true,
+          "evidence": "Releases 1-7, each 'ships on its own and has its own rollback story'. Each names a rollback target (e.g. Release 6 \u2192 'redeploy Release 5'). \u00a75 answers 'Can the previous version run against the new schema? Yes at every release.' (That claim is undermined by the trigger defect under assertion 8.)"
+        },
+        {
+          "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+          "passed": true,
+          "evidence": "Release 1: AddField first_name/last_name CharField(max_length=255, null=True, blank=True). 'Do not give them a Python default='. name is untouched."
+        },
+        {
+          "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+          "passed": true,
+          "evidence": "Read new with fallback: Release 3 display_first_name returns first_name when the flag is on and it is not None, otherwise split_name(self.name). Dual-write is done by a DB BEFORE trigger, not app code (\u00a71 justifies this as covering every writer). The intent of keeping both representations written is met, though app code never writes both."
+        },
+        {
+          "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+          "passed": true,
+          "evidence": "Release 2: per-batch transaction over `u.id > :lo AND u.id <= :hi`, 1,000-5,000 ids, statement_timeout 5s, lock_timeout 1s, frozen upper_id."
+        },
+        {
+          "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+          "passed": true,
+          "evidence": "'Idempotent. Rows that already have parts no longer match the predicate'. 'Restartable. last_id is committed in the same transaction as the batch'. Kill switch before each batch."
+        },
+        {
+          "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+          "passed": true,
+          "evidence": "14-day rollback window per contract step (A6). Release 7 drop ships alone and is gated on 'The rollback window after Release 6 has expired'."
+        },
+        {
+          "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+          "passed": true,
+          "evidence": "Release 7 gate: zero pg_stat_statements matches for users.name since a reset at Release 6, code search across all repos/ETL/BI, \u00a73 verification queries pass, readable archive exists."
+        },
+        {
+          "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+          "passed": false,
+          "evidence": "Lossiness is acknowledged (verdict, A5, \u00a75 Q3). But the plan's trigger does not keep name as source of truth. Its 4th branch rebuilds name whenever the parts change on a populated row. Reproduced on PG 16 with the plan's exact SQL: after the backfill, an UPDATE that sets first_name/last_name to NULL with name unchanged (a Django full save() of an instance loaded before the backfill, or the plan's own \u00a74 'reset the parts' repair) sets name to '', destroying the original. The plan also contradicts itself: the verdict says 'name stays as the source of truth until the final, separate drop', but Release 4 says name 'is the rollback bridge, not the source of truth'. The Release 7 archive is said to 'keep the originals' but is taken after Release 4 rebuilt name for edited rows."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 72.3,
+        "tokens": 74890,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+          "passed": true,
+          "evidence": "Finding 3: 'This is also a non-concurrent build over 180M rows, inside the same transaction. Same blocking as above'; finding 2 explains plain CREATE INDEX 'holds a SHARE lock that blocks writes'."
+        },
+        {
+          "text": "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+          "passed": true,
+          "evidence": "Steps B and the separate composite-index migration use disable_ddl_transaction! with algorithm: :concurrently ('CONCURRENTLY can't run in one')."
+        },
+        {
+          "text": "Flags the index created by add_reference (index: true) as also non-concurrent",
+          "passed": true,
+          "evidence": "Finding 2: 'index: true produces a plain CREATE INDEX. The build scans 180M rows and holds a SHARE lock that blocks writes.'"
+        },
+        {
+          "text": "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+          "passed": true,
+          "evidence": "Finding 2: 'foreign_key: true runs ADD CONSTRAINT ... FOREIGN KEY with immediate validation, which is a full scan of orders. It also takes SHARE ROW EXCLUSIVE on warehouses'. Steps C/D: validate: false, then validate_foreign_key."
+        },
+        {
+          "text": "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+          "passed": true,
+          "evidence": "Finding 2: 'With no lock_timeout, it waits in the lock queue behind any long-running query on orders, and every query that arrives after it queues too.' Steps A and C set SET LOCAL lock_timeout = '5s'."
+        },
+        {
+          "text": "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+          "passed": true,
+          "evidence": "Finding 1: 'all ~180M existing rows read back with the same timestamp, the moment the migration ran'; 'Each historical order, shipped or not, looks fulfilled at the migration time.'"
+        },
+        {
+          "text": "Recommends splitting the change into separate migrations or deployments rather than one migration",
+          "passed": true,
+          "evidence": "Staged alternative: separate migrations A-D ('they must be separate migration files') plus a separate PR for the composite index."
+        },
+        {
+          "text": "Mentions checking for or cleaning up an INVALID index if a concurrent build fails",
+          "passed": true,
+          "evidence": "'Failed concurrent builds leave an INVALID index, and if_not_exists will then skip it.' Gives the pg_index NOT indisvalid query and DROP INDEX CONCURRENTLY."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "old_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 221.2,
+        "tokens": 90033,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+          "passed": true,
+          "evidence": "BACKFILL_SQL `WHERE id >= %s AND id < %s`; write_loop advances `hi = min(lo + chunk, end)` with adaptive chunk; plan explains why `WHERE amount_cents IS NULL LIMIT 1000` re-scans."
+        },
+        {
+          "text": "Backfill is idempotent via a guard such as amount_cents IS NULL",
+          "passed": true,
+          "evidence": "BACKFILL_SQL `AND amount_cents IS NULL AND amount IS NOT NULL`; 'the amount_cents IS NULL predicate makes re-running any range a no-op'; separate repair mode uses `NOT (amount_cents <=> amount * 100)`."
+        },
+        {
+          "text": "Progress is checkpointed durably so the job resumes after a crash",
+          "passed": true,
+          "evidence": "backfill_progress.next_id advanced in run_batch in the same transaction as the UPDATE (compare-and-set `next_id = %s`), then commit; 'Re-run the same command to resume.'"
+        },
+        {
+          "text": "Throttles or pauses on replica lag, citing the reporting replica",
+          "passed": true,
+          "evidence": "wait_for_replica() reads Seconds_Behind_Source via SHOW REPLICA STATUS on MYSQL_REPLICA_HOST ('BI replica endpoint') before every batch; throttle at 5 s, resume at 2 s, agreed with the BI team."
+        },
+        {
+          "text": "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+          "passed": true,
+          "evidence": "`SET amount_cents = amount * 100` in SQL; 'provided it's computed in SQL decimal arithmetic, never through a float'; A4 warns about float(19.99)*100 in app code."
+        },
+        {
+          "text": "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+          "passed": true,
+          "evidence": "`SELECT COUNT(*) FROM payments WHERE amount IS NOT NULL AND amount_cents <> amount * 100; -- correct: must be 0`; VERIFY_SQL per range, exits 1 on any finding; plus per-day SUM reconciliation."
+        },
+        {
+          "text": "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+          "passed": true,
+          "evidence": "Step 4 BI section: digest inventory on replica, switch to amount_cents after verify, sign-off prerequisite; Step 6 checklist: code search across repos plus digest on both primary and replica showing no statement touching payments.amount since R4."
+        },
+        {
+          "text": "Keeps amount through a rollback window and drops it in a separate later step",
+          "passed": true,
+          "evidence": "Window 1 (two weeks incl. month-end) and Window 2; step 5 stops writing amount; step 6 'Run it alone, as its own change' after Window 2 expires, with pre-drop snapshot."
+        },
+        {
+          "text": "Gives a duration estimate or says to measure throughput on a production-sized copy",
+          "passed": true,
+          "evidence": "'Dry-run in a staging copy with realistic size to measure batch time and rate. I haven't measured anything; any duration estimate for 400M rows is a guess until you do.' Script logs ids/s and ETA. No arithmetic estimate given."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 83.5,
+        "tokens": 85580,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+          "passed": true,
+          "evidence": "Finding 2: 'v1 pods query `full_name`. Once the rename commits, every v1 query touching that column fails until the last v1 pod is gone (~15 minutes).'"
+        },
+        {
+          "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+          "passed": true,
+          "evidence": "Verdict: 'It also makes rollback to v1 impossible.' Finding 2: 'going back to v1 after this runs means an outage, unless someone renames the column back by hand.'"
+        },
+        {
+          "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+          "passed": true,
+          "evidence": "Finding 1: 'widening back to `VARCHAR(100)` gives back the capacity, not the characters... On MySQL in non-strict mode the values are cut short without any error. There is no copy of the original values anywhere.' Also correctly distinguishes PostgreSQL erroring instead."
+        },
+        {
+          "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+          "passed": true,
+          "evidence": "Finding 1: '\"Nobody has phone numbers that long, we checked.\" This is an unverified claim until a query in this PR shows otherwise... Run this on production and post the result: SELECT count(*), max(length(phone)) FROM customers WHERE length(phone) > 20; -- expect 0'"
+        },
+        {
+          "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+          "passed": true,
+          "evidence": "Finding 3: 'v1 pods inserting without `loyalty_tier` fail... \"The app sets it on every insert\" only holds for v2. It doesn't hold for v1 pods during the rollout'. Also notes PG rejects the ADD on a non-empty table."
+        },
+        {
+          "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+          "passed": true,
+          "evidence": "'Verdict: do not merge as written'; 7-step 'Recommended staged plan' table (expand, dual-write v2, backfill, enforce, v3, phone constraint, contract) with verify and rollback target per step, plus a sync trigger."
+        },
+        {
+          "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+          "passed": true,
+          "evidence": "Step 7: 'after the rollback window, and only after proving nothing reads `full_name` (`pg_stat_statements`, ETL/BI, other services), drop the trigger, then DROP COLUMN full_name. Set a date now and open the ticket during step 1.'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 298.5,
+        "tokens": 112495,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+          "passed": true,
+          "evidence": "Steps 0-8: v2 Expand (step 1), backfill op (2), gate (3), v3 dual-aware (4), optional NOT NULL (5), v4 contract code (6), soak (7), brownout (8), v5 drop (\u00a76). Each step has a table listing the code versions live at once ('v1 \u2192 v2 rolling', 'v2 + v3', 'v3 + v4') and its rollback target."
+        },
+        {
+          "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+          "passed": true,
+          "evidence": "Step 1: 'AddField first_name and last_name: CharField(max_length=255, null=True, blank=True). No default and not NULL-constrained', confirmed as a plain ADD COLUMN ... NULL. `name` changes only by a COMMENT (metadata)."
+        },
+        {
+          "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+          "passed": true,
+          "evidence": "Step 4 (v3): 'every write path sets all three fields consistently'. Reads: 'read first_name/last_name, falling back to the helper applied to name when both are NULL', behind flag users_split_name_reads."
+        },
+        {
+          "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+          "passed": true,
+          "evidence": "Step 2: one transaction per batch, `WHERE u.id > :last_id AND u.id <= :last_id + :batch` (start at 1000), statement_timeout 10s, throttled on ReplicaLag/CPU/BurstBalance."
+        },
+        {
+          "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+          "passed": true,
+          "evidence": "Idempotency guard `first_name IS NULL AND last_name IS NULL AND name IS NOT NULL`. The migration_progress checkpoint is updated in the same transaction as the batch. Failed batches are parked in migration_failures and a final sweep picks them up. Reproduced on PG 16: the guard makes a re-run a no-op."
+        },
+        {
+          "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+          "passed": true,
+          "evidence": "Step 7: soak of at least 14 days including a month-end. Step 8: brownout (rename) for at least 7 more days. The drop is a separate Release v5 in \u00a76 at the earliest ~21 days after v4 reaches 100%, with the precondition 'The rollback window expired'."
+        },
+        {
+          "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+          "passed": true,
+          "evidence": "\u00a76 preconditions: pg_stat_statements calls delta for name is 0, the brownout caused no errors, v4 is at 100%, step 3 completeness and convergence queries re-run that day return 0/0, consumer inventory done, second reviewer sign-off, archive table and manual snapshot taken first."
+        },
+        {
+          "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+          "passed": true,
+          "evidence": "\u00a71: 'Turning name into two parts is lossy ... name is the pre-image until the end, and it's archived before the drop.' Verdict: 'name stays the source of truth until a verified cutover.' A6 calls the split rule a product decision and lists 'Mary Ann Smith', 'van der Berg', mononyms and suffixes. Step 3 produces an ambiguity report."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 8,
+        "failed": 0,
+        "total": 8,
+        "time_seconds": 105.4,
+        "tokens": 85062,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+          "passed": true,
+          "evidence": "Table row for add_index [:status, :created_at]: 'a second full build over 180M rows ... runs under the exclusive lock'; CREATE INDEX row: 'SHARE lock: blocks writes for a full scan and sort of 180M rows'. Finding 3 says to ship it with algorithm: :concurrently."
+        },
+        {
+          "text": "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+          "passed": true,
+          "evidence": "Step 2 uses disable_ddl_transaction! with add_index ... algorithm: :concurrently; the separate PR for [:status, :created_at] also says 'with disable_ddl_transaction! + algorithm: :concurrently'."
+        },
+        {
+          "text": "Flags the index created by add_reference (index: true) as also non-concurrent",
+          "passed": true,
+          "evidence": "Table row: 'add_reference index: true: CREATE INDEX (not concurrent) on warehouse_id ... SHARE lock: blocks writes'."
+        },
+        {
+          "text": "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+          "passed": true,
+          "evidence": "Table row: 'foreign_key: true: validated FOREIGN KEY | SHARE ROW EXCLUSIVE on both orders and warehouses, plus a validation scan of orders'. Steps 3 and 4: add_foreign_key ... validate: false, then validate_foreign_key in a separate migration."
+        },
+        {
+          "text": "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+          "passed": true,
+          "evidence": "Line 40: with no lock_timeout the ALTER waits behind a long transaction and 'every query that arrives after it queues behind the ALTER, plain SELECTs included'. Steps 1 and 3 use SET LOCAL lock_timeout = '3s'."
+        },
+        {
+          "text": "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+          "passed": true,
+          "evidence": "Finding 1: 'All ~180M existing rows read back fulfilled_at = the timestamp of the migration transaction. Every historical order, shipped or not, now looks fulfilled at deploy time.'"
+        },
+        {
+          "text": "Recommends splitting the change into separate migrations or deployments rather than one migration",
+          "passed": true,
+          "evidence": "Staged alternative: four separate migrations (columns, concurrent index, NOT VALID FK, validate), then a separate code deploy B and a separate PR for the composite index."
+        },
+        {
+          "text": "Mentions checking for or cleaning up an INVALID index if a concurrent build fails",
+          "passed": true,
+          "evidence": "Notes for step A: 'If it fails, it leaves an INVALID index that still costs write overhead: drop it and retry.' The verification query checks pg_index for NOT indisvalid."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 414.8,
+        "tokens": 125453,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+          "passed": true,
+          "evidence": "NEXT_UPPER finds the id N rows ahead with `WHERE id > %s AND id <= %s ORDER BY id LIMIT 1 OFFSET %s` (OFFSET bounded within the keyset window, not from table start); BACKFILL updates `WHERE id > %s AND id <= %s`. Plan text: 'Keyset batches on the PK... No OFFSET scans from the table start.'"
+        },
+        {
+          "text": "Backfill is idempotent via a guard such as amount_cents IS NULL",
+          "passed": true,
+          "evidence": "Guard `AND amount IS NOT NULL AND NOT (amount_cents <=> CAST(amount * 100 AS SIGNED))`; 'It is idempotent: a re-run matches 0 rows.'"
+        },
+        {
+          "text": "Progress is checkpointed durably so the job resumes after a crash",
+          "passed": true,
+          "evidence": "migration_progress table; ADVANCE (compare-and-set on last_id) runs in the same transaction as the batch UPDATE before commit; 'A crash resumes exactly.'"
+        },
+        {
+          "text": "Throttles or pauses on replica lag, citing the reporting replica",
+          "passed": true,
+          "evidence": "replica_lag() measures heartbeat propagation to REPLICA; run() sleeps with backoff when lag >= ceiling; stricter --peak-max-lag during BI hours; 'throttles on measured replica lag so the BI replica stays fresh.'"
+        },
+        {
+          "text": "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+          "passed": true,
+          "evidence": "`SET amount_cents = CAST(amount * 100 AS SIGNED)` in SQL; 'It converts in SQL, never through Python floats'; DECIMAL range arithmetic checked against BIGINT."
+        },
+        {
+          "text": "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+          "passed": true,
+          "evidence": "VERIFY_CHUNK sums `NOT (amount_cents <=> CAST(amount * 100 AS SIGNED))`; verify exits 1 unless missing == 0 and mismatched == 0; run on primary and BI replica (Verification table: '0 missing, 0 mismatched')."
+        },
+        {
+          "text": "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+          "passed": true,
+          "evidence": "Step 5 BI/consumer migration; step 8 gate G8: digest query on primary and replica sampled through month-end, BI inventory signed off, repo search; C3 rename-as-test through a month-end close before C4 drop."
+        },
+        {
+          "text": "Keeps amount through a rollback window and drops it in a separate later step",
+          "passed": true,
+          "evidence": "14-day windows per release (A5), step 8 gate, C2 stop writing, C3 rename and wait a month-end, C4 snapshot then DROP as its own step; earliest drop ~6-8 weeks after backfill."
+        },
+        {
+          "text": "Gives a duration estimate or says to measure throughput on a production-sized copy",
+          "passed": true,
+          "evidence": "Step 2 mandatory rehearsal on snapshot-restored clone with replica; arithmetic 200,000 batches -> ~13.9 h / 27.8 h / 55.6 h (verified: 200000*0.25s=13.9h)."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "old_skill": {
+      "pass_rate": {
+        "mean": 0.97,
+        "stddev": 0.06,
+        "min": 0.88,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 137.55,
+        "stddev": 83.9174,
+        "min": 58.7,
+        "max": 221.2
+      },
+      "tokens": {
+        "mean": 81626.5,
+        "stddev": 9153.933,
+        "min": 72608,
+        "max": 90033
+      }
+    },
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 225.55,
+        "stddev": 158.904,
+        "min": 83.5,
+        "max": 414.8
+      },
+      "tokens": {
+        "mean": 102147.5,
+        "stddev": 20137.9696,
+        "min": 85062,
+        "max": 125453
+      }
+    },
+    "delta": {
+      "pass_rate": "-0.03",
+      "time_seconds": "-88.0",
+      "tokens": "-20521"
+    }
+  },
+  "notes": [
+    "The assertions do not separate the two skills: 31 of 32 pass on both. The one baseline failure is eval 1, where its sync trigger rebuilds name from NULL parts and loses the original.",
+    "The difference shows up in correctness beyond the assertions. Graders found a wrong rollback-safety claim (eval 0), an irreversible Rails migration (eval 2) and a wrong gh-ost NULL claim (eval 3) in the baseline. The new skill's errors were an overstated CI claim, an imprecise attmissingval description, a Django NOT NULL misstatement and a 30s statement_timeout that would abort a 40M-row VALIDATE.",
+    "The statement_timeout finding traces to the skill: operational-mechanics recommends 30s with no exception for VALIDATE or concurrent index builds. Fix in iteration 2.",
+    "The narrowing wording traces to the skill too: PostgreSQL ALTER COLUMN TYPE rejects over-length values instead of truncating. Fix in iteration 2.",
+    "The new skill costs about 25% more tokens and 64% more time per run, from reading more references and writing longer plans.",
+    "Next iteration needs discriminating assertions: correctness of the sync logic, timeout scoping, NULL handling before a NOT NULL rebuild."
+  ]
+}
