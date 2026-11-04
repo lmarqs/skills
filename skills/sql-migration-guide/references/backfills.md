@@ -47,10 +47,10 @@ WITH batch AS (
   SELECT id
   FROM   customers
   WHERE  id > :last_id           -- keyset cursor from the checkpoint
-    AND  display_name IS NULL    -- idempotency guard
+    AND  display_name IS DISTINCT FROM full_name  -- idempotency guard, also re-syncs stale rows
   ORDER  BY id
   LIMIT  1000                    -- bounded
-  FOR    UPDATE SKIP LOCKED      -- lets several workers cooperate without overlap
+  FOR    UPDATE                  -- waits for app writers instead of skipping their rows
 )
 UPDATE customers c
 SET    display_name = c.full_name
@@ -66,7 +66,7 @@ UPDATE customers
 SET    display_name = full_name
 WHERE  id >  :last_id
   AND  id <= :last_id + 1000
-  AND  display_name IS NULL;
+  AND  NOT (display_name <=> full_name);
 -- advance :last_id by 1000 until it passes MAX(id), checkpointing each step
 ```
 
@@ -74,11 +74,14 @@ Details that matter:
 
 - **Index the driving predicate**, or every batch scans for unmigrated rows. In PostgreSQL a
   partial index such as `CREATE INDEX CONCURRENTLY ... ON customers (id) WHERE display_name IS
-  NULL` shrinks as the job advances. Drop it at the end.
+  DISTINCT FROM full_name` shrinks as the job advances. Drop it at the end.
 - **Checkpoint durably** in a table, in the same transaction as the batch where possible:
   `migration_progress(migration_id, last_id, processed, failed, updated_at)`.
 - **Commit between batches.** Wrapping the whole job in one transaction "for safety" recreates
   the long-transaction problem. See operational-mechanics.
+- **One cursor per worker.** `SKIP LOCKED` with a shared `max(id)` checkpoint skips rows an
+  application transaction holds, and the cursor never returns to them. To run several workers,
+  give each a disjoint key range with its own checkpoint.
 - **Sparse keys.** Fixed-width ranges over a key with large gaps produce empty batches. Select
   the next N keys instead when gaps are large.
 

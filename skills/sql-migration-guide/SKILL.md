@@ -102,7 +102,7 @@ and identifier names verbatim.
 ## Pre-deployment checklist
 
 A migration is ready when the team can answer all of these. The first ten are the article's.
-The rest come from the knowledge base.
+The rest go beyond it.
 
 1. Can the previous application version run against the new schema?
 2. Can old and new instances run at the same time?

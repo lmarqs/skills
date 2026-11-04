@@ -40,6 +40,10 @@ steps that hold a blocking lock, but raised or disabled (`SET statement_timeout 
 that run long by design without blocking traffic, such as `VALIDATE CONSTRAINT` and
 `CREATE INDEX CONCURRENTLY`. A 30-second limit aborts those on a large table.
 
+A plain `SET` lasts for the session, so it carries into the next migration the runner applies
+on that connection. Inside a transactional step use `SET LOCAL`. Reset explicitly after a
+non-transactional one.
+
 MySQL's equivalent knob is `lock_wait_timeout` for metadata locks. Set timeouts per migration,
 never inherited from the application.
 

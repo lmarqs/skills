@@ -25,8 +25,9 @@ operation.
 |---|---|---|---|
 | **E1 Expand** | `ALTER TABLE customers ADD COLUMN display_name TEXT NULL` | v1 | v1 ignores a nullable column it never selects |
 | **M1 Dual-write** | Deploy v2: writes both columns, reads `display_name ?? full_name` | v1 + v2 | v1 rows have only `full_name`, which v2's fallback covers. v2 rows have both, so v1 reads `full_name` fine |
-| **M2 Backfill** | Fill `display_name` from `full_name` in batches | v2, rollback to v1 still safe | Both columns converge. No reader depends on completion |
+| **M2 Backfill** | Fill `display_name` from `full_name` in batches, guarded by `display_name IS DISTINCT FROM full_name` | v2, rollback to v1 still safe | Both columns converge, including rows v1 updated after v2 had written them. No reader depends on completion |
 | **M3 Verify** | `count(*) WHERE display_name IS DISTINCT FROM full_name` returns 0 | v2 | Evidence gate |
+| **M4 Relax old** | `ALTER TABLE customers ALTER COLUMN full_name DROP NOT NULL`, if it was required | v2 | Both versions still write it. Without this, v3's inserts fail |
 | **C1 Contract code** | Deploy v3: reads and writes `display_name` only | v2 + v3 | v2 already prefers `display_name`, so v3's single-column rows read correctly |
 | — | Rollback window: soak and change nothing | v3 | v2 is the rollback target now. v1 is not |
 | **C2 Cleanup** | Separate deploy: `ALTER TABLE customers DROP COLUMN full_name` | v3 | v3 never touches it |
@@ -40,6 +41,10 @@ Two things the table makes visible *(beyond the article)*:
   that says "we can always roll back" usually means v1 and is wrong from C1 on.
 - **Reads prefer the new column from the first dual-writing release.** Otherwise C1 breaks the
   still-running v2. The fallback order is load-bearing.
+- **The fallback hides v1's updates.** While v1 and v2 overlap, v1 updates `full_name` on rows
+  v2 already wrote, and v2 keeps serving the stale `display_name`. The backfill must re-sync
+  every row where the columns differ, not only rows where `display_name IS NULL`. A trigger
+  avoids the problem.
 
 **The ordering rule** behind every row: additive DDL before the code that uses it, destructive
 DDL after the last referencing code is gone plus the rollback window.
@@ -65,7 +70,8 @@ Advance on evidence, not on the calendar.
 - **During Expand.** The new column is unused. Leave it rather than run a second DDL under
   stress.
 - **During Migrate, the dual-write release is bad.** Roll back to v1. The old column is still
-  complete and authoritative. Nothing is lost, which is why dual-write is worth its cost.
+  complete and authoritative. Nothing is lost, which is why dual-write is worth its cost. Rows
+  v1 updates from then on leave `display_name` stale, so the backfill re-syncs on difference.
 - **During Migrate, the backfill is wrong.** Pause it. It only wrote the new column, so the
   old one is intact. Fix the transform and re-run it forward. Never reverse a backfill.
 - **During Contract, v3 is bad.** Roll back to v2, which still writes both. That is why C1 and

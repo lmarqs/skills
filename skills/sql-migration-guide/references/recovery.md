@@ -72,19 +72,19 @@ BEGIN;
 -- 1. blast radius first, with the exact predicate of the repair
 SELECT count(*) FROM orders o
 JOIN   mig_2026_08_10_price_rebase_backup b ON b.order_id = o.id
-WHERE  o.amount <> b.old_amount * 1.10;
+WHERE  o.amount <> round(b.old_amount * 1.10, 2);
 
 -- 2. repair exactly the damaged set, in batches if large
 UPDATE orders o
-SET    amount = b.old_amount * 1.10, corrected_by = 'INC-4471'
+SET    amount = round(b.old_amount * 1.10, 2), corrected_by = 'INC-4471'
 FROM   mig_2026_08_10_price_rebase_backup b
 WHERE  o.id = b.order_id
-  AND  o.amount <> b.old_amount * 1.10;
+  AND  o.amount <> round(b.old_amount * 1.10, 2);
 
 -- 3. verify before committing: expect 0
 SELECT count(*) FROM orders o
 JOIN   mig_2026_08_10_price_rebase_backup b ON b.order_id = o.id
-WHERE  o.amount <> b.old_amount * 1.10;
+WHERE  o.amount <> round(b.old_amount * 1.10, 2);
 
 COMMIT;
 ```

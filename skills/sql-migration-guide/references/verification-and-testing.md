@@ -54,8 +54,8 @@ WHERE  o.id IS NULL;                                                            
 `IS DISTINCT FROM` is PostgreSQL. In MySQL use `NOT (a <=> b)`.
 
 *(beyond the article)* Run checks on the replicas the application reads from too. Keep the
-important ones as scheduled invariant checks: the convergence query that mattered during the
-migration often stays a useful data-quality alarm.
+important ones as scheduled invariant checks until Contract starts: from C1 on, new rows
+leave the old column empty, so the convergence query stops being an invariant.
 
 ## Before dropping anything
 

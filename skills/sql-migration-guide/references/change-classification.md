@@ -61,7 +61,7 @@ migration.
 
 | Class | Meaning | Examples | What you owe |
 |---|---|---|---|
-| **R0 free** | Undo restores the exact prior state | add table, column or index; add a `NOT VALID` constraint | Nothing. |
+| **R0 free** | Undo restores the exact prior state | add table, column or index before anything writes to it; add a `NOT VALID` constraint | Nothing. |
 | **R1 costly** | Undo works but is slow or expensive | table rewrite, index rebuild, a recorded large backfill | A tested undo path and a time estimate. |
 | **R2 needs evidence** | The information exists elsewhere | drop of a backfilled column, a transform with an audit trail | A named, verified evidence source and its retention. |
 | **R3 destroys** | Undo is impossible in principle | drop of unbacked data, `TRUNCATE`, truncating narrowing, field merge, in-place hashing, dedup, purge | Capture the pre-image, or do not ship it. |

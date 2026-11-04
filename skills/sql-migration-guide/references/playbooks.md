@@ -65,11 +65,11 @@ because existing rows still carry the value.
 
 ## Narrow a column
 
-Do not narrow in place. Measure first: `SELECT count(*) FROM t WHERE length(col) > 20`. What
-happens to rows that do not fit is a product decision. Capture their pre-images, transform
-them explicitly, and enforce the new limit with `CHECK (length(col) <= 20)`. Consider the type
-change only afterwards, if at all: the check gives the enforcement without irreversible
-truncation.
+Do not narrow in place. Measure first: `SELECT count(*) FROM t WHERE char_length(col) > 20`.
+MySQL's `length()` counts bytes, not characters. What happens to rows that do not fit is a
+product decision. Capture their pre-images, transform them explicitly, and enforce the new
+limit with `CHECK (char_length(col) <= 20)`. Consider the type change only afterwards, if at
+all: the check gives the enforcement without irreversible truncation.
 
 ## Add a unique constraint
 
