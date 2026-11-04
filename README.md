@@ -37,7 +37,7 @@ ln -s "$PWD/global/AGENTS.md" ~/.claude/CLAUDE.md
 Each skill lives at `skills/<name>/SKILL.md` with optional `references/` for
 progressive-disclosure detail. Skills are authored and eval'd with the
 [`skill-creator`](https://github.com/anthropics/skills) tool vendored under
-`.agents/skills/` (pinned in `skills-lock.json`). See [CLAUDE.md](CLAUDE.md) for
+`.agents/skills/` (pinned in `skills-lock.json`). See [AGENTS.md](AGENTS.md) for
 the contributor guide.
 
 ## License

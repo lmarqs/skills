@@ -17,28 +17,15 @@ bypass: refuse
 
 # Commands every session may run, whatever its role.
 commands:
-  allow: []
+  allow:
+    - [python3, .agents/skills/skill-creator/scripts/quick_validate.py]
+    - [sh, .agents/skills/agents-layout/scripts/check.sh]
+    - [cook, check]
+    - [git, [status, diff, log, show, fetch, add, commit, switch, pull, push]]
+    - [gh, pr, [view, list, create]]
   ask: []
-  deny: []
+  deny:
+    - [git, push, [--force, -f]]
+    - [git, reset, --hard]
+    - claude: "git push * --force*"
 
-# This starter grants nothing. An example to start from, with a tool that is not a shell command, named as the
-# harness names it, and a role, which only adds denies for one kind of run and is picked at launch:
-#
-#   commands:
-#     allow:
-#       - [git, [status, diff, log, show]]
-#       - [./gradlew, [test, check]]
-#     ask:
-#       - [git, push]
-#     deny:
-#       - [git, push, [--force, -f]]
-#       - [git, reset, --hard]
-#       - claude: "git push * --force*"
-#   tools:
-#     allow:
-#       - claude: "WebFetch(domain:docs.gradle.org)"
-#   roles:
-#     worker:
-#       deny:
-#         - [git, [commit, push]]
-#         - [gh]
