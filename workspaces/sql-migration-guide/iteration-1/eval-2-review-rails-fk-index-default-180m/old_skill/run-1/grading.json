@@ -1,0 +1,97 @@
+{
+  "expectations": [
+    {
+      "text": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+      "passed": true,
+      "evidence": "Finding 3: 'This is also a non-concurrent build over 180M rows, inside the same transaction. Same blocking as above'; finding 2 explains plain CREATE INDEX 'holds a SHARE lock that blocks writes'."
+    },
+    {
+      "text": "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+      "passed": true,
+      "evidence": "Steps B and the separate composite-index migration use disable_ddl_transaction! with algorithm: :concurrently ('CONCURRENTLY can't run in one')."
+    },
+    {
+      "text": "Flags the index created by add_reference (index: true) as also non-concurrent",
+      "passed": true,
+      "evidence": "Finding 2: 'index: true produces a plain CREATE INDEX. The build scans 180M rows and holds a SHARE lock that blocks writes.'"
+    },
+    {
+      "text": "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+      "passed": true,
+      "evidence": "Finding 2: 'foreign_key: true runs ADD CONSTRAINT ... FOREIGN KEY with immediate validation, which is a full scan of orders. It also takes SHARE ROW EXCLUSIVE on warehouses'. Steps C/D: validate: false, then validate_foreign_key."
+    },
+    {
+      "text": "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+      "passed": true,
+      "evidence": "Finding 2: 'With no lock_timeout, it waits in the lock queue behind any long-running query on orders, and every query that arrives after it queues too.' Steps A and C set SET LOCAL lock_timeout = '5s'."
+    },
+    {
+      "text": "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+      "passed": true,
+      "evidence": "Finding 1: 'all ~180M existing rows read back with the same timestamp, the moment the migration ran'; 'Each historical order, shipped or not, looks fulfilled at the migration time.'"
+    },
+    {
+      "text": "Recommends splitting the change into separate migrations or deployments rather than one migration",
+      "passed": true,
+      "evidence": "Staged alternative: separate migrations A-D ('they must be separate migration files') plus a separate PR for the composite index."
+    },
+    {
+      "text": "Mentions checking for or cleaning up an INVALID index if a concurrent build fails",
+      "passed": true,
+      "evidence": "'Failed concurrent builds leave an INVALID index, and if_not_exists will then skip it.' Gives the pg_index NOT indisvalid query and DROP INDEX CONCURRENTLY."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 0,
+    "total": 8,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "now() is STABLE ... PG evaluates it once at ALTER time and stores it as the column's 'missing value', so the table is not rewritten ... Every row inserted later gets its insert time",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct description of attmissingval and per-insert default evaluation."
+    },
+    {
+      "claim": "foreign_key: true runs ADD CONSTRAINT ... FOREIGN KEY with immediate validation, a full scan of orders; takes SHARE ROW EXCLUSIVE on warehouses",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct; it omits that orders also gets SHARE ROW EXCLUSIVE, but orders already holds ACCESS EXCLUSIVE in this transaction."
+    },
+    {
+      "claim": "Failed concurrent builds leave an INVALID index, and if_not_exists will then skip it",
+      "type": "factual",
+      "verified": true,
+      "evidence": "CREATE INDEX IF NOT EXISTS skips when the name exists, valid or not."
+    },
+    {
+      "claim": "D - Validate. Takes SHARE UPDATE EXCLUSIVE on orders, which doesn't block reads/writes",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct for PG 15."
+    },
+    {
+      "claim": "Proposed migrations A and C put execute \"SET LOCAL lock_timeout\" inside def change",
+      "type": "quality",
+      "verified": false,
+      "evidence": "This is a code defect, not a wrong claim about behavior: Rails cannot invert a raw execute, so rolling back A or C raises ActiveRecord::IrreversibleMigration. with_skill avoided this by using up/down."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "Both runs score 8/8, so the assertions do not separate with_skill from old_skill. Add assertions that need more precise knowledge, e.g. 'States that now() is STABLE so ADD COLUMN with this default does not rewrite the table on PG 11+' (catches a common wrong answer) and 'Notes that new inserts after the migration also receive now() as fulfilled_at'."
+      },
+      {
+        "assertion": "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+        "reason": "Inside the single migration transaction the earlier ADD COLUMN already holds ACCESS EXCLUSIVE, so the index build blocks reads too. 'Blocking writes' is a low bar; consider requiring that the output explain the shared transaction escalating the outage to reads."
+      },
+      {
+        "reason": "No assertion checks that the proposed replacement migrations are themselves correct, e.g. reversible (raw execute inside change cannot be reverted) or that the warehouse_id index is built before the FK. The old_skill run's code has execute inside change and would pass regardless."
+      }
+    ],
+    "overall": "Assertions cover the main hazards but are easy to satisfy for any competent review; they do not discriminate between these two runs."
+  }
+}

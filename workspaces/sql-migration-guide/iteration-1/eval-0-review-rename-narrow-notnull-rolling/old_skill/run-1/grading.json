@@ -1,0 +1,110 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+      "passed": true,
+      "evidence": "Finding 2: 'for about 15 minutes, every v1 pod still serving traffic errors on every read or write of `customers` that names `full_name`.'"
+    },
+    {
+      "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+      "passed": true,
+      "evidence": "Finding 2: 'Redeploying v1 to roll back fails the same way, because v1 cannot run against this schema at all. Rollback would mean writing a reverse-rename migration under incident pressure.'"
+    },
+    {
+      "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+      "passed": true,
+      "evidence": "Finding 1: 'widening back to `VARCHAR(100)` restores the shape, not the values. A Flyway undo/down migration cannot recover them.' and 'MySQL in non-strict mode: over-long values are **silently truncated**.'"
+    },
+    {
+      "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+      "passed": true,
+      "evidence": "Finding 1: '\"We checked\" is not enough evidence' with reasons; verify block: 'SELECT COUNT(*) FROM customers WHERE char_length(phone) > 20; -- run against production, now'; confirm item 4 asks whether the check ran against production."
+    },
+    {
+      "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+      "passed": true,
+      "evidence": "Finding 3: 'v1 pods don't set `loyalty_tier`, so every v1 insert fails for the ~15-minute rollout and after any rollback.'"
+    },
+    {
+      "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+      "passed": true,
+      "evidence": "'Verdict: do not merge as written'; 'Recommended staged plan' Deploy 1 Expand, Deploy 2 Migrate (code), Deploy 3 backfill, verify, Deploy 4 Contract, Deploy 5 Cleanup, each with rollback notes."
+    },
+    {
+      "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+      "passed": true,
+      "evidence": "Deploy 5: 'after the rollback window plus verification; put a date and an owner on it now'; 'Proceed only after confirming that no version reads or writes `full_name` (code search plus statement stats), the backfill converged, and the rollback window expired.'"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "PostgreSQL: ALTER fails with `value too long`; shrinking a VARCHAR rewrites or scans the table under ACCESS EXCLUSIVE",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Assignment-cast semantics of ALTER COLUMN TYPE; shrinking varchar is not binary-coercible."
+    },
+    {
+      "claim": "In PostgreSQL, adding a NOT NULL column with no default to a non-empty table fails; in MySQL existing rows silently get ''",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches both engines' documented behavior."
+    },
+    {
+      "claim": "On PostgreSQL >= 12, CHECK NOT VALID + VALIDATE + SET NOT NULL avoids a long full-table scan under an exclusive lock",
+      "type": "factual",
+      "verified": true,
+      "evidence": "PG 12 lets SET NOT NULL use a validated CHECK (col IS NOT NULL) to skip the scan."
+    },
+    {
+      "claim": "PostgreSQL runs a Flyway migration in one transaction; MySQL DDL is not transactional so V42 can be left half-applied and marked failed",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Flyway default transactional behavior; MySQL implicit commit on DDL."
+    },
+    {
+      "claim": "Engine is PostgreSQL because `ALTER COLUMN ... TYPE` syntax matches it",
+      "type": "factual",
+      "verified": true,
+      "evidence": "MySQL uses MODIFY/CHANGE COLUMN; ALTER COLUMN ... TYPE is PostgreSQL syntax."
+    },
+    {
+      "claim": "Example '+1 (555) 123-4567 ext. 1234' is 27 characters",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Counted: 27."
+    },
+    {
+      "claim": "Deploy 2 rollback: 'redeploying v1 is safe... the fallback read handles rows written by either version'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Design gap, not an engine fact: with no DB-side sync, v1 (during the Deploy 2 rollout or after a rollback) updates only full_name, leaving a non-null stale display_name that v2's display_name-first read then serves. The Deploy 3 'IS DISTINCT FROM' verification query would detect it, but the 'safe' claim is wrong as stated."
+    },
+    {
+      "claim": "Backfill `UPDATE ... WHERE id IN (SELECT ... LIMIT 1000)`",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Valid on PostgreSQL (the stated assumption); would fail on MySQL (error 1235, LIMIT in IN subquery unsupported), but the output does not claim MySQL portability."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+        "reason": "PostgreSQL errors instead of truncating silently; rephrase so a correct engine-specific answer is not penalised."
+      },
+      {
+        "reason": "No assertion checks that the staged plan keeps full_name/display_name consistent while v1 writes during rollout or after rollback; this run's plan has that gap (no trigger) and still scores 7/7."
+      },
+      {
+        "reason": "No assertion covers lock_timeout or lock-queue risk of the DDL."
+      }
+    ],
+    "overall": "All assertions pass; they do not discriminate between skill versions. Add a dual-write consistency assertion."
+  }
+}

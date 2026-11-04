@@ -1,0 +1,16 @@
+{
+  "eval_id": 3,
+  "eval_name": "plan-mysql-cents-backfill-400m-replica",
+  "prompt": "We're moving money amounts from dollars to integer cents. payments.amount is DECIMAL(12,2) on MySQL 8.0 (RDS), about 400M rows, with a read replica that the reporting/BI team queries all day. We already added `amount_cents BIGINT NULL` and the current release writes both columns for new payments. Now I need the backfill job for the old rows (Python is fine) and the rollout steps until we can stop using `amount` entirely. Write it to outputs/plan.md.",
+  "assertions": [
+    "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+    "Backfill is idempotent via a guard such as amount_cents IS NULL",
+    "Progress is checkpointed durably so the job resumes after a crash",
+    "Throttles or pauses on replica lag, citing the reporting replica",
+    "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+    "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+    "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+    "Keeps amount through a rollback window and drops it in a separate later step",
+    "Gives a duration estimate or says to measure throughput on a production-sized copy"
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "expectations": [
+    {
+      "text": "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+      "passed": true,
+      "evidence": "NEXT_UPPER finds the id N rows ahead with `WHERE id > %s AND id <= %s ORDER BY id LIMIT 1 OFFSET %s` (OFFSET bounded within the keyset window, not from table start); BACKFILL updates `WHERE id > %s AND id <= %s`. Plan text: 'Keyset batches on the PK... No OFFSET scans from the table start.'"
+    },
+    {
+      "text": "Backfill is idempotent via a guard such as amount_cents IS NULL",
+      "passed": true,
+      "evidence": "Guard `AND amount IS NOT NULL AND NOT (amount_cents <=> CAST(amount * 100 AS SIGNED))`; 'It is idempotent: a re-run matches 0 rows.'"
+    },
+    {
+      "text": "Progress is checkpointed durably so the job resumes after a crash",
+      "passed": true,
+      "evidence": "migration_progress table; ADVANCE (compare-and-set on last_id) runs in the same transaction as the batch UPDATE before commit; 'A crash resumes exactly.'"
+    },
+    {
+      "text": "Throttles or pauses on replica lag, citing the reporting replica",
+      "passed": true,
+      "evidence": "replica_lag() measures heartbeat propagation to REPLICA; run() sleeps with backoff when lag >= ceiling; stricter --peak-max-lag during BI hours; 'throttles on measured replica lag so the BI replica stays fresh.'"
+    },
+    {
+      "text": "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+      "passed": true,
+      "evidence": "`SET amount_cents = CAST(amount * 100 AS SIGNED)` in SQL; 'It converts in SQL, never through Python floats'; DECIMAL range arithmetic checked against BIGINT."
+    },
+    {
+      "text": "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+      "passed": true,
+      "evidence": "VERIFY_CHUNK sums `NOT (amount_cents <=> CAST(amount * 100 AS SIGNED))`; verify exits 1 unless missing == 0 and mismatched == 0; run on primary and BI replica (Verification table: '0 missing, 0 mismatched')."
+    },
+    {
+      "text": "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+      "passed": true,
+      "evidence": "Step 5 BI/consumer migration; step 8 gate G8: digest query on primary and replica sampled through month-end, BI inventory signed off, repo search; C3 rename-as-test through a month-end close before C4 drop."
+    },
+    {
+      "text": "Keeps amount through a rollback window and drops it in a separate later step",
+      "passed": true,
+      "evidence": "14-day windows per release (A5), step 8 gate, C2 stop writing, C3 rename and wait a month-end, C4 snapshot then DROP as its own step; earliest drop ~6-8 weeks after backfill."
+    },
+    {
+      "text": "Gives a duration estimate or says to measure throughput on a production-sized copy",
+      "passed": true,
+      "evidence": "Step 2 mandatory rehearsal on snapshot-restored clone with replica; arithmetic 200,000 batches -> ~13.9 h / 27.8 h / 55.6 h (verified: 200000*0.25s=13.9h)."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "quote": "A crash resumes exactly. A second worker started by mistake fails on its first batch.",
+      "why_wrong": "Minor code defect: if the connection drops during COMMIT (2013) after the server committed, run_batch reconnects and retries with the old last_id; ADVANCE then matches 0 rows and the job raises 'is a second worker running?'. No data harm (restart resumes from the committed checkpoint), but the diagnosis is false and the job exits instead of continuing. Retrying should re-read the checkpoint after a reconnect."
+    },
+    {
+      "quote": "VERIFY_CHUNK ... SUM(amount IS NOT NULL AND amount_cents IS NULL) ... SUM(NOT (amount_cents <=> CAST(amount * 100 AS SIGNED)))",
+      "why_wrong": "Not wrong, but rows with NULL amount_cents are counted in both 'missing' and 'mismatched', so 'mismatched' overstates real drift. Cosmetic."
+    }
+  ],
+  "verified_claims_note": "Checked and found correct: DECIMAL(12,2) max -> 999,999,999,999 cents fits BIGINT; 8 B x 400M = 3.2 GB; duration arithmetic; 8.0.29 withdrawn / INSTANT DROP COLUMN 8.0.29+; 64 row-version limit and INNODB_TABLES.TOTAL_ROW_VERSIONS; MySQL 8.0 community EOL April 2026; native MODIFY NULL/NOT NULL is INPLACE rebuild replayed serially on replica; gh-ost refuses FKs and triggers by default; gh-ost INSERT IGNORE row copy can coerce NULL to 0 (flagged as inference); RDS trigger creation needs log_bin_trust_function_creators; mysql.rds_kill; gh-ost flags exist. Script not executed (stated in output).",
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "All 9 assertions passed for both with_skill and old_skill, so this eval does not discriminate. Candidate discriminating assertions: (a) the NOT NULL tightening on 400M rows uses gh-ost/pt-osc rather than native ALTER because the replica replays it serially; (b) every DDL on payments (including INSTANT drop) is coordinated with long BI queries on the replica because of the metadata lock; (c) NULL amount_cents must be zero before the NOT NULL copy because online-schema-change tools copy with INSERT IGNORE and coerce NULL to 0 silently; (d) the job retries only transient errors and does not misreport after an ambiguous commit."
+      },
+      {
+        "reason": "Assertion 9 ('estimate OR measure') is satisfied by a single sentence; consider requiring both an arithmetic estimate and a rehearsal measurement plan."
+      }
+    ],
+    "overall": "Assertions cover the right outcomes but are too easy for a strong baseline."
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "review-rails-fk-index-default-180m",
+  "prompt": "Quick sanity check before I merge this Rails migration? orders is our biggest table, ~180M rows on Postgres 15 (RDS), around 2k writes/sec at peak. We deploy with rolling updates and migrations run as a pre-deploy step.\n\n```ruby\nclass AddFulfillmentToOrders < ActiveRecord::Migration[7.1]\n  def change\n    add_reference :orders, :warehouse, foreign_key: true, index: true\n    add_index :orders, [:status, :created_at]\n    add_column :orders, :fulfilled_at, :datetime, default: -> { 'now()' }\n  end\nend\n```\n\nThe new code sets warehouse_id and fulfilled_at when an order ships. Write your review to outputs/review.md.",
+  "assertions": [
+    "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+    "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+    "Flags the index created by add_reference (index: true) as also non-concurrent",
+    "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+    "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+    "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+    "Recommends splitting the change into separate migrations or deployments rather than one migration",
+    "Mentions checking for or cleaning up an INVALID index if a concurrent build fails"
+  ]
+}

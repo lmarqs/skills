@@ -1,0 +1,125 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+      "passed": true,
+      "evidence": "Finding 2: 'v1 pods query `full_name`. Once the rename commits, every v1 query touching that column fails until the last v1 pod is gone (~15 minutes).'"
+    },
+    {
+      "text": "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+      "passed": true,
+      "evidence": "Verdict: 'It also makes rollback to v1 impossible.' Finding 2: 'going back to v1 after this runs means an outage, unless someone renames the column back by hand.'"
+    },
+    {
+      "text": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+      "passed": true,
+      "evidence": "Finding 1: 'widening back to `VARCHAR(100)` gives back the capacity, not the characters... On MySQL in non-strict mode the values are cut short without any error. There is no copy of the original values anywhere.' Also correctly distinguishes PostgreSQL erroring instead."
+    },
+    {
+      "text": "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+      "passed": true,
+      "evidence": "Finding 1: '\"Nobody has phone numbers that long, we checked.\" This is an unverified claim until a query in this PR shows otherwise... Run this on production and post the result: SELECT count(*), max(length(phone)) FROM customers WHERE length(phone) > 20; -- expect 0'"
+    },
+    {
+      "text": "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+      "passed": true,
+      "evidence": "Finding 3: 'v1 pods inserting without `loyalty_tier` fail... \"The app sets it on every insert\" only holds for v2. It doesn't hold for v1 pods during the rollout'. Also notes PG rejects the ADD on a non-empty table."
+    },
+    {
+      "text": "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+      "passed": true,
+      "evidence": "'Verdict: do not merge as written'; 7-step 'Recommended staged plan' table (expand, dual-write v2, backfill, enforce, v3, phone constraint, contract) with verify and rollback target per step, plus a sync trigger."
+    },
+    {
+      "text": "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first",
+      "passed": true,
+      "evidence": "Step 7: 'after the rollback window, and only after proving nothing reads `full_name` (`pg_stat_statements`, ETL/BI, other services), drop the trigger, then DROP COLUMN full_name. Set a date now and open the ticket during step 1.'"
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "On PostgreSQL the ALTER fails with `value too long for type character varying(20)` if any row is longer than 20",
+      "type": "factual",
+      "verified": true,
+      "evidence": "ALTER COLUMN TYPE without USING applies an assignment cast; assignment to varchar(n) with an over-long non-space value raises this error."
+    },
+    {
+      "claim": "Making a varchar shorter is not binary-coercible; PostgreSQL rewrites the table and rebuilds indexes under ACCESS EXCLUSIVE",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Only increasing/removing the varchar limit skips the rewrite; shrinking goes through the length-coercion function and rewrites."
+    },
+    {
+      "claim": "MySQL needs ALGORITHM=COPY to shrink a VARCHAR, which blocks writes",
+      "type": "factual",
+      "verified": true,
+      "evidence": "MySQL online DDL docs: decreasing VARCHAR size requires a table copy; concurrent DML not permitted."
+    },
+    {
+      "claim": "PostgreSQL rejects ADD COLUMN ... NOT NULL without default on a non-empty table",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Error: column \"loyalty_tier\" of relation \"customers\" contains null values."
+    },
+    {
+      "claim": "MySQL fills existing rows with implicit default '' and later strict-mode inserts omitting the column fail with 'Field ... doesn't have a default value'",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Matches MySQL implicit-default and strict-mode behavior for NOT NULL VARCHAR without DEFAULT."
+    },
+    {
+      "claim": "Flyway runs a PostgreSQL migration in one transaction; on MySQL a failed partial migration needs manual fix plus `flyway repair`",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Flyway default per-migration transaction; MySQL DDL implicit-commits; failed entry recorded in history table."
+    },
+    {
+      "claim": "VALIDATE CONSTRAINT takes SHARE UPDATE EXCLUSIVE; SET NOT NULL skips the scan on PG 12+ when a valid CHECK (col IS NOT NULL) exists",
+      "type": "factual",
+      "verified": true,
+      "evidence": "PostgreSQL ALTER TABLE docs (PG 12 release notes)."
+    },
+    {
+      "claim": "JDBC pools can raise `cached plan must not change result type` after the rename",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Known PgJDBC server-prepared-statement error after DDL changes result columns."
+    },
+    {
+      "claim": "Example '+55 (11) 91234-5678 ext. 1234' goes past 20",
+      "type": "factual",
+      "verified": true,
+      "evidence": "29 characters (counted)."
+    },
+    {
+      "claim": "Running the previous release's test suite against the new schema 'would have caught all three problems'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "Overclaim: the phone narrowing only fails v1 tests that write >20-char values, and the NOT NULL add only fails on a non-empty test DB. Not an engine-behavior error."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+        "reason": "Wording is inaccurate for PostgreSQL, which errors rather than truncating silently on ALTER TYPE. A strict reading would penalise an output that correctly says PG errors. Rephrase to 'irreversible information loss (silent truncation on MySQL non-strict; widening back does not restore values)'."
+      },
+      {
+        "reason": "No assertion checks the PostgreSQL-specific fact that ADD COLUMN NOT NULL without default fails outright on a non-empty table; both runs caught it, but it is the most likely real-world outcome."
+      },
+      {
+        "reason": "No assertion checks that the staged plan keeps full_name and display_name in sync while v1 is still writing (trigger or equivalent). This is the main discriminator between the two runs: with_skill adds a sync trigger, old_skill relies on app dual-write and a v1 rollback would leave display_name stale."
+      },
+      {
+        "reason": "No assertion covers lock_timeout / ACCESS EXCLUSIVE queueing on the DDL, or the PG-transactional vs MySQL half-applied Flyway failure mode."
+      }
+    ],
+    "overall": "All seven assertions pass for both runs; they do not discriminate between skill versions. Add assertions on sync correctness during dual-write and lock safety."
+  }
+}

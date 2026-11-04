@@ -1,0 +1,98 @@
+{
+  "expectations": [
+    {
+      "text": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+      "passed": true,
+      "evidence": "Releases 1-7, each 'ships on its own and has its own rollback story'. Each names a rollback target (e.g. Release 6 \u2192 'redeploy Release 5'). \u00a75 answers 'Can the previous version run against the new schema? Yes at every release.' (That claim is undermined by the trigger defect under assertion 8.)"
+    },
+    {
+      "text": "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+      "passed": true,
+      "evidence": "Release 1: AddField first_name/last_name CharField(max_length=255, null=True, blank=True). 'Do not give them a Python default='. name is untouched."
+    },
+    {
+      "text": "Transitional code dual-writes both representations and reads new with fallback to name",
+      "passed": true,
+      "evidence": "Read new with fallback: Release 3 display_first_name returns first_name when the flag is on and it is not None, otherwise split_name(self.name). Dual-write is done by a DB BEFORE trigger, not app code (\u00a71 justifies this as covering every writer). The intent of keeping both representations written is met, though app code never writes both."
+    },
+    {
+      "text": "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+      "passed": true,
+      "evidence": "Release 2: per-batch transaction over `u.id > :lo AND u.id <= :hi`, 1,000-5,000 ids, statement_timeout 5s, lock_timeout 1s, frozen upper_id."
+    },
+    {
+      "text": "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+      "passed": true,
+      "evidence": "'Idempotent. Rows that already have parts no longer match the predicate'. 'Restartable. last_id is committed in the same transaction as the batch'. Kill switch before each batch."
+    },
+    {
+      "text": "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+      "passed": true,
+      "evidence": "14-day rollback window per contract step (A6). Release 7 drop ships alone and is gated on 'The rollback window after Release 6 has expired'."
+    },
+    {
+      "text": "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+      "passed": true,
+      "evidence": "Release 7 gate: zero pg_stat_statements matches for users.name since a reset at Release 6, code search across all repos/ETL/BI, \u00a73 verification queries pass, readable archive exists."
+    },
+    {
+      "text": "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition",
+      "passed": false,
+      "evidence": "Lossiness is acknowledged (verdict, A5, \u00a75 Q3). But the plan's trigger does not keep name as source of truth. Its 4th branch rebuilds name whenever the parts change on a populated row. Reproduced on PG 16 with the plan's exact SQL: after the backfill, an UPDATE that sets first_name/last_name to NULL with name unchanged (a Django full save() of an instance loaded before the backfill, or the plan's own \u00a74 'reset the parts' repair) sets name to '', destroying the original. The plan also contradicts itself: the verdict says 'name stays as the source of truth until the final, separate drop', but Release 4 says name 'is the rollback bridge, not the source of truth'. The Release 7 archive is said to 'keep the originals' but is taken after Release 4 rebuilt name for edited rows."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 1,
+    "total": 8,
+    "pass_rate": 0.88
+  },
+  "claims": [
+    {
+      "claim": "\u00a74: 'UPDATE ... SET first_name = NULL, last_name = NULL WHERE <predicate>, which the trigger ignores because name is unchanged and the new parts are NULL'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "False under the plan's own trigger. Branch 4 (name unchanged, OLD.first_name IS NOT NULL, parts changed) fires and sets NEW.name := concat_ws(' ', NULL, NULL) = ''. Reproduced on PG 16: name became ''. The documented repair path destroys the source data on every affected row."
+    },
+    {
+      "claim": "\u00a71 table / 'All of the above was run on Postgres 14 ... Verified' and \u00a75 'Yes at every release'",
+      "type": "factual",
+      "verified": false,
+      "evidence": "Same defect. Release 1-3 models declare first_name/last_name. A Django full save() of an instance loaded before the backfill writes NULL parts over backfilled ones and the trigger blanks name. The grader reproduced this race on PG 16."
+    },
+    {
+      "claim": "Release 7 archive: 'keep the originals as the source of truth for compensating repairs'",
+      "type": "quality",
+      "verified": false,
+      "evidence": "The archive is taken at Release 7. From Release 4 onward the trigger has rebuilt name for every row whose parts were edited ('Jean Luc Picard'), so the archive does not hold the originals for those rows. Archiving before Release 4 would."
+    },
+    {
+      "claim": "EXECUTE FUNCTION needs PG >= 11; the CHECK-based SET NOT NULL shortcut needs PG >= 12; nullable ADD COLUMN without default is catalog-only; CREATE TRIGGER takes SHARE ROW EXCLUSIVE; DROP COLUMN is catalog-only under a brief ACCESS EXCLUSIVE",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Correct per PG docs. The CREATE TRIGGER lock mode was confirmed via pg_locks on PG 16."
+    },
+    {
+      "claim": "Trigger with 'UPDATE OF name, first_name, last_name' column list",
+      "type": "factual",
+      "verified": true,
+      "evidence": "This creates a column dependency that blocks DROP COLUMN (confirmed on PG 16). The plan drops the trigger before the column in Release 7, so it is handled correctly."
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "Transitional code dual-writes both representations and reads new with fallback to name",
+        "reason": "Passes whether dual-writing lives in app code or a DB trigger, and does not check that the sync logic is correct. old_skill passed it even though its trigger wipes `name` to '' on a full-row save that sets the parts to NULL (reproduced on PG 16). Consider asserting that the sync rules leave `name` intact on every write path, including stale/full-row saves."
+      },
+      {
+        "assertion": "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+        "reason": "Both runs pass easily. To make it discriminating, require each step to name its rollback target and the code versions live at the same time."
+      },
+      {
+        "reason": "No assertion checks lock-safety specifics on a hot table (lock_timeout on DDL, catalog-only ADD COLUMN, NOT VALID/VALIDATE for NOT NULL). Both runs cover these, but a plan without them would still pass every assertion."
+      }
+    ],
+    "overall": "Assertions check plan structure, not correctness. 7 of 8 pass for both runs on structure alone. The only difference between the runs came from a technical check (a trigger bug) that the assertions do not encode."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "skill_name": "sql-migration-guide",
+  "evals": [
+    {
+      "id": 0,
+      "name": "review-rename-narrow-notnull-rolling",
+      "prompt": "Can you review this Flyway migration before I merge? Context: we deploy with rolling updates on k8s and it usually takes ~15 minutes for all pods to cycle to the new version.\n\nV42__cleanup_customers.sql:\n\nALTER TABLE customers RENAME COLUMN full_name TO display_name;\nALTER TABLE customers ALTER COLUMN phone TYPE VARCHAR(20);\nALTER TABLE customers ADD COLUMN loyalty_tier VARCHAR(10) NOT NULL;\n\nThe app code in this same PR is already updated to use display_name everywhere and to set loyalty_tier on every insert. phone was VARCHAR(100) before but nobody has phone numbers that long, we checked.\n\nWrite your review to outputs/review.md.",
+      "expected_output": "A review that flags all three statements: the rename breaks old pods during the 15-min rolling window (and breaks rollback after it); the VARCHAR narrowing is silently irreversible if any value exceeds 20 chars (verify against data, widening back won't restore truncated values); NOT NULL without a default breaks inserts from old pods mid-rollout. Proposes staging via Expand-Migrate-Contract for the rename, a nullable-or-defaulted loyalty_tier, and pre-checks for the narrowing. Frames findings around 'can both versions run at once', mentions the rollback window / delayed destructive cleanup.",
+      "files": [],
+      "assertions": [
+        "Flags the column rename as breaking old pods during the ~15-min rolling window (they still query full_name)",
+        "Notes the rename also breaks rollback to the previous release even after the rollout completes",
+        "Flags VARCHAR(100)->VARCHAR(20) narrowing as silently irreversible: truncated values are not restored by widening back",
+        "Recommends verifying existing phone values fit the new length before narrowing (data check, not assumption)",
+        "Flags NOT NULL loyalty_tier without a default as breaking inserts from old pods mid-rollout",
+        "Proposes a staged multi-deployment alternative (Expand-Migrate-Contract or equivalent) instead of merging as-is",
+        "Recommends delaying destructive cleanup (dropping full_name) past a rollback window with verification first"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "plan-split-name-40m-zero-downtime",
+      "prompt": "We need to split the `name` column on our `users` table into `first_name` and `last_name`. The table has about 40 million rows in Postgres (RDS) and it's the hottest table in the product \u2014 we can't take downtime. It's a Django app with rolling deploys. Give me a concrete migration plan; we'd also like to eventually drop `name`. Write the plan to outputs/plan.md.",
+      "expected_output": "A staged, numbered plan of independent deployments: (1) expand \u2014 add nullable first_name/last_name; (2) code \u2014 dual-write both representations, read new with fallback to name; (3) backfill in bounded batches (keyset/ID ranges, not one transaction), idempotent (only touches rows where new cols are null), restartable/pausable, with progress observability; (4) contract \u2014 read/write only new columns, keep `name` through an explicit rollback window; (5) separate later cleanup deployment dropping `name` only after verification queries (backfill converged, nothing reads/writes name). Should also flag that splitting names is a lossy transform (keep `name` as source of truth) and ideally raise the name-parsing ambiguity.",
+      "files": [],
+      "assertions": [
+        "Plan is a numbered sequence of separate deployments, each compatible with the version still in traffic",
+        "Expand phase adds first_name/last_name as nullable (or defaulted) without touching name",
+        "Transitional code dual-writes both representations and reads new with fallback to name",
+        "Backfill runs in bounded batches / key ranges, not one long transaction over 40M rows",
+        "Backfill is idempotent and restartable (e.g. only touches rows where new columns are NULL, tracks progress)",
+        "name is kept through an explicit rollback window; the drop is a separate, later deployment",
+        "Specifies verification before dropping name (backfill converged, nothing reads/writes name anymore)",
+        "Acknowledges name-splitting is lossy/ambiguous and keeps the original name as source of truth during transition"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "review-rails-fk-index-default-180m",
+      "prompt": "Quick sanity check before I merge this Rails migration? orders is our biggest table, ~180M rows on Postgres 15 (RDS), around 2k writes/sec at peak. We deploy with rolling updates and migrations run as a pre-deploy step.\n\n```ruby\nclass AddFulfillmentToOrders < ActiveRecord::Migration[7.1]\n  def change\n    add_reference :orders, :warehouse, foreign_key: true, index: true\n    add_index :orders, [:status, :created_at]\n    add_column :orders, :fulfilled_at, :datetime, default: -> { 'now()' }\n  end\nend\n```\n\nThe new code sets warehouse_id and fulfilled_at when an order ships. Write your review to outputs/review.md.",
+      "expected_output": "Flags both non-concurrent index builds as blocking writes on a 180M-row hot table and gives the concurrent alternative with disable_ddl_transaction!, plus checking for an INVALID index after failure. Flags the foreign key as validating under a lock and recommends adding it NOT VALID then validating separately. Recommends lock_timeout and explains the lock-queue risk. Flags that the now() default stamps every existing order as fulfilled at migration time, a data-meaning bug. Splits the migration into separate steps.",
+      "files": [],
+      "assertions": [
+        "Flags add_index on orders without algorithm: :concurrently as blocking writes on a 180M-row hot table",
+        "Recommends concurrent index builds with disable_ddl_transaction! (or equivalent: outside a transaction)",
+        "Flags the index created by add_reference (index: true) as also non-concurrent",
+        "Flags the foreign key as validating the table under a lock and recommends adding it without validation (validate: false / NOT VALID) and validating in a separate step",
+        "Recommends a lock_timeout (or equivalent) and explains that a waiting DDL lock queues all traffic behind it",
+        "Flags that default now() stamps every existing order with the migration time, making unshipped orders look fulfilled",
+        "Recommends splitting the change into separate migrations or deployments rather than one migration",
+        "Mentions checking for or cleaning up an INVALID index if a concurrent build fails"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "plan-mysql-cents-backfill-400m-replica",
+      "prompt": "We're moving money amounts from dollars to integer cents. payments.amount is DECIMAL(12,2) on MySQL 8.0 (RDS), about 400M rows, with a read replica that the reporting/BI team queries all day. We already added `amount_cents BIGINT NULL` and the current release writes both columns for new payments. Now I need the backfill job for the old rows (Python is fine) and the rollout steps until we can stop using `amount` entirely. Write it to outputs/plan.md.",
+      "expected_output": "A backfill walking the primary key in bounded ranges (no OFFSET), guarded by amount_cents IS NULL, with a durable checkpoint, throttled on replica lag because of the BI replica, handling failures without killing the run, and doing the conversion in exact decimal (SQL) rather than float. Verification query comparing amount*100 to amount_cents expecting 0. Rollout keeps amount through a rollback window, moves readers including BI/ETL before any drop, and drops amount in a separate later step after proving nothing reads it. Gives or asks for a duration estimate.",
+      "files": [],
+      "assertions": [
+        "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+        "Backfill is idempotent via a guard such as amount_cents IS NULL",
+        "Progress is checkpointed durably so the job resumes after a crash",
+        "Throttles or pauses on replica lag, citing the reporting replica",
+        "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+        "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+        "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+        "Keeps amount through a rollback window and drops it in a separate later step",
+        "Gives a duration estimate or says to measure throughput on a production-sized copy"
+      ]
+    }
+  ]
+}

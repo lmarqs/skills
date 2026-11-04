@@ -2,16 +2,16 @@
 name: sql-quality-check
 description: >-
   Audit and improve SQL quality systematically — catch performance smells in raw SQL, ORM-generated
-  queries, schema/modeling decisions, migrations, or PR diffs, explain the database-level impact, give
+  queries, schema/modeling decisions, or PR diffs, explain the database-level impact, give
   a corrected version, and make the tradeoff explicit. Generic by design: no project, domain, ORM, or
   language config — any context it needs (is this table transactional? is the scan intentional? what
   volume is expected?) is raised during analysis, never assumed. Reach for it whenever someone writes,
-  reviews, or optimizes a query or data-access code — "review this query", "why is this slow", "check
-  my migration", "is this index right", or when you see N+1, SELECT *, a cartesian/row explosion,
+  reviews, or optimizes a query or data-access code — "review this query", "why is this slow", "is this
+  index right", or when you see N+1, SELECT *, a cartesian/row explosion,
   three-plus joins, a missing date filter on a growing table, OFFSET pagination, LIKE '%term%', NOT IN
   with nullable columns, an unindexed ORDER BY, an unbounded list, or a long transaction — even when
   they never say the word "SQL". Use it both to validate new code and designs and to audit existing
-  ones.
+  ones. Migration safety belongs to sql-migration-guide.
 ---
 
 # SQL quality check

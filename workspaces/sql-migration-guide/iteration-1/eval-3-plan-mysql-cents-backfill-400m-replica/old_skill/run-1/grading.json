@@ -1,0 +1,82 @@
+{
+  "expectations": [
+    {
+      "text": "Backfill walks the primary key in bounded ranges or keyset batches, not OFFSET and not one statement",
+      "passed": true,
+      "evidence": "BACKFILL_SQL `WHERE id >= %s AND id < %s`; write_loop advances `hi = min(lo + chunk, end)` with adaptive chunk; plan explains why `WHERE amount_cents IS NULL LIMIT 1000` re-scans."
+    },
+    {
+      "text": "Backfill is idempotent via a guard such as amount_cents IS NULL",
+      "passed": true,
+      "evidence": "BACKFILL_SQL `AND amount_cents IS NULL AND amount IS NOT NULL`; 'the amount_cents IS NULL predicate makes re-running any range a no-op'; separate repair mode uses `NOT (amount_cents <=> amount * 100)`."
+    },
+    {
+      "text": "Progress is checkpointed durably so the job resumes after a crash",
+      "passed": true,
+      "evidence": "backfill_progress.next_id advanced in run_batch in the same transaction as the UPDATE (compare-and-set `next_id = %s`), then commit; 'Re-run the same command to resume.'"
+    },
+    {
+      "text": "Throttles or pauses on replica lag, citing the reporting replica",
+      "passed": true,
+      "evidence": "wait_for_replica() reads Seconds_Behind_Source via SHOW REPLICA STATUS on MYSQL_REPLICA_HOST ('BI replica endpoint') before every batch; throttle at 5 s, resume at 2 s, agreed with the BI team."
+    },
+    {
+      "text": "Conversion uses exact decimal arithmetic (in SQL or Python Decimal), not floating point",
+      "passed": true,
+      "evidence": "`SET amount_cents = amount * 100` in SQL; 'provided it's computed in SQL decimal arithmetic, never through a float'; A4 warns about float(19.99)*100 in app code."
+    },
+    {
+      "text": "Includes a verification query comparing amount*100 with amount_cents, expecting zero mismatches",
+      "passed": true,
+      "evidence": "`SELECT COUNT(*) FROM payments WHERE amount IS NOT NULL AND amount_cents <> amount * 100; -- correct: must be 0`; VERIFY_SQL per range, exits 1 on any finding; plus per-day SUM reconciliation."
+    },
+    {
+      "text": "Moves the BI/reporting and other consumers of amount before any drop, and checks nothing reads it",
+      "passed": true,
+      "evidence": "Step 4 BI section: digest inventory on replica, switch to amount_cents after verify, sign-off prerequisite; Step 6 checklist: code search across repos plus digest on both primary and replica showing no statement touching payments.amount since R4."
+    },
+    {
+      "text": "Keeps amount through a rollback window and drops it in a separate later step",
+      "passed": true,
+      "evidence": "Window 1 (two weeks incl. month-end) and Window 2; step 5 stops writing amount; step 6 'Run it alone, as its own change' after Window 2 expires, with pre-drop snapshot."
+    },
+    {
+      "text": "Gives a duration estimate or says to measure throughput on a production-sized copy",
+      "passed": true,
+      "evidence": "'Dry-run in a staging copy with realistic size to measure batch time and rate. I haven't measured anything; any duration estimate for 400M rows is a guess until you do.' Script logs ids/s and ETA. No arithmetic estimate given."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "quote": "Verify `amount_cents` has zero NULLs immediately before cutover, or the `NOT NULL` copy fails.",
+      "why_wrong": "gh-ost copies rows with INSERT IGNORE ... SELECT and pt-online-schema-change with INSERT LOW_PRIORITY IGNORE. Under IGNORE, MySQL converts NULL into a NOT NULL BIGINT column to the implicit default 0 with a warning instead of failing. The copy succeeds silently with amount_cents = 0 for those rows: silent money corruption, not a failure. The precondition is right; the stated consequence is wrong and understates the risk."
+    },
+    {
+      "quote": "def replica_lag_seconds(...): ... if not row: return None  /  wait_for_replica: if lag is not None and lag <= max_lag: return ... while not stop_requested",
+      "why_wrong": "If --replica points at a host that is not a replica (empty SHOW REPLICA STATUS) the job loops forever logging 'throttling' instead of failing fast. Fail-safe for data, but a silent hang."
+    },
+    {
+      "quote": "except pymysql.err.OperationalError as exc: primary.rollback()",
+      "why_wrong": "On lost connection (2006/2013, also OperationalError) primary.rollback() raises again inside the handler, masking the original error; there is no reconnect, so any transient network blip ends the job. Resume still works from the checkpoint, so no data harm."
+    },
+    {
+      "quote": "Seconds_Behind_Source ... checks ... on the BI replica before every batch",
+      "why_wrong": "Not false, but Seconds_Behind_Source is integer-second, reports 0 when the IO thread is behind, and is based on event timestamps; a heartbeat measurement is more reliable for throttling. Weakness, not an error."
+    }
+  ],
+  "verified_claims_note": "Checked and found correct: DECIMAL(12,2) max fits BIGINT; float(19.99)*100 = 1998.9999999999998; SHOW REPLICA STATUS / Seconds_Behind_Source from 8.0.22; INSTANT DROP COLUMN 8.0.29+ and 64-version cap with TOTAL_ROW_VERSIONS; INPLACE rebuild replayed serially on replica; INSTANT DDL still takes exclusive MDL; READ COMMITTED semi-consistent reads release non-matching row locks; pymysql maps 1205/1213 to OperationalError. Script stated as py_compile-checked only.",
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "All 9 assertions passed for both runs; the eval does not separate with_skill from old_skill. See with_skill grading.json for candidate discriminating assertions (online-schema-change for NOT NULL, replica MDL coordination, INSERT IGNORE NULL->0 coercion)."
+      }
+    ],
+    "overall": "Assertions are reasonable but non-discriminating against this baseline."
+  }
+}
