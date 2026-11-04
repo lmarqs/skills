@@ -1,0 +1,21 @@
+# Written by the-cook; do not edit by hand.
+version: 1
+recipes:
+  - name: "io.github.lmarqs.cookbook:agents#seed"
+    source: "io.github.lmarqs.cookbook:agents:10.1.1#seed"
+    sha256: "3504ade2f81d7e83a4e05f98200db93250322c6d4a7c3828c8b1d0de52189836"
+    arguments: {}
+    owns:
+      files:
+        - ".agents/skills/agents-layout/SKILL.md"
+        - ".agents/skills/agents-layout/references/adopt.md"
+        - ".agents/skills/agents-layout/references/agents-md.md"
+        - ".agents/skills/agents-layout/references/claude.md"
+        - ".agents/skills/agents-layout/references/codex.md"
+        - ".agents/skills/agents-layout/references/design.md"
+        - ".agents/skills/agents-layout/references/investigate.md"
+        - ".agents/skills/agents-layout/references/policy.md"
+        - ".agents/skills/agents-layout/scripts/check.sh"
+        - ".agents/skills/agents-layout/templates/AGENTS.template.md"
+        - ".agents/skills/agents-layout/templates/README.template.md"
+        - ".agents/skills/agents-layout/templates/policy.template.yaml"
