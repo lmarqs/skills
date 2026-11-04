@@ -35,6 +35,8 @@ statement.
 4. PostgreSQL: `ADD CONSTRAINT x_nn CHECK (x IS NOT NULL) NOT VALID`, then `VALIDATE
    CONSTRAINT x_nn`, then `SET NOT NULL`, which skips the scan. MySQL: `MODIFY ... NOT NULL`
    rebuilds the table, so schedule it or use an online schema change tool on large tables.
+   Verify zero `NULL`s first: `gh-ost` and `pt-online-schema-change` copy rows with `INSERT
+   IGNORE`, which turns a leftover `NULL` into the column's implicit default instead of failing.
 5. Optionally drop the redundant check.
 
 `ADD COLUMN x NOT NULL DEFAULT 'unknown'` in one step is only acceptable if a table full of

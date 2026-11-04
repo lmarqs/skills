@@ -46,7 +46,7 @@ migration.
 | Add index | yes | Compatibility-safe. Availability risk unless built concurrently or online. |
 | Add `UNIQUE`, `CHECK` or `FOREIGN KEY` | conditional | Old code may write rows that violate a rule it does not know. Existing rows may already violate it. |
 | Widen a type (`VARCHAR(20)` to `(100)`, `INT` to `BIGINT`) | conditional | Old drivers, DTOs or client-side types may not fit the new range. |
-| Narrow a type | **no, and lossy** | Breaks compatibility and truncates data. Widening back restores capacity, not characters. |
+| Narrow a type | **no, and lossy** | PostgreSQL and strict-mode MySQL reject it if any value is too long, so it fails mid-deploy. Non-strict MySQL, or a `USING substr(...)`, truncates silently, and widening back restores capacity, not characters. Old code writing long values starts failing either way. |
 | Rename column or table | **no** | Breaks old code the instant it commits. |
 | Drop column or table | **no, and lossy** | Breaks old code and is irreversible. |
 | Change a column default | conditional | Old and new code disagree about what "unset" means. |

@@ -32,8 +32,13 @@ Fail fast instead of queueing, then retry with backoff and hunt the long transac
 
 ```sql
 SET lock_timeout = '3s';        -- PostgreSQL: give up instead of blocking traffic
-SET statement_timeout = '30s';  -- never let the DDL itself run away
+SET statement_timeout = '30s';  -- for steps that hold a blocking lock: never let them run away
 ```
+
+`lock_timeout` belongs on every DDL step. `statement_timeout` is sized per step: short for
+steps that hold a blocking lock, but raised or disabled (`SET statement_timeout = 0`) for steps
+that run long by design without blocking traffic, such as `VALIDATE CONSTRAINT` and
+`CREATE INDEX CONCURRENTLY`. A 30-second limit aborts those on a large table.
 
 MySQL's equivalent knob is `lock_wait_timeout` for metadata locks. Set timeouts per migration,
 never inherited from the application.
