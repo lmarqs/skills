@@ -1,3 +1,8 @@
+---
+description: How to order a text so a reader gets the point without reading all of it: answer first, headings that summarize, one topic per paragraph, one place per fact, and an ending on the next step.
+audience: Whoever organizes a text or reviews its shape with the writing-for-readers skill.
+---
+
 # Structure
 
 Structure decides whether a reader can get the point without reading everything. Most readers
@@ -34,8 +39,7 @@ The point comes first in the document, in each section, and in each paragraph.
 
 Answer-first is the right order for documents and agent answers because their readers have a
 job to do. Thomas and Turner, who describe a "classic" essay style that withholds signposts,
-say practical prose exists because "Why else would anyone presume to take up a reader's time
-than to solve a problem for the reader?"
+set practical prose apart by that job: it exists to solve a problem for the reader.
 
 ## Outline before drafting
 
@@ -117,9 +121,20 @@ To check:
 - **Nothing to remember across sections.** A section that needs a definition from an earlier
   section restates it or links to it, since a scanning reader may arrive there first.
 
+## Ending on the next step
+
+The last paragraph is the second place a scanning reader lands, and it is where the reader
+decides what to do. It states the decision, the action the reader takes next, or that
+nothing changes. An explanation that stops at its last piece of evidence makes the reader ask
+"and?"; a text that ends on a list of links or a summary of itself spends its last line on
+something the reader already has. Strunk's rule for the sentence, "Place the emphatic words
+of a sentence at the end", holds for the text: the end carries the thing that matters most to
+the reader, which is what they do with it.
+
 ## Checks
 
 - The first paragraph holds the answer.
+- The last paragraph gives the reader their next step, decision, or "nothing changes".
 - The headings, read alone and in order, form a correct summary.
 - Every heading is specific, leads with its topic word, has a body, and is kept by its body.
 - Every paragraph has one topic, stated first.

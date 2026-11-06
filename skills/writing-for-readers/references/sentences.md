@@ -1,3 +1,8 @@
+---
+description: Sentence-level criteria, each with its test: actors as subjects, concrete words, cuts, hedges as conditions, no sentences about the document, one register, length and reading aloud.
+audience: Whoever edits a text sentence by sentence with the writing-for-readers skill.
+---
+
 # Sentences
 
 A good sentence reads the way a clear person talks: someone does something, in words the
@@ -27,8 +32,8 @@ subject and the main action in its verb. A sentence is hard when it hides either
 
 - **The action is a noun.** "The implementation of caching resulted in a reduction of
   latency." The actions are *implement* and *reduce*. Rewrite with the actor as subject and
-  the action as verb: "We added caching and latency dropped." Zinsser: "Nouns that express a
-  concept are commonly used in bad writing instead of verbs that tell what somebody did."
+  the action as verb: "We added caching and latency dropped." Zinsser makes the same point:
+  a noun that names a concept stands where a verb would say what somebody did.
 - **The actor is missing or buried.** "A decision was made to deprecate the endpoint." Who
   decided? Name them when the reader needs to know.
 - **The verb is empty.** Orwell called phrases like "render inoperative", "give rise to" and
@@ -81,9 +86,8 @@ the end of the day", "moving forward", "a key consideration") is rewritten from 
 ## Cutting
 
 Strunk rule 13: "A sentence should contain no unnecessary words, a paragraph no unnecessary
-sentences". Zinsser: "Most first drafts can be cut by 50 percent without losing any
-information or losing the author's voice." NN/g measured the effect on web text: a concise
-version scored 58 percent better than the original on their usability measure.
+sentences". NN/g measured the effect on web text: a concise version scored 58 percent better
+than the original on their usability measure.
 
 The test is deletion. Remove a word, sentence or paragraph and reread. If the reader loses
 nothing, the deletion stays. Basecamp's version: "Occasionally pick random words, sentences,
@@ -91,9 +95,9 @@ or paragraphs and hit delete. Did it matter?"
 
 Typical cuts:
 
-- Words the verb or noun already implies: Zinsser, "there's no other way to clench teeth" than
-  tightly.
-- Qualifiers: "a bit", "sort of", "rather", "quite", "somewhat". Zinsser: "Be confused."
+- Words the verb or noun already implies: "clench tightly", "personal friend", "end result".
+- Qualifiers: "a bit", "sort of", "rather", "quite", "somewhat". Zinsser's rule is to commit
+  to the claim.
 - Intensifiers: "very", "really", "extremely", "critical", "key".
 - A closing sentence that restates the paragraph.
 
@@ -102,9 +106,9 @@ Williams adds a limit: cut until the prose would turn cryptic, then stop.
 ## Hedges and conditions
 
 A hedge that names when the claim fails is information; keep it and make the condition
-explicit. A hedge that only signals the writer's discomfort is noise; delete it. Pinker: the
-writer can "qualify the statement, that is, spell out the circumstances in which it does not
-hold".
+explicit. A hedge that only signals the writer's discomfort is noise; delete it. Pinker draws
+the same line: a qualification spells out the circumstances in which the claim does not hold;
+a hedge only softens it.
 
 | Process hedge | Stated condition |
 |---|---|
@@ -117,8 +121,9 @@ When a claim is unverified, say that once, plainly, and say what would verify it
 
 A sentence whose subject is the text itself ("This section will discuss…", "As mentioned
 above…", "It is worth noting that…") spends the reader's attention on the writer's process.
-Pinker: "metadiscourse is there to help the writer, not the reader." Replace each with the
-content it announces. Headings already tell a scanning reader where they are.
+Pinker's name for it is metadiscourse, and his point is that it helps the writer, not the
+reader. Replace each with the content it announces. Headings already tell a scanning reader
+where they are.
 
 ## Writer and reader as equals
 
@@ -127,6 +132,12 @@ it to a reader who is "competent to recognize it". Words that talk down ("simply
 "obviously", "just", "of course") tell a reader who is stuck that the fault is theirs. Words
 that defer ("as you surely know") spend a sentence on something the reader either knows or
 does not. Both go.
+
+The stance also holds the register steady. One writer addresses one reader from the first
+paragraph to the last, in the words that reader uses. Basecamp: "You need to speak the same
+language as your audience too." A text that explains retries to an engineer with a story
+about a shop assistant leaving the room, then switches to `operation_timeout` two lines
+later, has changed reader mid-text; the declared reader gets only the second version.
 
 ## Length
 
@@ -143,10 +154,11 @@ require short sentences, only that "every word tell."
 
 ## Reading aloud
 
-Thomas and Turner: clear prose "can be read aloud properly the first time" and "never requires
-the reader to look forward or backward". Read the text aloud once, in order. A sentence that
-you stumble on, that you would never say, or that only makes sense after the next one gets
-rewritten.
+Thomas and Turner's test for clear prose is that it can be read aloud correctly on the first
+pass, without looking ahead or back. Zinsser's is the same from the writer's side: "Writing
+is talking to someone else on paper or on a screen." Read the text aloud once, in order. A
+sentence that you stumble on, that you would never say, or that only makes sense after the
+next one gets rewritten.
 
 ## Where the sources disagree
 
@@ -172,5 +184,6 @@ rewritten.
 - Each hedge is a stated condition or is gone.
 - No sentence has the document as its subject.
 - No "simply", "obviously", "just", "of course".
+- Any two paragraphs address the same reader in the same register.
 - Sentences over the length flag for this reader are split or justified.
 - The text reads aloud once, in order, without stumbling.

@@ -1,3 +1,8 @@
+---
+description: The four declarations a text makes before its body, how to write them, and how the declared reader sets explicitness and document kind.
+audience: Whoever starts a new text or opens a review with the writing-for-readers skill, before any other criterion.
+---
+
 # The reader contract
 
 The reader contract is four declarations a text makes before its body: who reads it, what they
@@ -86,10 +91,24 @@ minute.
 **Out of scope.** Changing the invoice format.
 ```
 
-**Agent answers.** The person who asked is the reader and their message is the question. The
-first sentence is the answer. Scope appears only when the answer covers less than was asked,
-as one sentence saying what was left out and why. Reasoning follows only as far as the reader
-needs it to trust or act on the answer.
+**Agent answers and replies.** The next response is the document, and the conversation sets
+its contract:
+
+- **Reader:** the person who asked. What they already know includes everything said in the
+  conversation so far, claims the reply is about to change among them.
+- **Question:** every question in their last message, plus any earlier one still unanswered.
+- **Answer:** the first sentence answers the first question, and each question gets its answer,
+  in the order asked, before anything new. An explanation ends on what it means for the
+  reader: a decision, an action, or that nothing changes.
+
+The reader already holds what the conversation said, so a claim that changes an earlier one
+names it: "Earlier I blamed the worker pods; the eviction log shows only the api-server was
+evicted." A reply that contradicts the conversation without saying so contradicts itself, as a
+document does when its middle disagrees with its opening.
+
+Scope appears only when the answer covers less than was asked, as one sentence saying what was
+left out and why. Reasoning follows only as far as the reader needs it to trust or act on the
+answer.
 
 **Short texts** (a commit message, a Slack update, a PR title) state the answer and let the
 channel imply the reader. The contract still applies; it is implicit because the setting

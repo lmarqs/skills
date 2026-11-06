@@ -70,9 +70,14 @@ Database migrations do not roll back with it. This page covers the rollback comm
 migration check. Incident communication lives in the on-call handbook.
 ```
 
-In an agent's answer, the first sentence is the answer, and the reader and question are the
-person who asked and what they asked. An answer that opens by restating the question or
-narrating the work spends the reader's first glance on something they already have.
+An agent's answer or a reply in a thread is a document too: the next response, with the
+conversation as its contract. The reader is the person who asked, and what they know includes
+everything said so far. The question is every question in their last message, plus any earlier
+one still unanswered. The first sentence answers the first question; each question gets its
+answer, in order, before anything new; a claim that changes an earlier one names what it
+changes; and an explanation ends on what it means for the reader. An answer that opens by
+restating the question or narrating the work spends the reader's first glance on something
+they already have.
 
 The reader decides explicitness. For a reader new to the domain, define each term at first use,
 name the relation between sentences, and repeat the noun instead of a pronoun that could point
@@ -80,7 +85,7 @@ two ways. For an expert, cut everything they already know.
 
 ## Criteria
 
-Each criterion has a test a reviewer can run on the text. These fourteen are the core set.
+Each criterion has a test a reviewer can run on the text. These sixteen are the core set.
 [`references/review-checklist.md`](references/review-checklist.md) expands them into the full
 set, coded by level, with the sources behind each.
 
@@ -93,13 +98,15 @@ set, coded by level, with the sources behind each.
 | 5 | Headings alone summarize the text. | Read only the headings, in order. They form a correct outline. |
 | 6 | Each paragraph has one topic, stated in its first sentence. | Read only first sentences. The argument survives. |
 | 7 | Each fact lives in one place. | Search for each key claim. It appears once; other places link to it. |
-| 8 | No two sentences contradict each other. | For each entity, collect what the text says about it, middle sections included. The statements agree. |
+| 8 | No two sentences contradict each other. | For each entity, collect what the text says about it, middle sections included. The statements agree, and agree with what the reader was told earlier in the conversation unless the text names the correction. |
 | 9 | Every pronoun and "this" has one antecedent. | Name the antecedent of each. There is exactly one candidate. |
 | 10 | One term names one thing. | Search for synonyms of each key term. Each concept has one name. |
 | 11 | Each new term is defined or linked where it first appears. | List terms the declared reader may not know. Each has a definition at first use. |
 | 12 | Sentences connect: each opens on something the reader already has, and the relation is stated. | For each sentence pair, name the shared noun and the connective. |
 | 13 | Every detail and every contrast serves the point. | Delete each clause of an example; if the lesson is unchanged, the clause goes. For each "X, not Y" in prose or examples, name what the reader would otherwise do with Y and why it is wrong. If you cannot, the contrast implies a rule nobody stated. |
 | 14 | The text holds nothing the declared reader already knows. | For each paragraph, ask whether this reader has it already. If yes, it goes. |
+| 15 | The text ends on what the reader does next. | Read the last paragraph alone. It states a decision, an action, or that nothing changes; a reader who finishes it does not ask "and?". |
+| 16 | One writer addresses one reader in one register throughout. | Pick any two paragraphs. Both are pitched at the declared reader; neither explains to a novice what the other assumes of an expert. |
 
 ## How to use this guide
 

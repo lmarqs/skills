@@ -1,3 +1,8 @@
+---
+description: How to build an example that teaches only its point, and how to catch one that teaches more.
+audience: Whoever writes or reviews an example, sample or illustration with the writing-for-readers skill.
+---
+
 # Examples
 
 An example teaches by being concrete, and a reader learns everything in it, including the

@@ -1,3 +1,8 @@
+---
+description: The operations that make consecutive sentences connect, each with its test.
+audience: Whoever writes or reviews a text with the writing-for-readers skill and finds it correct but hard to follow.
+---
+
 # Coherence
 
 Coherence is what lets a reader move from one sentence to the next without stopping to work
