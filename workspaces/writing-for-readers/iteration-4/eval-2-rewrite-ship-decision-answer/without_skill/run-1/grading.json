@@ -1,0 +1,50 @@
+{
+ "expectations": [
+  {
+   "text": "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+   "passed": true,
+   "evidence": "First sentence: 'Yes, ship 4.12 today, with the `coupons_v2` flag left off in production.'"
+  },
+  {
+   "text": "Keeps the condition that the coupons_v2 flag stays off in production",
+   "passed": true,
+   "evidence": "'with the `coupons_v2` flag left off in production' and 'Before anyone turns `coupons_v2` on'"
+  },
+  {
+   "text": "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+   "passed": true,
+   "evidence": "No 'First, I started by'/'Next, I checked'/'I also looked at'; 'I have not determined which' is a status statement, not narration of steps."
+  },
+  {
+   "text": "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+   "passed": true,
+   "evidence": "No 'Great question' opener and no 'let me know' closer; ends on the follow-up action."
+  },
+  {
+   "text": "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+   "passed": true,
+   "evidence": "'**Before anyone turns `coupons_v2` on:** find out why the `checkout_flow_test.rb` coupon test failed.' Risk tied to flag: 'that code only runs when the flag is on'."
+  },
+  {
+   "text": "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+   "passed": false,
+   "evidence": "Keeps the unexplained list: 'it can involve the coupon worker, the discount service and the promo engine, since all three touch this code' - none of the three is explained or reconciled with 'coupon service'."
+  },
+  {
+   "text": "Introduces no facts absent from the original answer",
+   "passed": true,
+   "evidence": "All facts (1,284 unit tests, 0.2% over 24h, copy update, logging bump, flag off, re-run passed, coupon service changed) trace to the original; no new facts found."
+  },
+  {
+   "text": "Is shorter than the original answer",
+   "passed": true,
+   "evidence": "149 words vs 268 in the original."
+  }
+ ],
+ "summary": {
+  "passed": 7,
+  "failed": 1,
+  "total": 8,
+  "pass_rate": 0.88
+ }
+}

@@ -1,0 +1,15 @@
+{
+  "eval_id": 2,
+  "eval_name": "rewrite-ship-decision-answer",
+  "prompt": "A teammate asked our coding agent 'should we ship release 4.12 today?' and got the reply in evals/files/agent-answer.md. Rewrite it into the answer they should have gotten. Save to outputs/answer.md.",
+  "assertions": [
+    "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+    "Keeps the condition that the coupons_v2 flag stays off in production",
+    "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+    "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+    "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+    "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+    "Introduces no facts absent from the original answer",
+    "Is shorter than the original answer"
+  ]
+}

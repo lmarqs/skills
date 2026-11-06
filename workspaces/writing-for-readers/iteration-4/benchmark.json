@@ -1,0 +1,696 @@
+{
+  "metadata": {
+    "skill_name": "writing-for-readers",
+    "skill_path": "skills/writing-for-readers",
+    "executor_model": "claude-fable-5-1",
+    "analyzer_model": "claude-fable-5-1",
+    "timestamp": "2026-11-06T16:54:36Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 32.8,
+        "tokens": 73973,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags that the runbook never states who it is for or what the reader already knows",
+          "passed": true,
+          "evidence": "C1/C2/C3: 'no sentence names the reader, what they already know, the problem the runbook solves, or what it leaves out', with an audience frontmatter rewrite."
+        },
+        {
+          "text": "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+          "passed": true,
+          "evidence": "C4/C6: 'The rollback command first appears in the third section... Rewrite: open with the procedure.' S7/S5: 'the one procedure is split across two sections with nearly the same heading.'"
+        },
+        {
+          "text": "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+          "passed": true,
+          "evidence": "S2: 'the body describes a manual rollback, so the first sentence breaks the heading's promise.'"
+        },
+        {
+          "text": "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+          "passed": true,
+          "evidence": "S6/S5: 'Architecture says \"it times out after 30 seconds\"; the config example sets processor_timeout_seconds: 60; Notes says ... 60 seconds.'"
+        },
+        {
+          "text": "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+          "passed": true,
+          "evidence": "L5: 'The reader cannot tell whether these are one process or three'."
+        },
+        {
+          "text": "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+          "passed": true,
+          "evidence": "'L1, 2: \"it times out\" (the processor or the consumer?), \"It should recover\" (the deployment or the charge success rate?).'"
+        },
+        {
+          "text": "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+          "passed": true,
+          "evidence": "E1/E2: 'The \"not in the Helm chart\" contrast is useful only if the reader is told what happens when they set it there.'"
+        },
+        {
+          "text": "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+          "passed": true,
+          "evidence": "C4/C6 'drop the history from the runbook entirely'; 'L13, 2: \"This section will discuss\", \"It's worth noting that\".'"
+        },
+        {
+          "text": "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+          "passed": true,
+          "evidence": "Sections in order: '## Contract', '## Structure', '## Local'."
+        },
+        {
+          "text": "Gives a concrete rewrite for most findings, not only a description of the problem",
+          "passed": true,
+          "evidence": "Each of the 8 main findings has a 'Rewrite:' line, most with concrete text (frontmatter block, numbered rollback steps, '## Roll back', 'Set the retry count in `config/payments.yaml`...'). Only the four 'smaller' bullets lack rewrites."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 9,
+        "failed": 0,
+        "total": 9,
+        "time_seconds": 32.6,
+        "tokens": 74750,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States the intended reader and what they already know, in frontmatter or the opening",
+          "passed": true,
+          "evidence": "Frontmatter line 3: 'audience: Frontend engineers new to the team. Know Docker and GitHub Actions well; have never seen the staging cluster, Vault or the preview setup.'"
+        },
+        {
+          "text": "The first paragraph tells the reader that every PR gets a preview environment and where to find it (the pr-<number>.preview.acme.dev URL)",
+          "passed": true,
+          "evidence": "Line 8-11: 'Every pull request gets its own running copy of the web app at `https://pr-<number>.preview.acme.dev`, about 6 minutes after each push.'"
+        },
+        {
+          "text": "Does not explain Docker basics such as what an image or a container is",
+          "passed": true,
+          "evidence": "Only 'Builds the Docker image from the repository.' No definition of image or container."
+        },
+        {
+          "text": "Explains Vault, or the secret/preview/web path, at first use in words a reader new to it can act on",
+          "passed": true,
+          "evidence": "Line 46-48 at first use: 'Vault is where the platform team stores secrets... If your change needs a new secret, ask the platform team to add it under `secret/preview/web`.'"
+        },
+        {
+          "text": "Explains mailhog, or what happens to emails in a preview, at first use",
+          "passed": true,
+          "evidence": "Line 41 at first use: 'every email the app sends goes to MailHog, a mail catcher. Read it at https://pr-<number>.preview.acme.dev/mailhog.'"
+        },
+        {
+          "text": "Omits the story of trying ephemeral databases first, or reduces it to a single sentence of rationale",
+          "passed": true,
+          "evidence": "No mention of ephemeral databases or seeded fixtures anywhere."
+        },
+        {
+          "text": "Writes the concurrent-push failure with the condition (two pushes within about a minute) before the instruction (re-run the job)",
+          "passed": true,
+          "evidence": "Line 65-66: 'If two pushes land within about a minute of each other, the second Helm install fails ... Re-run the failed `preview` job' - condition precedes instruction."
+        },
+        {
+          "text": "States what the reader cannot do: no ssh, and kubectl exec needs staging access most developers lack",
+          "passed": true,
+          "evidence": "Line 54-56: 'You cannot SSH into a preview. If you have access to the staging cluster, you can open a shell with `kubectl -n previews exec`; most developers do not have that access'."
+        },
+        {
+          "text": "Every heading names its content specifically, and no heading is directly followed by another heading",
+          "passed": true,
+          "evidence": "All headings are specific statements (e.g. 'The `preview` action deploys each push in about 6 minutes', 'Two pushes within a minute fail the second deploy'); every heading is followed by body text."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 6,
+        "failed": 2,
+        "total": 8,
+        "time_seconds": 22.2,
+        "tokens": 71530,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+          "passed": true,
+          "evidence": "First sentence: 'Yes, ship 4.12 today, as long as the `coupons_v2` flag stays off in production.'"
+        },
+        {
+          "text": "Keeps the condition that the coupons_v2 flag stays off in production",
+          "passed": true,
+          "evidence": "'as long as the `coupons_v2` flag stays off in production' and 'With the flag off, users never reach that path.'"
+        },
+        {
+          "text": "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+          "passed": true,
+          "evidence": "No step-by-step narration phrases; the text states findings, not the process of finding them."
+        },
+        {
+          "text": "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+          "passed": false,
+          "evidence": "Closes with 'Tell me if you want me to investigate it.' - the same offer-to-dig-deeper filler as the original's 'Let me know if you want me to dig deeper'."
+        },
+        {
+          "text": "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+          "passed": true,
+          "evidence": "'Before anyone turns `coupons_v2` on, find out whether that failure is a flaky test or a race' under a 'Next:' heading; risk tied to flag: 'With the flag off, users never reach that path.'"
+        },
+        {
+          "text": "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+          "passed": false,
+          "evidence": "Keeps the unexplained list: 'the coupon worker, the discount service and the promo engine all touch this code, so the check covers all three' - none explained."
+        },
+        {
+          "text": "Introduces no facts absent from the original answer",
+          "passed": true,
+          "evidence": "Facts trace to the original. 'the release's three changes' is a count derived from the three changes the original lists (not the 14 commits); 'every integration test except one' matches 'one failure'. Borderline but not a new fact."
+        },
+        {
+          "text": "Is shorter than the original answer",
+          "passed": true,
+          "evidence": "180 words vs 268 in the original."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 32.9,
+        "tokens": 74277,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Declares the readers: support leads and backend engineers",
+          "passed": true,
+          "evidence": "Frontmatter audience: \"Support leads, who handle the monthly usage-report requests...\" and \"Backend engineers who will build the feature\"; body has a section per group."
+        },
+        {
+          "text": "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before the detailed solution and its constraints",
+          "passed": true,
+          "evidence": "\"Problem.\" paragraph cites \"212 of these requests in October\" and Lumen Logistics churn; it precedes the detailed support/engineering sections where delivery design and volume constraints are given (opening paragraph only summarizes the proposal)."
+        },
+        {
+          "text": "States an objective or goal the solution is measured against",
+          "passed": true,
+          "evidence": "\"Goal. A Business account admin sets up an export once, and the usage report reaches the recipients on schedule without a request to support.\""
+        },
+        {
+          "text": "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+          "passed": true,
+          "evidence": "\"Out of scope.\" lists PDF exports, choosing columns, Starter-plan accounts."
+        },
+        {
+          "text": "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+          "passed": true,
+          "evidence": "Support section: what changes (self-service, remaining requests) and when (\"release date is not set yet; it follows the engineering estimate\"). Engineer section: 2M+ rows/month, signed link delivery, frequency, recipients."
+        },
+        {
+          "text": "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+          "passed": true,
+          "evidence": "\"Large accounts produce more than 2 million usage rows per month, so a monthly export ... cannot travel as an email attachment. Each run therefore stores the CSV and emails a signed download link to it, valid for 7 days.\""
+        },
+        {
+          "text": "The proposal itself appears within the first few paragraphs, before supporting detail",
+          "passed": true,
+          "evidence": "First paragraph: \"Account admins on the Business plan will schedule a CSV export ... The proposed delivery is a signed download link valid for 7 days\"."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 14.5,
+        "tokens": 69943,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+          "passed": true,
+          "evidence": "First sentence: 'Yes, it was the api-server.' Next sentence confirms workers were not OOM-killed."
+        },
+        {
+          "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+          "passed": true,
+          "evidence": "'My 09:10 answer was wrong: the workers were not OOM-killed and ran all morning without a restart.'"
+        },
+        {
+          "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+          "passed": true,
+          "evidence": "'grew to 6.1 GiB of the node's 8 GiB, because it has no memory limit' and 'their 256Mi memory request puts them first in line for eviction.'"
+        },
+        {
+          "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+          "passed": true,
+          "evidence": "'not needed. Workers peaked at 410Mi of their 512Mi limit'"
+        },
+        {
+          "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+          "passed": true,
+          "evidence": "'safe as far as this incident goes... touches neither the api-server, the renderer nor the workers.'"
+        },
+        {
+          "text": "Answers the questions in the order Priya asked them",
+          "passed": true,
+          "evidence": "Sections follow Priya's order: api-server?, why evicted, worker bump, 4.12."
+        },
+        {
+          "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+          "passed": true,
+          "evidence": "Last paragraph: 'Next: set a memory limit on the PDF renderer and raise the api-server's memory request...'"
+        },
+        {
+          "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+          "passed": true,
+          "evidence": "No analogies or definitions of pods/eviction; terse SRE register throughout."
+        },
+        {
+          "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+          "passed": true,
+          "evidence": "No 'I looked at'/'I checked' narration; findings stated directly."
+        },
+        {
+          "text": "Introduces no facts absent from the thread and findings",
+          "passed": false,
+          "evidence": "'Under that node memory pressure, the kubelet evicted the api-server pods' asserts the evicted api-server pods were on node general-b-7; the findings only place the evictions on node pool general-b and the renderer on general-b-7. Also 'grew to' adds an unstated growth pattern."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 6,
+        "failed": 4,
+        "total": 10,
+        "time_seconds": 32.4,
+        "tokens": 63717,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags that the runbook never states who it is for or what the reader already knows",
+          "passed": false,
+          "evidence": "No finding names the missing audience or assumed knowledge. #11 only says the title doesn't say 'runbook'; #6 suggests adding owner/on-call links, which is not the reader or their prior knowledge."
+        },
+        {
+          "text": "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+          "passed": true,
+          "evidence": "#1: 'Combine the two sections into one rollback procedure'; #11: 'put the incident procedures near the top, since that's what people will open it for.'"
+        },
+        {
+          "text": "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+          "passed": true,
+          "evidence": "#2: 'The heading \"Rollback is automatic\" is wrong. The section describes a manual command.'"
+        },
+        {
+          "text": "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+          "passed": true,
+          "evidence": "#3 lists line 13 '30 seconds', line 29 `processor_timeout_seconds: 60`, line 40 '60 seconds'."
+        },
+        {
+          "text": "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+          "passed": true,
+          "evidence": "#5 'One component, three names' and open question 'Are worker, consumer and job runner the same process?'"
+        },
+        {
+          "text": "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+          "passed": false,
+          "evidence": "No finding addresses an ambiguous 'it' ('it times out', 'It should recover'); #4 quotes 'It should recover' but critiques only missing dashboard/threshold details."
+        },
+        {
+          "text": "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+          "passed": true,
+          "evidence": "#8: 'It says to set the retry count in the YAML file and not in the Helm chart, but not why (does Helm override it? ...)'"
+        },
+        {
+          "text": "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+          "passed": true,
+          "evidence": "#6: 'The monolith split and the move to Kubernetes don't help anyone running the service... Also cut \"This section will discuss\".'"
+        },
+        {
+          "text": "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+          "passed": false,
+          "evidence": "Ordered by severity (Blockers, Other issues). Structure issues (#1, #2) come first; reader/contract-type issues (#6 overview, #11 title) come late and are mixed with others. No reader/contract section precedes structure."
+        },
+        {
+          "text": "Gives a concrete rewrite for most findings, not only a description of the problem",
+          "passed": false,
+          "evidence": "Concrete replacement text only for #1 (numbered steps), #2 (new heading), #10 (example sentence), #11 (new title), plus a structure outline. #3, #4, #5, #7, #8 give directions or questions ('Find the real value', 'say so', lists of what's missing) rather than rewritten text; under half of 11 findings have a concrete rewrite."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.78,
+        "passed": 7,
+        "failed": 2,
+        "total": 9,
+        "time_seconds": 24.7,
+        "tokens": 64163,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "States the intended reader and what they already know, in frontmatter or the opening",
+          "passed": false,
+          "evidence": "No frontmatter and no opening statement of the intended reader or what they know; opening only describes the preview URL and its use."
+        },
+        {
+          "text": "The first paragraph tells the reader that every PR gets a preview environment and where to find it (the pr-<number>.preview.acme.dev URL)",
+          "passed": true,
+          "evidence": "Line 3: 'Every pull request gets its own running copy of the web app at `https://pr-<number>.preview.acme.dev`'."
+        },
+        {
+          "text": "Does not explain Docker basics such as what an image or a container is",
+          "passed": true,
+          "evidence": "Only 'Builds the Docker image from the repository's Dockerfile.' No definition of image or container."
+        },
+        {
+          "text": "Explains Vault, or the secret/preview/web path, at first use in words a reader new to it can act on",
+          "passed": true,
+          "evidence": "Line 35-37 at first use: 'read secrets from **Vault**, our secrets store, under the path `secret/preview/web`... To add a new secret, ask the platform team to add it under `secret/preview/web`.'"
+        },
+        {
+          "text": "Explains mailhog, or what happens to emails in a preview, at first use",
+          "passed": true,
+          "evidence": "Line 31 at first use: 'Emails are not sent. They are captured by MailHog, which you can read at https://pr-<number>.preview.acme.dev/mailhog.'"
+        },
+        {
+          "text": "Omits the story of trying ephemeral databases first, or reduces it to a single sentence of rationale",
+          "passed": true,
+          "evidence": "No mention of ephemeral databases or seeded fixtures anywhere."
+        },
+        {
+          "text": "Writes the concurrent-push failure with the condition (two pushes within about a minute) before the instruction (re-run the job)",
+          "passed": true,
+          "evidence": "Line 59: symptom, then 'Two pushes landed within about a minute of each other...' then 'Re-run the failed job from the PR's Checks tab.' Condition precedes instruction."
+        },
+        {
+          "text": "States what the reader cannot do: no ssh, and kubectl exec needs staging access most developers lack",
+          "passed": true,
+          "evidence": "Line 49-55: 'There is no SSH. If you have access to the staging cluster, open a shell with: kubectl -n previews exec ... Most developers do not have staging cluster access.'"
+        },
+        {
+          "text": "Every heading names its content specifically, and no heading is directly followed by another heading",
+          "passed": false,
+          "evidence": "No heading follows a heading, but several headings are generic labels that do not name specific content: 'Lifecycle', 'Data', 'Secrets', 'Logs', 'Troubleshooting', 'Cost'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.88,
+        "passed": 7,
+        "failed": 1,
+        "total": 8,
+        "time_seconds": 10.7,
+        "tokens": 61770,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+          "passed": true,
+          "evidence": "First sentence: 'Yes, ship 4.12 today, with the `coupons_v2` flag left off in production.'"
+        },
+        {
+          "text": "Keeps the condition that the coupons_v2 flag stays off in production",
+          "passed": true,
+          "evidence": "'with the `coupons_v2` flag left off in production' and 'Before anyone turns `coupons_v2` on'"
+        },
+        {
+          "text": "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+          "passed": true,
+          "evidence": "No 'First, I started by'/'Next, I checked'/'I also looked at'; 'I have not determined which' is a status statement, not narration of steps."
+        },
+        {
+          "text": "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+          "passed": true,
+          "evidence": "No 'Great question' opener and no 'let me know' closer; ends on the follow-up action."
+        },
+        {
+          "text": "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+          "passed": true,
+          "evidence": "'**Before anyone turns `coupons_v2` on:** find out why the `checkout_flow_test.rb` coupon test failed.' Risk tied to flag: 'that code only runs when the flag is on'."
+        },
+        {
+          "text": "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+          "passed": false,
+          "evidence": "Keeps the unexplained list: 'it can involve the coupon worker, the discount service and the promo engine, since all three touch this code' - none of the three is explained or reconciled with 'coupon service'."
+        },
+        {
+          "text": "Introduces no facts absent from the original answer",
+          "passed": true,
+          "evidence": "All facts (1,284 unit tests, 0.2% over 24h, copy update, logging bump, flag off, re-run passed, coupon service changed) trace to the original; no new facts found."
+        },
+        {
+          "text": "Is shorter than the original answer",
+          "passed": true,
+          "evidence": "149 words vs 268 in the original."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "time_seconds": 15.9,
+        "tokens": 62099,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Declares the readers: support leads and backend engineers",
+          "passed": true,
+          "evidence": "\"**Readers:** Support leads (what changes for support, and when); backend engineers (data volume and delivery constraints)\"."
+        },
+        {
+          "text": "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before the detailed solution and its constraints",
+          "passed": true,
+          "evidence": "\"## Problem\" lists \"Support handled 212 of these requests in October\" and Lumen Logistics churn; it precedes \"Constraints for engineering\" (the Summary before it is a brief proposal statement)."
+        },
+        {
+          "text": "States an objective or goal the solution is measured against",
+          "passed": true,
+          "evidence": "\"## Goals\" e.g. \"Requests to support for emailed usage reports fall once customers can schedule their own.\""
+        },
+        {
+          "text": "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+          "passed": true,
+          "evidence": "\"## Non-goals\": PDF exports; custom column selection; exports for the Starter plan."
+        },
+        {
+          "text": "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+          "passed": true,
+          "evidence": "\"What changes for support\" incl. \"Release date: not set yet...\"; \"Constraints for engineering\" gives Volume (2M rows a month) and Delivery (signed link, 7 days)."
+        },
+        {
+          "text": "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+          "passed": true,
+          "evidence": "Summary: \"a signed download link that stays valid for 7 days. The file itself is not attached, because large accounts produce more than 2M rows a month.\""
+        },
+        {
+          "text": "The proposal itself appears within the first few paragraphs, before supporting detail",
+          "passed": true,
+          "evidence": "\"## Summary\" is the first section and states the proposal."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 14.6,
+        "tokens": 62202,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+          "passed": false,
+          "evidence": "First sentence is 'You're right, and my 09:10 message was wrong.' It does not name the api-server; the api-server answer arrives only in the third sentence, after a speaker label."
+        },
+        {
+          "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+          "passed": true,
+          "evidence": "'my 09:10 message was wrong. The workers were never OOM-killed.'"
+        },
+        {
+          "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+          "passed": true,
+          "evidence": "'The renderer has no memory limit, so nothing stopped it' and 'The api-server requests only 256Mi, so under pressure the kubelet evicts it first.'"
+        },
+        {
+          "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+          "passed": true,
+          "evidence": "'not needed. Worker memory peaked at 410Mi of its 512Mi limit'"
+        },
+        {
+          "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+          "passed": true,
+          "evidence": "'it's safe as far as this incident goes... touches none of the api-server, the renderer or the workers.'"
+        },
+        {
+          "text": "Answers the questions in the order Priya asked them",
+          "passed": true,
+          "evidence": "Sections follow Priya's order: api-server?, why evicted, worker bump, 4.12."
+        },
+        {
+          "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+          "passed": true,
+          "evidence": "Last paragraph: 'Next I'll confirm which node... Tell me whether you want the two fixes before the next invoice batch or bundled with 4.12.'"
+        },
+        {
+          "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+          "passed": true,
+          "evidence": "No analogies or basic Kubernetes explanations; 'so nothing stopped it' is a causal clause, not a concept explanation."
+        },
+        {
+          "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+          "passed": true,
+          "evidence": "'I haven't yet confirmed' states a gap, not process narration; no 'I looked at'/'First, I checked'."
+        },
+        {
+          "text": "Introduces no facts absent from the thread and findings",
+          "passed": true,
+          "evidence": "All facts trace to the thread/findings; it explicitly flags that the eviction log names the pool, not the node, instead of asserting co-location."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.93,
+        "stddev": 0.1095,
+        "min": 0.75,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 27.0,
+        "stddev": 8.3531,
+        "min": 14.5,
+        "max": 32.9
+      },
+      "tokens": {
+        "mean": 72894.6,
+        "stddev": 2067.0366,
+        "min": 69943,
+        "max": 74750
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.832,
+        "stddev": 0.1514,
+        "min": 0.6,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 19.66,
+        "stddev": 8.7711,
+        "min": 10.7,
+        "max": 32.4
+      },
+      "tokens": {
+        "mean": 62790.2,
+        "stddev": 1073.3223,
+        "min": 61770,
+        "max": 64163
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.10",
+      "time_seconds": "+7.3",
+      "tokens": "+10104"
+    }
+  },
+  "notes": [
+    "One run per configuration; the \u00b1 figures are spread across evals, not run-to-run variance.",
+    "Grading was blind: each grader saw the two outputs as A and B.",
+    "Eval 0 (runbook review) carries the whole gap: 10/10 with the skill, 6/10 without. The baseline misses the missing audience, the ambiguous pronoun, contract-first ordering and concrete rewrites.",
+    "Eval 1 (README for a new hire) separates by 2: the baseline never names its reader and uses one-word headings.",
+    "Eval 3 (spec opening) is non-discriminating: 7/7 both ways.",
+    "Eval 2 (ship decision) goes the wrong way, 6/8 with the skill vs 7/8 without: the skill run ended on an offer to investigate. Both kept the unexplained three-component list.",
+    "Eval 4 (incident reply) ties at 9/10 but is contaminated: reader-contract.md now holds a worked reply built from this fixture. The skill run's one failure, placing the evicted api-server pods on general-b-7, repeats an inference in that worked example. That inference has since been removed from the worked example.",
+    "Cost: the skill adds about 10k tokens and 7s per run, mostly reading SKILL.md and references."
+  ]
+}

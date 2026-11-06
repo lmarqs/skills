@@ -1,0 +1,50 @@
+{
+ "expectations": [
+  {
+   "text": "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+   "passed": true,
+   "evidence": "First sentence: 'Yes, ship 4.12 today, as long as the `coupons_v2` flag stays off in production.'"
+  },
+  {
+   "text": "Keeps the condition that the coupons_v2 flag stays off in production",
+   "passed": true,
+   "evidence": "'as long as the `coupons_v2` flag stays off in production' and 'With the flag off, users never reach that path.'"
+  },
+  {
+   "text": "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+   "passed": true,
+   "evidence": "No step-by-step narration phrases; the text states findings, not the process of finding them."
+  },
+  {
+   "text": "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+   "passed": false,
+   "evidence": "Closes with 'Tell me if you want me to investigate it.' - the same offer-to-dig-deeper filler as the original's 'Let me know if you want me to dig deeper'."
+  },
+  {
+   "text": "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+   "passed": true,
+   "evidence": "'Before anyone turns `coupons_v2` on, find out whether that failure is a flaky test or a race' under a 'Next:' heading; risk tied to flag: 'With the flag off, users never reach that path.'"
+  },
+  {
+   "text": "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+   "passed": false,
+   "evidence": "Keeps the unexplained list: 'the coupon worker, the discount service and the promo engine all touch this code, so the check covers all three' - none explained."
+  },
+  {
+   "text": "Introduces no facts absent from the original answer",
+   "passed": true,
+   "evidence": "Facts trace to the original. 'the release's three changes' is a count derived from the three changes the original lists (not the 14 commits); 'every integration test except one' matches 'one failure'. Borderline but not a new fact."
+  },
+  {
+   "text": "Is shorter than the original answer",
+   "passed": true,
+   "evidence": "180 words vs 268 in the original."
+  }
+ ],
+ "summary": {
+  "passed": 6,
+  "failed": 2,
+  "total": 8,
+  "pass_rate": 0.75
+ }
+}

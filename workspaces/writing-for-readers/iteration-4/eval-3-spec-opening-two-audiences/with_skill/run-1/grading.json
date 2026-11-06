@@ -1,0 +1,45 @@
+{
+ "expectations": [
+  {
+   "text": "Declares the readers: support leads and backend engineers",
+   "passed": true,
+   "evidence": "Frontmatter audience: \"Support leads, who handle the monthly usage-report requests...\" and \"Backend engineers who will build the feature\"; body has a section per group."
+  },
+  {
+   "text": "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before the detailed solution and its constraints",
+   "passed": true,
+   "evidence": "\"Problem.\" paragraph cites \"212 of these requests in October\" and Lumen Logistics churn; it precedes the detailed support/engineering sections where delivery design and volume constraints are given (opening paragraph only summarizes the proposal)."
+  },
+  {
+   "text": "States an objective or goal the solution is measured against",
+   "passed": true,
+   "evidence": "\"Goal. A Business account admin sets up an export once, and the usage report reaches the recipients on schedule without a request to support.\""
+  },
+  {
+   "text": "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+   "passed": true,
+   "evidence": "\"Out of scope.\" lists PDF exports, choosing columns, Starter-plan accounts."
+  },
+  {
+   "text": "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+   "passed": true,
+   "evidence": "Support section: what changes (self-service, remaining requests) and when (\"release date is not set yet; it follows the engineering estimate\"). Engineer section: 2M+ rows/month, signed link delivery, frequency, recipients."
+  },
+  {
+   "text": "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+   "passed": true,
+   "evidence": "\"Large accounts produce more than 2 million usage rows per month, so a monthly export ... cannot travel as an email attachment. Each run therefore stores the CSV and emails a signed download link to it, valid for 7 days.\""
+  },
+  {
+   "text": "The proposal itself appears within the first few paragraphs, before supporting detail",
+   "passed": true,
+   "evidence": "First paragraph: \"Account admins on the Business plan will schedule a CSV export ... The proposed delivery is a signed download link valid for 7 days\"."
+  }
+ ],
+ "summary": {
+  "passed": 7,
+  "failed": 0,
+  "total": 7,
+  "pass_rate": 1.0
+ }
+}

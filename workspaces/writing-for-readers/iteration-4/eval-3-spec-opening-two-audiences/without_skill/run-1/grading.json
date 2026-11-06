@@ -1,0 +1,45 @@
+{
+ "expectations": [
+  {
+   "text": "Declares the readers: support leads and backend engineers",
+   "passed": true,
+   "evidence": "\"**Readers:** Support leads (what changes for support, and when); backend engineers (data volume and delivery constraints)\"."
+  },
+  {
+   "text": "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before the detailed solution and its constraints",
+   "passed": true,
+   "evidence": "\"## Problem\" lists \"Support handled 212 of these requests in October\" and Lumen Logistics churn; it precedes \"Constraints for engineering\" (the Summary before it is a brief proposal statement)."
+  },
+  {
+   "text": "States an objective or goal the solution is measured against",
+   "passed": true,
+   "evidence": "\"## Goals\" e.g. \"Requests to support for emailed usage reports fall once customers can schedule their own.\""
+  },
+  {
+   "text": "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+   "passed": true,
+   "evidence": "\"## Non-goals\": PDF exports; custom column selection; exports for the Starter plan."
+  },
+  {
+   "text": "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+   "passed": true,
+   "evidence": "\"What changes for support\" incl. \"Release date: not set yet...\"; \"Constraints for engineering\" gives Volume (2M rows a month) and Delivery (signed link, 7 days)."
+  },
+  {
+   "text": "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+   "passed": true,
+   "evidence": "Summary: \"a signed download link that stays valid for 7 days. The file itself is not attached, because large accounts produce more than 2M rows a month.\""
+  },
+  {
+   "text": "The proposal itself appears within the first few paragraphs, before supporting detail",
+   "passed": true,
+   "evidence": "\"## Summary\" is the first section and states the proposal."
+  }
+ ],
+ "summary": {
+  "passed": 7,
+  "failed": 0,
+  "total": 7,
+  "pass_rate": 1.0
+ }
+}

@@ -1,0 +1,16 @@
+{
+  "eval_id": 1,
+  "eval_name": "write-preview-readme-for-new-hire",
+  "prompt": "Turn Marta's notes at evals/files/preview-env-notes.txt into a README for the preview environments. It's for a new frontend engineer joining next week: knows Docker and GitHub Actions well, has never seen our staging cluster, Vault, or the preview setup. Save it to outputs/README.md.",
+  "assertions": [
+    "States the intended reader and what they already know, in frontmatter or the opening",
+    "The first paragraph tells the reader that every PR gets a preview environment and where to find it (the pr-<number>.preview.acme.dev URL)",
+    "Does not explain Docker basics such as what an image or a container is",
+    "Explains Vault, or the secret/preview/web path, at first use in words a reader new to it can act on",
+    "Explains mailhog, or what happens to emails in a preview, at first use",
+    "Omits the story of trying ephemeral databases first, or reduces it to a single sentence of rationale",
+    "Writes the concurrent-push failure with the condition (two pushes within about a minute) before the instruction (re-run the job)",
+    "States what the reader cannot do: no ssh, and kubectl exec needs staging access most developers lack",
+    "Every heading names its content specifically, and no heading is directly followed by another heading"
+  ]
+}
