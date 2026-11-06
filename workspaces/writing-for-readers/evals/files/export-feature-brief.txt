@@ -1,0 +1,15 @@
+Feature: scheduled CSV exports for the reporting module
+
+Context from the PM thread:
+- Customers on the Business plan keep asking support to email them their monthly usage report.
+  Support handled 212 of these requests in October, each takes ~10 minutes.
+- One customer (Lumen Logistics) churned in September and named "no automated reports" in the
+  exit survey.
+- Idea: let account admins schedule a CSV export (daily/weekly/monthly) that gets emailed to a
+  list of addresses.
+- Engineering concerns: large accounts have 2M+ rows/month; emailing that as an attachment
+  won't work. Probably email a signed download link valid for 7 days instead.
+- Not doing: PDF exports, custom column selection, exports for the Starter plan.
+- Two groups will read the spec: the support leads (want to know what changes for their team
+  and when) and the backend engineers who will build it (want the data volume and delivery
+  constraints).

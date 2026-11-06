@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+      "passed": true,
+      "evidence": "'Yes, it was the api-server.'"
+    },
+    {
+      "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+      "passed": true,
+      "evidence": "'My 09:10 answer was wrong: the workers were not OOM-killed and never restarted.'"
+    },
+    {
+      "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+      "passed": true,
+      "evidence": "Renderer at 6.1 GiB of 8 GiB with no memory limit; api-server requests 256Mi so it is evicted first."
+    },
+    {
+      "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+      "passed": true,
+      "evidence": "'not needed. Worker memory peaked at 410Mi of its 512Mi limit'"
+    },
+    {
+      "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+      "passed": true,
+      "evidence": "'touches none of the api-server, the renderer or the workers'"
+    },
+    {
+      "text": "Answers the questions in the order Priya asked them",
+      "passed": true,
+      "evidence": "api-server, why, worker bump, 4.12: the order Priya asked."
+    },
+    {
+      "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+      "passed": true,
+      "evidence": "'Next: I propose ... a memory limit on the PDF renderer ... Tell me whether to open them.'"
+    },
+    {
+      "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+      "passed": true,
+      "evidence": "No Kubernetes basics explained."
+    },
+    {
+      "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+      "passed": true,
+      "evidence": "No 'I looked at' or step narration."
+    },
+    {
+      "text": "Introduces no facts absent from the thread and findings",
+      "passed": true,
+      "evidence": "The pool-vs-node gap is derived from the findings; proposals are labelled as proposals."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}

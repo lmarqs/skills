@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Flags that the runbook never states who it is for or what the reader already knows",
+      "passed": false,
+      "evidence": "No finding states the runbook lacks a declared reader; item 7 says what 'a runbook reader needs' but never flags the missing audience."
+    },
+    {
+      "text": "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+      "passed": true,
+      "evidence": "Blocking issue 2: migration check comes after the rollback command, in another section."
+    },
+    {
+      "text": "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+      "passed": true,
+      "evidence": "Blocking issue 1: heading contradicts its body."
+    },
+    {
+      "text": "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+      "passed": true,
+      "evidence": "Blocking issue 3: 30 s and 60 s."
+    },
+    {
+      "text": "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+      "passed": true,
+      "evidence": "Clarity issue 5: one component has three or four names."
+    },
+    {
+      "text": "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+      "passed": true,
+      "evidence": "Clarity issue 6: 'It times out' has an unclear subject."
+    },
+    {
+      "text": "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+      "passed": true,
+      "evidence": "Clarity issue 8: the rule 'set the retry count in the YAML file, not in the Helm chart' needs a reason."
+    },
+    {
+      "text": "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+      "passed": true,
+      "evidence": "Item 7 and Wording: 'This section will discuss' is filler; history should move."
+    },
+    {
+      "text": "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+      "passed": false,
+      "evidence": "Ordered by severity (blocking, clarity, wording); reader/contract problems are not grouped first and the audience is never raised."
+    },
+    {
+      "text": "Gives a concrete rewrite for most findings, not only a description of the problem",
+      "passed": true,
+      "evidence": "Most items give a rename, merged procedure or deletion."
+    }
+  ],
+  "summary": {
+    "passed": 8,
+    "failed": 2,
+    "total": 10,
+    "pass_rate": 0.8
+  }
+}

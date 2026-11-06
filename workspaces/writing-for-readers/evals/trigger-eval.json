@@ -1,0 +1,22 @@
+[
+  {"query": "can you write a README for the `ingest-worker` service? new devs keep asking me how to run it locally. notes are in docs/ingest-notes.md, mostly bullet points from when i set it up", "should_trigger": true},
+  {"query": "Review docs/runbooks/db-failover.md before I send it to the on-call rotation. I wrote it at 2am during the last incident and I suspect it only makes sense to me.", "should_trigger": true},
+  {"query": "my manager says my design doc for the new rate limiter 'buries the lede'. here's the draft, can you restructure it so the recommendation is obvious? (pasted below)", "should_trigger": true},
+  {"query": "rewrite this release announcement for our customers, they're not engineers. right now it reads like a changelog: 'Refactored billing adapter; migrated invoice PDF rendering to worker pool; fixed N+1 in usage query'", "should_trigger": true},
+  {"query": "The agent's summary of the outage at the bottom of this thread is way too long and I can't tell what it's actually recommending. Make it something the VP can read in 30 seconds.", "should_trigger": true},
+  {"query": "I keep getting comments that my PR descriptions are confusing. Here's the one for #482, can you tell me what's wrong with it and fix it?", "should_trigger": true},
+  {"query": "We need an onboarding doc for the data platform. Readers are analysts who know SQL well but have never used Airflow or dbt. Can you draft it from the wiki pages in ./wiki/platform/?", "should_trigger": true},
+  {"query": "does this read well? it's the 'How we deploy' section of our handbook. the heading says deploys are fully automated but then half the section is manual steps, not sure if that's a problem", "should_trigger": true},
+  {"query": "Write the problem statement and goals section for a spec on moving our cron jobs to Temporal. Two audiences: the SRE team who'll operate it and the product teams whose jobs move.", "should_trigger": true},
+  {"query": "who is this doc even for?? docs/architecture/overview.md switches between explaining what kubernetes is and assuming you know our internal service mesh. help me fix it", "should_trigger": true},
+  {"query": "This paragraph sounds really AI-generated, all 'delve' and 'pivotal' and em dashes everywhere. Can you make it sound like a person wrote it? Keep the meaning exactly.", "should_trigger": false},
+  {"query": "Write the SKILL.md for a new skill that helps agents run our database migrations safely. It should trigger when someone edits files under db/migrations/.", "should_trigger": false},
+  {"query": "update AGENTS.md so coding agents in this repo always run `make lint` before committing, and remove the outdated line about yarn", "should_trigger": false},
+  {"query": "Should I write a comment above this regex in parse_headers() or rename the function? Reviewer said it's unreadable.", "should_trigger": false},
+  {"query": "Write an ADR comparing Kafka vs SQS for our order events. We need the tradeoff analysis with requirements and risks, our throughput is about 4k events/sec.", "should_trigger": false},
+  {"query": "fix the typos and grammar in CONTRIBUTING.md, don't change anything else", "should_trigger": false},
+  {"query": "Translate the user guide in docs/guide-en.md into Portuguese (Brazil) for our São Paulo customers.", "should_trigger": false},
+  {"query": "Generate API reference docs from the docstrings in src/client/*.py using Sphinx autodoc, and set up the build in CI.", "should_trigger": false},
+  {"query": "Can you review this SQL query for performance? It's the one powering the monthly usage report and it takes 40s on the big accounts.", "should_trigger": false},
+  {"query": "write a cover letter for a senior backend role at a fintech, here's my resume and the job posting", "should_trigger": false}
+]

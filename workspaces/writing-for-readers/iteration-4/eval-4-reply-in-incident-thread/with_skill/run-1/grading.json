@@ -1,0 +1,60 @@
+{
+ "expectations": [
+  {
+   "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+   "passed": true,
+   "evidence": "First sentence: 'Yes, it was the api-server.' Next sentence confirms workers were not OOM-killed."
+  },
+  {
+   "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+   "passed": true,
+   "evidence": "'My 09:10 answer was wrong: the workers were not OOM-killed and ran all morning without a restart.'"
+  },
+  {
+   "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+   "passed": true,
+   "evidence": "'grew to 6.1 GiB of the node's 8 GiB, because it has no memory limit' and 'their 256Mi memory request puts them first in line for eviction.'"
+  },
+  {
+   "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+   "passed": true,
+   "evidence": "'not needed. Workers peaked at 410Mi of their 512Mi limit'"
+  },
+  {
+   "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+   "passed": true,
+   "evidence": "'safe as far as this incident goes... touches neither the api-server, the renderer nor the workers.'"
+  },
+  {
+   "text": "Answers the questions in the order Priya asked them",
+   "passed": true,
+   "evidence": "Sections follow Priya's order: api-server?, why evicted, worker bump, 4.12."
+  },
+  {
+   "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+   "passed": true,
+   "evidence": "Last paragraph: 'Next: set a memory limit on the PDF renderer and raise the api-server's memory request...'"
+  },
+  {
+   "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+   "passed": true,
+   "evidence": "No analogies or definitions of pods/eviction; terse SRE register throughout."
+  },
+  {
+   "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+   "passed": true,
+   "evidence": "No 'I looked at'/'I checked' narration; findings stated directly."
+  },
+  {
+   "text": "Introduces no facts absent from the thread and findings",
+   "passed": false,
+   "evidence": "'Under that node memory pressure, the kubelet evicted the api-server pods' asserts the evicted api-server pods were on node general-b-7; the findings only place the evictions on node pool general-b and the renderer on general-b-7. Also 'grew to' adds an unstated growth pattern."
+  }
+ ],
+ "summary": {
+  "passed": 9,
+  "failed": 1,
+  "total": 10,
+  "pass_rate": 0.9
+ }
+}

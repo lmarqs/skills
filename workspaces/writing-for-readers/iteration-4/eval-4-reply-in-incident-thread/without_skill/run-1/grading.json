@@ -1,0 +1,60 @@
+{
+ "expectations": [
+  {
+   "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+   "passed": false,
+   "evidence": "First sentence is 'You're right, and my 09:10 message was wrong.' It does not name the api-server; the api-server answer arrives only in the third sentence, after a speaker label."
+  },
+  {
+   "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+   "passed": true,
+   "evidence": "'my 09:10 message was wrong. The workers were never OOM-killed.'"
+  },
+  {
+   "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+   "passed": true,
+   "evidence": "'The renderer has no memory limit, so nothing stopped it' and 'The api-server requests only 256Mi, so under pressure the kubelet evicts it first.'"
+  },
+  {
+   "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+   "passed": true,
+   "evidence": "'not needed. Worker memory peaked at 410Mi of its 512Mi limit'"
+  },
+  {
+   "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+   "passed": true,
+   "evidence": "'it's safe as far as this incident goes... touches none of the api-server, the renderer or the workers.'"
+  },
+  {
+   "text": "Answers the questions in the order Priya asked them",
+   "passed": true,
+   "evidence": "Sections follow Priya's order: api-server?, why evicted, worker bump, 4.12."
+  },
+  {
+   "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+   "passed": true,
+   "evidence": "Last paragraph: 'Next I'll confirm which node... Tell me whether you want the two fixes before the next invoice batch or bundled with 4.12.'"
+  },
+  {
+   "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+   "passed": true,
+   "evidence": "No analogies or basic Kubernetes explanations; 'so nothing stopped it' is a causal clause, not a concept explanation."
+  },
+  {
+   "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+   "passed": true,
+   "evidence": "'I haven't yet confirmed' states a gap, not process narration; no 'I looked at'/'First, I checked'."
+  },
+  {
+   "text": "Introduces no facts absent from the thread and findings",
+   "passed": true,
+   "evidence": "All facts trace to the thread/findings; it explicitly flags that the eviction log names the pool, not the node, instead of asserting co-location."
+  }
+ ],
+ "summary": {
+  "passed": 9,
+  "failed": 1,
+  "total": 10,
+  "pass_rate": 0.9
+ }
+}

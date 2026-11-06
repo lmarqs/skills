@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "States the intended reader and what they already know, in frontmatter or the opening",
+      "passed": false,
+      "evidence": "No audience frontmatter or sentence naming the reader and what they know."
+    },
+    {
+      "text": "The first paragraph tells the reader that every PR gets a preview environment and where to find it (the pr-<number>.preview.acme.dev URL)",
+      "passed": true,
+      "evidence": "Opening plus 'Open your preview' gives the URL and the 6-minute wait."
+    },
+    {
+      "text": "Does not explain Docker basics such as what an image or a container is",
+      "passed": true,
+      "evidence": "Mentions building from the Dockerfile without explaining Docker."
+    },
+    {
+      "text": "Explains Vault, or the secret/preview/web path, at first use in words a reader new to it can act on",
+      "passed": true,
+      "evidence": "'Vault, the service that stores our credentials and API keys' with the path."
+    },
+    {
+      "text": "Explains mailhog, or what happens to emails in a preview, at first use",
+      "passed": true,
+      "evidence": "'MailHog, an inbox you read in the browser'."
+    },
+    {
+      "text": "Omits the story of trying ephemeral databases first, or reduces it to a single sentence of rationale",
+      "passed": true,
+      "evidence": "Ephemeral-DB history omitted."
+    },
+    {
+      "text": "Writes the concurrent-push failure with the condition (two pushes within about a minute) before the instruction (re-run the job)",
+      "passed": true,
+      "evidence": "Troubleshooting entry states the two-pushes condition, then 'Re-run the failed job.'"
+    },
+    {
+      "text": "States what the reader cannot do: no ssh, and kubectl exec needs staging access most developers lack",
+      "passed": true,
+      "evidence": "'There is no SSH access ... Most developers do not have that access'."
+    },
+    {
+      "text": "Every heading names its content specifically, and no heading is directly followed by another heading",
+      "passed": false,
+      "evidence": "Judgment call: one-word headings 'Data', 'Secrets', 'Logs', 'Lifetime' name a topic but not what the section says, and do not work out of context. None stacked."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 2,
+    "total": 9,
+    "pass_rate": 0.78
+  }
+}
