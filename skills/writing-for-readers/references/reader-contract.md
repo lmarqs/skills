@@ -30,9 +30,7 @@ audience and end up with an overly explicit text." (p. 36)
 
 So no text is clear in itself. The writer has to pick a reader first, and the most common
 mistake is to pick none: the text then defaults to the writer's own knowledge, which is the
-one reader it will never have. Linda Flower (1979) called this writer-based prose, whose
-symptoms range "from a mere missing referent or an underdeveloped idea" to "an unfocused and
-apparently pointless discussion".
+one reader it will never have.
 
 ## The four declarations
 
@@ -187,7 +185,6 @@ reader asked for first.
 ## Problem before solution
 
 When the text proposes something, the reader judges the solution against the problem, so the
-problem comes first and is concrete. Shape Up puts it plainly: "The best problem definition
-consists of a single specific story that shows why the status quo doesn't work", and without
-one "there's no test of fitness to judge whether one solution is better than the other". Its
-pitch format also names the no-gos: "Anything specifically excluded from the concept."
+problem comes first and is concrete: one specific case where the status quo fails. Gopen and
+Swan's advice for the sentence holds for the proposal: "provide context for your reader before
+asking that reader to consider anything new." What the proposal excludes is its scope line.

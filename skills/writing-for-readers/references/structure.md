@@ -31,15 +31,14 @@ The point comes first in the document, in each section, and in each paragraph.
   is to "Include the most important points in the first two paragraphs on the page." Google's
   course puts the test as: "Imagine that your peers might only read the first paragraph of your
   document."
-- **Section.** The first sentence under a heading keeps the heading's promise. Williams places
-  a section's point at the end of its opening paragraph at the latest.
+- **Section.** The first sentence under a heading keeps the heading's promise, and the
+  section's point comes no later than the end of its opening paragraph.
 - **Paragraph.** The first sentence states the paragraph's claim. Strunk's rule 9: "begin each
   paragraph with a topic sentence, end it in conformity with the beginning", which "enables
   [the reader] to discover the purpose of each paragraph as he begins to read it."
 
 Answer-first is the right order for documents and agent answers because their readers have a
-job to do. Thomas and Turner, who describe a "classic" essay style that withholds signposts,
-set practical prose apart by that job: it exists to solve a problem for the reader.
+job to do.
 
 ## Outline before drafting
 
@@ -55,8 +54,7 @@ and overall topic".
 
 A heading is a promise about the text beneath it. The promise holds when:
 
-- **It is specific.** "Rollback restores the previous image" beats "Rollback". Microsoft:
-  "Be as specific as you can."
+- **It is specific.** "Rollback restores the previous image" beats "Rollback".
 - **Its first words carry the topic.** NN/g: "Start headings and subheadings with the words
   carrying most information." Read a heading cut to its first two words; the topic survives.
 - **It works out of context.** NN/g: "Make sure the headline works out of context." A heading
@@ -66,9 +64,9 @@ A heading is a promise about the text beneath it. The promise holds when:
   section describing a manual command is the heading-body contradiction readers notice first.
 - **It has a body.** Google: "Don't use empty headings. Make sure headings are followed by
   content." Two headings in a row with nothing between them is an empty heading.
-- **It uses the reader's words.** Microsoft: "choose words they'd use themselves."
+- **It uses the reader's words**, the terms the declared reader uses for the topic.
 
-Headings read in order form the outline. Microsoft: "Think of headings as an outline."
+Headings read in order form the outline.
 
 ## Paragraphs
 
@@ -81,12 +79,11 @@ Headings read in order form the outline. Microsoft: "Think of headings as an out
 - **The ending stays on topic.** Strunk: "Ending with a digression, or with an unimportant
   detail, is particularly to be avoided."
 - **Short.** Google: "Readers generally welcome paragraphs containing three to five
-  sentences." Microsoft: "Three to seven lines is about the right length for a paragraph."
+  sentences."
 
 ## One place per fact
 
-Each fact is stated in exactly one place; other places link to it. Clements et al., rule 2:
-"Each kind of information should be recorded in exactly one place." A fact stated twice gets
+Each fact is stated in exactly one place; other places link to it. A fact stated twice gets
 edited once and the two copies drift into a contradiction. In agent-written text the drift
 happens within a single draft: the model restates a figure or rule in a later section with a
 different value.
@@ -95,8 +92,7 @@ different value.
 
 Mündler et al. (2023) found self-contradictions "in 17.7% of all sentences produced by
 ChatGPT", and 35.2% of them "cannot be verified using online text": only reading the text
-against itself finds them. ConStory-Bench (2026), a benchmark of long generated stories, found such errors
-cluster in the middle of the text.
+against itself finds them.
 
 To check:
 

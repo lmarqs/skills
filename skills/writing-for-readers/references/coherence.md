@@ -60,10 +60,9 @@ Gopen and Swan (1990) describe where readers expect information within a sentenc
 - Context comes before anything new: "provide context for your reader before asking that
   reader to consider anything new."
 
-Williams teaches the same pattern as old before new, and adds the **topic string**: the
-subjects of a paragraph's sentences come from a small, consistent set. List the subjects of a
-paragraph in a column. If they name more than two or three unrelated things, the paragraph
-has lost its thread.
+Across a paragraph the same pattern makes a **topic string**: the subjects of its sentences
+come from a small, consistent set. List the subjects of a paragraph in a column. If they name
+more than two or three unrelated things, the paragraph has lost its thread.
 
 Example. Each sentence opens on what the previous one ended with:
 
@@ -76,8 +75,6 @@ A reader assumes a new word means a new thing. When a text calls one component "
 "the consumer" and "the job runner", the reader looks for three components, and finding one
 makes them doubt everything else the text says about it.
 
-- Microsoft: "Use one word for a concept, and use it consistently. Avoid using synonyms to
-  refer to the same concept."
 - ASD-STE100 builds its whole dictionary on "one word – one meaning", and the reverse: one
   name per thing.
 - Google: "If you change the name of a variable midway through a method, your code won't
@@ -105,8 +102,8 @@ For each term the declared reader may not know:
 
 ## Removing second readings
 
-Clements et al., rule 3: "Ambiguity occurs when documentation can be interpreted in more than
-one way and at least one of those ways is incorrect."
+Grice's maxim of manner asks a speaker to "avoid obscurity and ambiguity". A sentence is
+ambiguous when a reader can take it more than one way and at least one way is wrong.
 
 Test: for each sentence that tells the reader what to do or what is true, write the second
 reading. If a reader could plausibly hold it, rewrite until only one reading remains. Common

@@ -21,8 +21,8 @@ A writer knows what they mean, so their own text always reads as clear to them. 
 only the page. Text fails when it is built from the writer's knowledge: it skips what the writer
 takes for granted, follows the order the writer discovered things in, and names things the way
 the writer thinks of them. Pinker calls this the curse of knowledge. Agents suffer it too, and
-add a failure of their own: they lose the thread of a long text and contradict themselves in
-its middle.
+add a failure of their own: they lose the thread of a long text and contradict what they wrote
+earlier.
 
 A text is good relative to its reader, never in itself. McNamara and colleagues gave readers
 the same content at two levels of explicitness: readers new to the domain learned more from the
