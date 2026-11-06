@@ -19,7 +19,7 @@ description: >-
 A writer knows what they mean, so their own text always reads as clear to them. The reader has
 only the page. Text fails when it is built from the writer's knowledge: it skips what the writer
 takes for granted, follows the order the writer discovered things in, and names things the way
-the writer thinks of them. Psychologists call this the curse of knowledge. Agents suffer it
+the writer thinks of them. Steven Pinker calls this the curse of knowledge. Agents suffer it
 too, and add a failure of their own: they lose the thread of a long text and contradict
 themselves in its middle.
 
@@ -80,7 +80,7 @@ two ways. For an expert, cut everything they already know.
 
 ## Criteria
 
-Each criterion has a test a reviewer can run on the text. These fourteen catch most failures.
+Each criterion has a test a reviewer can run on the text. These fourteen are the core set.
 [`references/review-checklist.md`](references/review-checklist.md) expands them into the full
 set, coded by level, with the sources behind each.
 
