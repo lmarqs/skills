@@ -1,0 +1,15 @@
+preview envs - notes from setting this up (marta)
+
+- every PR gets a preview env now, built by the `preview` GH action
+- action builds the docker image, pushes to ECR (repo: web-preview), then helm installs into the `previews` namespace on the staging cluster
+- URL is pr-<number>.preview.acme.dev, takes ~6 min after push
+- env gets a copy of the anonymized staging DB snapshot (refreshed nightly 02:00 UTC). snapshot restore is the slow part (~4 min of the 6)
+- env is torn down when PR closes or merges. also a cron kills anything idle > 72h
+- secrets come from the `preview` path in Vault, NOT staging secrets. if you need a new secret ask platform to add it under secret/preview/web
+- logs: datadog, filter env:preview pr:<number>
+- known issue: if two pushes land within ~1 min the second helm install fails with "another operation in progress". just re-run the job
+- we tried ephemeral DBs per env with seeded fixtures first, was too slow to seed + fixtures drifted from real data. snapshot approach is better
+- docker basics: image = built from Dockerfile, container = running image, docker build / docker push etc
+- cost: ~$0.40/env/day, platform watches this
+- payments + email are stubbed in preview (STRIPE_MODE=mock, emails go to mailhog at pr-<number>.preview.acme.dev/mailhog)
+- you can't ssh in. use `kubectl -n previews exec` if you have staging access, most devs don't

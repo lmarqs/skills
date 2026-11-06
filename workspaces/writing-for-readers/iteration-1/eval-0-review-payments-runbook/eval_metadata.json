@@ -1,0 +1,17 @@
+{
+  "eval_id": 0,
+  "eval_name": "review-payments-runbook",
+  "prompt": "Can you review this runbook before I share it with the team? It's at evals/files/payments-runbook.md. Write your review to outputs/review.md.",
+  "assertions": [
+    "Flags that the runbook never states who it is for or what the reader already knows",
+    "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+    "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+    "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+    "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+    "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+    "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+    "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+    "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+    "Gives a concrete rewrite for most findings, not only a description of the problem"
+  ]
+}

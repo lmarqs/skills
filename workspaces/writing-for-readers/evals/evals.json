@@ -1,0 +1,75 @@
+{
+  "skill_name": "writing-for-readers",
+  "evals": [
+    {
+      "id": 0,
+      "name": "review-payments-runbook",
+      "prompt": "Can you review this runbook before I share it with the team? It's at evals/files/payments-runbook.md. Write your review to outputs/review.md.",
+      "expected_output": "A review that reconstructs the missing reader contract, then flags the seeded failures in level order: no audience; the rollback answer buried under history; the heading 'Rollback is automatic' over a manual procedure; the processor timeout given as 30 seconds and as 60; one component called worker, consumer and job runner; an 'it' with two candidate antecedents; an unexplained 'YAML file, not the Helm chart' contrast; sentences about the document and history that serve the writer. Each finding quotes the text and gives a rewrite.",
+      "files": ["evals/files/payments-runbook.md"],
+      "assertions": [
+        "Flags that the runbook never states who it is for or what the reader already knows",
+        "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+        "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+        "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+        "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+        "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+        "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+        "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+        "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+        "Gives a concrete rewrite for most findings, not only a description of the problem"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "write-preview-readme-for-new-hire",
+      "prompt": "Turn Marta's notes at evals/files/preview-env-notes.txt into a README for the preview environments. It's for a new frontend engineer joining next week: knows Docker and GitHub Actions well, has never seen our staging cluster, Vault, or the preview setup. Save it to outputs/README.md.",
+      "expected_output": "A README with the audience declared, an opening that says every PR gets a preview at pr-<number>.preview.acme.dev about six minutes after a push, sections whose headings summarize their content, Vault, ECR, the previews namespace and mailhog explained at first use, no explanation of Docker basics, the failed ephemeral-DB history dropped or reduced to one line of rationale, and the concurrent-push failure written with its condition before the instruction.",
+      "files": ["evals/files/preview-env-notes.txt"],
+      "assertions": [
+        "States the intended reader and what they already know, in frontmatter or the opening",
+        "The first paragraph tells the reader that every PR gets a preview environment and where to find it (the pr-<number>.preview.acme.dev URL)",
+        "Does not explain Docker basics such as what an image or a container is",
+        "Explains Vault, or the secret/preview/web path, at first use in words a reader new to it can act on",
+        "Explains mailhog, or what happens to emails in a preview, at first use",
+        "Omits the story of trying ephemeral databases first, or reduces it to a single sentence of rationale",
+        "Writes the concurrent-push failure with the condition (two pushes within about a minute) before the instruction (re-run the job)",
+        "States what the reader cannot do: no ssh, and kubectl exec needs staging access most developers lack",
+        "Every heading names its content specifically, and no heading is directly followed by another heading"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "rewrite-ship-decision-answer",
+      "prompt": "A teammate asked our coding agent 'should we ship release 4.12 today?' and got the reply in evals/files/agent-answer.md. Rewrite it into the answer they should have gotten. Save to outputs/answer.md.",
+      "expected_output": "An answer whose first sentence is the decision: ship, with coupons_v2 kept off. Then only the reasons that support or limit the decision: the flag is off in production, the only test failure is in the flagged coupon path and passed on re-run, staging errors are normal. The flaky test becomes a follow-up with its risk stated as a condition. No process narration, no chat filler, no new names for the coupon component, no invented facts, and much shorter than the original.",
+      "files": ["evals/files/agent-answer.md"],
+      "assertions": [
+        "The first sentence states the decision to ship (with the coupons_v2 flag kept off)",
+        "Keeps the condition that the coupons_v2 flag stays off in production",
+        "Contains no process narration such as 'First, I started by', 'Next, I checked', 'I also looked at'",
+        "Contains no chat filler such as 'Great question' or 'Let me know if you want me to dig deeper'",
+        "States the flaky checkout_flow_test failure as a follow-up with its risk tied to turning the flag on, not as a vague hedge",
+        "Does not introduce or keep a list of several names (coupon worker, discount service, promo engine) for the coupon code without explaining them",
+        "Introduces no facts absent from the original answer",
+        "Is under half the word count of the original answer"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "spec-opening-two-audiences",
+      "prompt": "Write the opening of a spec for scheduled CSV exports from the brief at evals/files/export-feature-brief.txt: the part before the detailed design. Save it to outputs/spec.md.",
+      "expected_output": "A spec opening that declares both reader groups, states the objective, tells the problem as a concrete story with the data (212 support requests in October, Lumen Logistics churning over missing automated reports) before any solution, states the goal, summarizes the proposal including the signed 7-day download link and why attachments fail for 2M+ row accounts, lists PDF, custom columns and the Starter plan as out of scope, and serves support leads and backend engineers with separate content or an explicit choice of reader.",
+      "files": ["evals/files/export-feature-brief.txt"],
+      "assertions": [
+        "Declares the readers: support leads and backend engineers",
+        "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before describing the solution",
+        "States an objective or goal the solution is measured against",
+        "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+        "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+        "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+        "The proposal itself appears within the first few paragraphs, before supporting detail"
+      ]
+    }
+  ]
+}

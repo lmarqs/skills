@@ -1,0 +1,14 @@
+{
+  "eval_id": 3,
+  "eval_name": "spec-opening-two-audiences",
+  "prompt": "Write the opening of a spec for scheduled CSV exports from the brief at evals/files/export-feature-brief.txt: the part before the detailed design. Save it to outputs/spec.md.",
+  "assertions": [
+    "Declares the readers: support leads and backend engineers",
+    "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before describing the solution",
+    "States an objective or goal the solution is measured against",
+    "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+    "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+    "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+    "The proposal itself appears within the first few paragraphs, before supporting detail"
+  ]
+}
