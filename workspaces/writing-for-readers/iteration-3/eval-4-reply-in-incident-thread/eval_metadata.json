@@ -1,0 +1,17 @@
+{
+  "eval_id": 4,
+  "eval_name": "reply-in-incident-thread",
+  "prompt": "Write the agent's next reply in the incident thread at evals/files/checkout-incident-thread.md, using what it has found since 09:31. Save it to outputs/reply.md.",
+  "assertions": [
+    "The first sentence answers whether the api-server, not the workers, caused the spike",
+    "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+    "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+    "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+    "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+    "Answers the questions in the order Priya asked them",
+    "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+    "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+    "Contains no process narration such as 'I looked at' or 'First, I checked'",
+    "Introduces no facts absent from the thread and findings"
+  ]
+}

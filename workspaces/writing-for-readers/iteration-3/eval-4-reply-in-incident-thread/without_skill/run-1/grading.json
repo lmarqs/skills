@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "The first sentence answers whether the api-server, not the workers, caused the spike",
+      "passed": false,
+      "evidence": "First sentence: 'You're right, and my 09:10 answer was wrong: the workers never restarted, so they didn't cause this.' It rules out the workers but does not name the api-server; the api-server answer comes next as 'Most likely.'"
+    },
+    {
+      "text": "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+      "passed": true,
+      "evidence": "'my 09:10 answer was wrong: the workers never restarted'"
+    },
+    {
+      "text": "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+      "passed": true,
+      "evidence": "Renderer 6.1 GiB of 8 GiB, no limit; api-server requests 256Mi."
+    },
+    {
+      "text": "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+      "passed": true,
+      "evidence": "'No. Workers peaked at 410Mi of their 512Mi limit'"
+    },
+    {
+      "text": "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+      "passed": true,
+      "evidence": "'Yes, as far as this incident goes ... doesn't touch the api-server, the renderer or the workers'"
+    },
+    {
+      "text": "Answers the questions in the order Priya asked them",
+      "passed": true,
+      "evidence": "Answers come in the order asked, though a 'what would prevent a repeat' list is inserted before the 4.12 answer."
+    },
+    {
+      "text": "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+      "passed": true,
+      "evidence": "Last paragraph: 'Next I'll check which node the evicted api-server pods ran on ... and post the result here.'"
+    },
+    {
+      "text": "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+      "passed": true,
+      "evidence": "No Kubernetes basics explained."
+    },
+    {
+      "text": "Contains no process narration such as 'I looked at' or 'First, I checked'",
+      "passed": true,
+      "evidence": "'I haven't yet tied' states verification status, not step narration."
+    },
+    {
+      "text": "Introduces no facts absent from the thread and findings",
+      "passed": true,
+      "evidence": "No facts beyond the thread and findings."
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 1,
+    "total": 10,
+    "pass_rate": 0.9
+  }
+}
