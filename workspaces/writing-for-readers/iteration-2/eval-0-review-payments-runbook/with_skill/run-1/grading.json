@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "Flags that the runbook never states who it is for or what the reader already knows",
+      "passed": true,
+      "evidence": "C1: 'The page never names its reader.'"
+    },
+    {
+      "text": "Flags that the rollback procedure, the thing a reader of a runbook needs, is not at the top and is split across two sections",
+      "passed": true,
+      "evidence": "C2/C4 and S5/S7: the rollback answer is not first and is split across two sections."
+    },
+    {
+      "text": "Flags that the heading 'Rollback is automatic' contradicts its body, which describes a manual kubectl command",
+      "passed": true,
+      "evidence": "S2: '## Rollback is automatic' is followed by a manual kubectl step."
+    },
+    {
+      "text": "Flags that the processor timeout is stated as 30 seconds in one place and 60 seconds in others",
+      "passed": true,
+      "evidence": "S5/S6: the processor timeout appears three times with 30 and 60 seconds."
+    },
+    {
+      "text": "Flags that worker, consumer and job runner name the same component, or asks whether they are one component",
+      "passed": true,
+      "evidence": "L5: Architecture names three actors for one role."
+    },
+    {
+      "text": "Flags at least one pronoun ('it') whose antecedent is ambiguous",
+      "passed": true,
+      "evidence": "L1: 'it times out' and 'check this first' each have more than one antecedent."
+    },
+    {
+      "text": "Flags the 'in the YAML file, not in the Helm chart' contrast as unexplained or as implying an unstated rule",
+      "passed": true,
+      "evidence": "E2: 'set the retry count in the YAML file, not in the Helm chart' says the chart is wrong without saying why."
+    },
+    {
+      "text": "Flags writer-serving content: the 'This section will discuss' opener, the migration history, or 'It's worth noting'",
+      "passed": true,
+      "evidence": "S2 and L13: 'This section will discuss' and 'It's worth noting'."
+    },
+    {
+      "text": "Orders findings with reader/contract problems before structure problems before sentence-level problems",
+      "passed": true,
+      "evidence": "Sections ordered Contract, Structure, Local."
+    },
+    {
+      "text": "Gives a concrete rewrite for most findings, not only a description of the problem",
+      "passed": true,
+      "evidence": "Most findings carry a Rewrite block."
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}
