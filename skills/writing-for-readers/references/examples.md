@@ -32,7 +32,11 @@ commit a `.env` file and conclude they complied. Write the rule the example serv
 > Keep the token out of the repository: read it from the `API_TOKEN` environment variable,
 > set in your shell or your CI secrets.
 
-A contrast belongs in an example when the reader would otherwise do the contrasted thing.
+The same holds for a contrast in prose. "Report outages in the incident tool, not in the team
+channel" tells the reader the channel is wrong without saying why. The reader cannot tell
+whether posting in the channel is harmful or merely untracked.
+
+A contrast belongs in an example or a rule when the reader would otherwise do the contrasted thing.
 "Run migrations with `make migrate`, not `rails db:migrate`" is right when the team's readers
 reach for the Rails command by habit, and the text says why.
 

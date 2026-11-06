@@ -72,7 +72,7 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 | # | Criterion | Test | Sources |
 |---|---|---|---|
 | E1 | Every detail serves the point. | Delete each clause; the point survives only with what remains. | Grice relation and quantity |
-| E2 | Contrasts are needed. | Each "X, not Y" names something the reader would otherwise do. | Grice |
+| E2 | Contrasts are needed, in prose and in examples. | Each "X, not Y" names something the reader would otherwise do, and the text says why Y is wrong. | Grice |
 | E3 | Shared features are rules or varied. | List what all examples share. | Anthropic prompting guidance |
 | E4 | Names come from the reader's domain. | No foo or bar. | Google |
 

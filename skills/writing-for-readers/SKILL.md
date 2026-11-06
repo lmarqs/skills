@@ -98,7 +98,7 @@ set, coded by level, with the sources behind each.
 | 10 | One term names one thing. | Search for synonyms of each key term. Each concept has one name. |
 | 11 | Each new term is defined or linked where it first appears. | List terms the declared reader may not know. Each has a definition at first use. |
 | 12 | Sentences connect: each opens on something the reader already has, and the relation is stated. | For each sentence pair, name the shared noun and the connective. |
-| 13 | Every detail in an example serves its point. | Delete each clause of the example. If the lesson is unchanged, the clause goes. |
+| 13 | Every detail and every contrast serves the point. | Delete each clause of an example; if the lesson is unchanged, the clause goes. For each "X, not Y" in prose or examples, name what the reader would otherwise do with Y and why it is wrong. If you cannot, the contrast implies a rule nobody stated. |
 | 14 | The text holds nothing the declared reader already knows. | For each paragraph, ask whether this reader has it already. If yes, it goes. |
 
 ## How to use this guide
