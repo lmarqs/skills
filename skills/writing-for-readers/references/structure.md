@@ -21,7 +21,6 @@ use the headings to know where they are.
 - Checking a long text for contradictions
 - Lists, conditions and steps
 - Ending on the next step
-- Checks
 
 ## Answer first, at every level
 
@@ -130,14 +129,3 @@ nothing changes. An explanation that stops at its last piece of evidence makes t
 something the reader already has. Strunk's rule for the sentence, "Place the emphatic words
 of a sentence at the end", holds for the text: the end carries the thing that matters most to
 the reader, which is what they do with it.
-
-## Checks
-
-- The first paragraph holds the answer.
-- The last paragraph gives the reader their next step, decision, or "nothing changes".
-- The headings, read alone and in order, form a correct summary.
-- Every heading is specific, leads with its topic word, has a body, and is kept by its body.
-- Every paragraph has one topic, stated first.
-- Every fact appears once; other mentions link to it.
-- No two statements about the same entity conflict, middle sections included.
-- Enumerations are lists; conditions precede the instruction they govern.

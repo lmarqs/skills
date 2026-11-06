@@ -23,7 +23,6 @@ one.
 - Length
 - Reading aloud
 - Where the sources disagree
-- Checks
 
 ## Actors as subjects, actions as verbs
 
@@ -173,18 +172,3 @@ next one gets rewritten.
 - **Voice.** Zinsser tells writers to write for themselves. He means voice: the author's
   attitude and personality stay. Clarity for the reader is a separate check, and it is the one
   a review makes.
-
-## Checks
-
-- Each clause names its actor as subject and its action as verb.
-- Each passive is justified by an unknown actor, a shorter subject or the topic string.
-- Instructions are imperatives.
-- Vague quantities and times are replaced with values.
-- No stock phrase, false limb or jargon word where an everyday word fits.
-- Each word, sentence and paragraph survives the deletion test.
-- Each hedge is a stated condition or is gone.
-- No sentence has the document as its subject.
-- No "simply", "obviously", "just", "of course".
-- Any two paragraphs address the same reader in the same register.
-- Sentences over the length flag are split or justified.
-- The text reads aloud once, in order, without stumbling.

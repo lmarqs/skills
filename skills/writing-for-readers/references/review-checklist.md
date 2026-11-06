@@ -1,5 +1,5 @@
 ---
-description: Every criterion of the writing-for-readers skill with its test and source, the finding format, and what a review leaves alone.
+description: Every criterion of the writing-for-readers skill with its code, test and source, the finding format, what a review leaves alone, and where each source was read.
 audience: Whoever runs a complete review with the writing-for-readers skill.
 ---
 
@@ -8,6 +8,8 @@ audience: Whoever runs a complete review with the writing-for-readers skill.
 The full criteria for reviewing a text, grouped by the level where a text breaks, each with
 the test a reviewer runs and the sources behind it. Run them in level order: contract, then
 structure, then local. A wrong contract makes every later finding aim at the wrong reader.
+A row whose test reads "Core #n" is one of the seventeen core criteria; its test is row n of
+the criteria table in [`SKILL.md`](../SKILL.md) and is stated only there.
 
 ## Contents
 
@@ -24,40 +26,40 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| C1 | The reader and their prior knowledge are stated. | Point to the sentence or `audience` field naming who reads and what they know. A reply or short text takes them from its conversation or channel. | McNamara et al. 1996; Google tech writing; digital.gov; Clements rule 1 |
+| C1 | The reader and their prior knowledge are stated. | Core #1 | McNamara et al. 1996; Google tech writing; digital.gov; Clements rule 1 |
 | C2 | The reader's question is stated or evident. | Write it as one sentence ending in "?". In a reply, list every question the reader asked; each has an answer. | Minto; Shape Up; Flower 1979 |
-| C3 | Scope and out-of-scope are stated. | Point to both. A reply states scope only when it answers less than was asked. | Google tech writing; Shape Up no-gos |
-| C4 | The answer comes before its support. | Stop after the first paragraph; the main point is known. | NN/g inverted pyramid and F-pattern; Microsoft; Google |
-| C5 | Explicitness matches the reader. | New-to-domain reader: terms defined, relations stated. Expert: nothing they already know. | McNamara et al. 1996; Grice quantity; Anthropic |
+| C3 | Scope and out-of-scope are stated. | Core #3 | Google tech writing; Shape Up no-gos |
+| C4 | The answer comes before its support. | Core #2 | NN/g inverted pyramid and F-pattern; Microsoft; Google |
+| C5 | The text holds nothing the declared reader already knows. | Core #15. For a reader new to the domain, the reverse also holds: terms are defined and relations stated. | McNamara et al. 1996; Grice quantity; Anthropic |
 | C6 | The document serves one kind of need. | Classify the document and each section as tutorial, how-to, reference or explanation; they match. | Diátaxis |
 | C7 | A proposal states a concrete problem before the solution. | Point to one specific story of the status quo failing. | Shape Up; Minto |
-| C8 | One writer addresses one reader in one register throughout. | Pick any two paragraphs; both are pitched at the declared reader. A novice's metaphor beside an expert's parameter fails. | Basecamp copywriting; Thomas & Turner |
+| C8 | One writer addresses one reader in one register throughout. | Core #17 | Basecamp copywriting; Thomas & Turner |
 
 ## Structure criteria
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| S1 | Headings alone form a correct summary. | Read only the headings, in order. | McNamara macrosignals; Microsoft "headings as an outline" |
-| S2 | Each heading is kept by its body. | The first sentence under it delivers its promise; nothing below contradicts it. | Google; NN/g microcontent; Williams |
+| S1 | Headings alone form a correct summary. | Core #5 | McNamara macrosignals; Microsoft "headings as an outline" |
+| S2 | Each heading is kept by its body. | Core #4 | Google; NN/g microcontent; Williams |
 | S3 | Headings are specific, front-loaded, never empty. | Cut each heading to two words; the topic survives. No heading directly follows another. | NN/g F-pattern; Google; Microsoft |
-| S4 | One topic per paragraph, topic sentence first. | Read first sentences only; the argument survives. | Strunk 8–9; Gopen & Swan; Google |
-| S5 | Each fact lives in one place. | Search each key claim; it appears once. | Clements rule 2 |
-| S6 | No two statements contradict. | Collect every claim about each entity, middle sections included; they agree. In a reply, they also agree with earlier messages, or name the correction. | Mündler et al. 2023; ConStory-Bench |
+| S4 | One topic per paragraph, topic sentence first. | Core #6 | Strunk 8–9; Gopen & Swan; Google |
+| S5 | Each fact lives in one place. | Core #7 | Clements rule 2 |
+| S6 | No two statements contradict. | Core #8 | Mündler et al. 2023; ConStory-Bench |
 | S7 | Conditions precede the instruction they govern. | Each "if/when/to" clause comes before its imperative. | Google; ASD-STE100 |
 | S8 | Enumerations are lists with parallel items. | Three or more parallel items sit in a list sharing grammar. | Strunk 15; NN/g |
 | S9 | Each section stands without memory of earlier ones. | Any definition a section depends on is linked from it. | NN/g comprehension; Basecamp |
-| S10 | The text ends on what the reader does next. | Read the last paragraph alone; it states a decision, an action, or that nothing changes. A link list or a summary of the text is not an ending. | Strunk 18, applied to the text; NN/g F-pattern |
+| S10 | The text ends on what the reader does next. | Core #16. A link list or a summary of the text is not an ending. | Strunk 18, applied to the text; NN/g F-pattern |
 
 ## Local criteria: coherence
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| L1 | Every pronoun and "this" has one antecedent. | Name it; exactly one candidate. | McNamara revision 1; Google; Haviland & Clark |
-| L2 | Relations between sentences are stated where the reader would guess. | Name the relation for each pair; write the connective if you guessed. | McNamara revision 3; Gopen & Swan |
-| L3 | Consecutive sentences share a noun. | Name the shared noun for each pair. | McNamara revision 4; Kintsch & van Dijk |
-| L4 | Given before new; the point at the end. | Sentence N+1 opens on something in sentence N; each sentence ends on its point. | Gopen & Swan; Williams; Strunk 18 |
-| L5 | One name per concept, one concept per name. | Search synonyms of each key term. | Microsoft; ASD-STE100; Google |
-| L6 | New terms are defined or linked at first use. | List terms the declared reader may not know; each has a definition where it first appears. | Pinker; McNamara revision 2; Basecamp |
+| L1 | Every pronoun and "this" has one antecedent. | Core #9 | McNamara revision 1; Google; Haviland & Clark |
+| L2 | Relations between sentences are stated where the reader would guess. | Core #12 | McNamara revision 3; Gopen & Swan |
+| L3 | Consecutive sentences share a noun. | Core #12 | McNamara revision 4; Kintsch & van Dijk |
+| L4 | Given before new; the point at the end. | Core #12, plus: each sentence ends on its point. | Gopen & Swan; Williams; Strunk 18 |
+| L5 | One name per concept, one concept per name. | Core #10, and the reverse: each name has one concept. | Microsoft; ASD-STE100; Google |
+| L6 | New terms are defined or linked at first use. | Core #11 | Pinker; McNamara revision 2; Basecamp |
 | L7 | No second plausible reading. | Write the alternative reading of each claim or instruction. | Clements rule 3; Basecamp rule 8; Grice manner |
 
 ## Local criteria: sentences
@@ -78,8 +80,8 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| E1 | Every detail serves the point. | Delete each clause; the point survives only with what remains. | Grice relation and quantity |
-| E2 | Contrasts are needed, in prose and in examples. | Each "X, not Y" names something the reader would otherwise do, and the text says why Y is wrong. | Grice |
+| E1 | Every detail serves the point. | Core #13 | Grice relation and quantity |
+| E2 | Contrasts are needed, in prose and in examples. | Core #14 | Grice |
 | E3 | Shared features are rules or varied. | List what all examples share. | Anthropic prompting guidance |
 | E4 | Names come from the reader's domain. | No foo or bar. | Google |
 

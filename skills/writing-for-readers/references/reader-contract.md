@@ -17,7 +17,6 @@ it. A heading is "clear" or a term "undefined" only relative to a declared reade
 - Setting explicitness from the reader
 - One reader need per document
 - Problem before solution
-- Checks
 
 ## Why the reader comes first
 
@@ -110,6 +109,39 @@ Scope appears only when the answer covers less than was asked, as one sentence s
 left out and why. Reasoning follows only as far as the reader needs it to trust or act on the
 answer.
 
+An example. An SRE lead has asked three things after reading an eviction log: was it the
+api-server and why was it evicted, is the worker memory bump still needed, and is release 4.12
+safe to deploy. An earlier reply had blamed the workers. A reply written from the agent's
+notes:
+
+> I pulled the eviction log and the node metrics for the 08:40 window. There were two
+> evictions on `general-b`, both with reason "node memory pressure", and node `general-b-7`
+> was running the PDF renderer, which has no memory limit and used 6.1 GiB. The workers
+> peaked at 410Mi. 4.12 only changes the pricing page and the logging library. So it looks
+> like a node pressure issue rather than the workers.
+
+The reader has to work out that the first question's answer is "yes", that the bump is not
+needed, and that 4.12 is safe; the correction is never named. The same facts, written to the
+conversation's contract:
+
+> Yes, it was the api-server. My 09:10 answer was wrong: the workers were not OOM-killed and
+> never restarted.
+>
+> **Why it was evicted:** the PDF renderer, which has no memory limit, grew to 6.1 GiB of
+> `general-b-7`'s 8 GiB, and the api-server, with a 256Mi request, was evicted first at 08:41
+> and 08:47.
+>
+> **Worker memory bump:** not needed. Workers peaked at 410Mi of 512Mi; I withdraw it.
+>
+> **4.12 this afternoon:** safe with respect to this incident; it touches none of these
+> components. It also does not fix the cause.
+>
+> **Next:** a memory limit on the renderer and a higher request for the api-server, before the
+> next invoice batch. Tell me whether to open them.
+
+The first sentence answers the first question; the correction is named; each question is
+answered in the order asked; the ending is the reader's decision.
+
 **Short texts** (a commit message, a Slack update, a PR title) state the answer and let the
 channel imply the reader. The contract still applies; it is implicit because the setting
 already declares it.
@@ -165,14 +197,3 @@ pitch format also names the no-gos: "Anything specifically excluded from the con
 Barbara Minto's opening for business writing does the same in three moves: the situation the
 reader recognizes, the complication that changed it, and the question that follows, which the
 document then answers.
-
-## Checks
-
-- The reader is named with what they know and do not know.
-- The reader's question can be written as one sentence ending in a question mark.
-- Scope and out-of-scope are both stated; a reply states them only when it answers less than
-  was asked.
-- The answer is in the first paragraph, before support for it.
-- Every section serves the same reader and the same kind of need as the document.
-- A proposal states one concrete problem story before the solution, and lists what it
-  excludes.

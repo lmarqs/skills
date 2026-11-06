@@ -18,7 +18,6 @@ and whether two names refer to the same thing. Each guess is a chance to guess w
 - One term per thing
 - Defining at first use
 - Removing second readings
-- Checks
 
 ## How a reader links sentences
 
@@ -126,13 +125,3 @@ sources:
 - A negation with unclear scope. "All requests are not retried" can mean none are or some
   are not.
 - A relative clause that could attach to two nouns.
-
-## Checks
-
-- Every pronoun and "this" has exactly one candidate antecedent.
-- Each sentence pair has a shared noun and a nameable relation; the relation is written where
-  the declared reader would have to guess it.
-- Each sentence opens on known information and ends on the new point.
-- Each concept has one name and each name one concept.
-- Every term the declared reader may not know is defined or linked at first use.
-- No instruction or claim has a second plausible reading.

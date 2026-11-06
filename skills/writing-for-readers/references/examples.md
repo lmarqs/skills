@@ -79,12 +79,3 @@ example.
    of the point, or the detail changes.
 5. For a set of examples, list their shared features and vary each one that is not part of the
    rule.
-
-## Checks
-
-- Each example has a stated point it serves.
-- Every clause in the example survives the deletion test.
-- Every contrast ("X, not Y") names something the reader would otherwise do, and says why.
-- Features shared by all examples are either stated as the rule or varied.
-- Names come from the reader's domain.
-- Each example step introduces one new fact or instruction.

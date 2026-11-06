@@ -20,27 +20,23 @@ description: >-
 A writer knows what they mean, so their own text always reads as clear to them. The reader has
 only the page. Text fails when it is built from the writer's knowledge: it skips what the writer
 takes for granted, follows the order the writer discovered things in, and names things the way
-the writer thinks of them. Steven Pinker calls this the curse of knowledge. Agents suffer it
-too, and add a failure of their own: they lose the thread of a long text and contradict
-themselves in its middle.
+the writer thinks of them. Pinker calls this the curse of knowledge. Agents suffer it too, and
+add a failure of their own: they lose the thread of a long text and contradict themselves in
+its middle.
 
-One fact sits under every rule here:
-
-- **A text is good relative to its reader, never in itself.** McNamara and colleagues gave
-  readers the same content at two levels of explicitness. Readers new to the domain learned
-  more from the fully explicit version. Readers who knew the domain learned more from the
-  sparse one, because spelling out what they knew stopped them thinking. So the first act of
-  writing is to declare the reader, and that declaration decides how much the text spells out.
+A text is good relative to its reader, never in itself. McNamara and colleagues gave readers
+the same content at two levels of explicitness: readers new to the domain learned more from the
+explicit version, and readers who knew the domain learned more from the sparse one. So the
+first act of writing is to declare the reader, and that declaration decides how much the text
+spells out.
 
 ## Where a text breaks
 
-A text breaks at one of three levels. Each matches something a reader says about a bad text.
-
 | Level | What the reader says | What went wrong |
 |---|---|---|
-| **Contract** | "Who is this for? What am I supposed to do with it?" | The text never declared its reader, their question or its scope, so it assumes context the reader lacks. |
-| **Structure** | "I had to read all of it before any of it made sense." "The heading says one thing and the section says another." | The answer is buried, headings do not match their bodies, or one document answers several kinds of question. |
-| **Local** | "It contradicts itself." "What does *it* refer to?" "Why mention the table?" | Two sentences disagree, a reference has no single antecedent, one thing has two names, or an example carries detail its point does not need. |
+| **Contract** | "Who is this for? What do I do with it?" | No declared reader, question or scope, so the text assumes context the reader lacks. |
+| **Structure** | "I had to read all of it before any of it made sense." | The answer is buried, headings do not match their bodies, or one document answers several kinds of question. |
+| **Local** | "It contradicts itself." "What does *it* refer to?" | Two sentences disagree, a reference has two antecedents, one thing has two names, or an example carries detail its point does not need. |
 
 Fix them in that order. A wrong contract makes every later fix aim at the wrong reader.
 
@@ -71,14 +67,11 @@ Database migrations do not roll back with it; check them before you roll back. I
 communication lives in the on-call handbook.
 ```
 
-An agent's answer or a reply in a thread is a document too: the next response, with the
-conversation as its contract. The reader is the person who asked, and what they know includes
-everything said so far. The question is every question in their last message, plus any earlier
-one still unanswered. The first sentence answers the first question; each question gets its
-answer, in order, before anything new; a claim that changes an earlier one names what it
-changes; and an explanation ends on what it means for the reader. An answer that opens by
-restating the question or narrating the work spends the reader's first glance on something
-they already have.
+A reply in a conversation is a document too: the next response, with the conversation as its
+contract. The reader is the person who asked and knows everything said so far; the question is
+every question in their last message; the first sentence answers the first of them, and each
+gets its answer in order. [`references/reader-contract.md`](references/reader-contract.md)
+shows a reply before and after.
 
 The reader decides explicitness. For a reader new to the domain, define each term at first use,
 name the relation between sentences, and repeat the noun instead of a pronoun that could point
@@ -86,28 +79,30 @@ two ways. For an expert, cut everything they already know.
 
 ## Criteria
 
-Each criterion has a test a reviewer can run on the text. These sixteen are the core set.
-[`references/review-checklist.md`](references/review-checklist.md) expands them into the full
-set, coded by level, with the sources behind each.
+Each criterion has a test a reviewer can run on the text. These seventeen are the core set;
+the code in the last column is its row in
+[`references/review-checklist.md`](references/review-checklist.md), which adds the remaining
+criteria and the sources behind each.
 
-| # | Criterion | Test |
-|---|---|---|
-| 1 | The reader and their prior knowledge are stated. | Point to the sentence or frontmatter field that names them. In a reply or a short text, the conversation or the channel names them; the text is pitched at that reader. |
-| 2 | The answer comes first. | Stop after the first paragraph. The reader already has the main point. |
-| 3 | Scope and what is out of scope are stated. | Point to both lines. A reply states scope only when it answers less than was asked, and then says what it left out. |
-| 4 | Each heading promises exactly what its body delivers. | Read the heading, then the first sentence under it. The sentence keeps the heading's promise and nothing in the body breaks it. |
-| 5 | Headings alone summarize the text. | Read only the headings, in order. They form a correct outline. |
-| 6 | Each paragraph has one topic, stated in its first sentence. | Read only first sentences. The argument survives. |
-| 7 | Each fact lives in one place. | Search for each key claim. It appears once; other places link to it. |
-| 8 | No two sentences contradict each other. | For each entity, collect what the text says about it, middle sections included. The statements agree, and agree with what the reader was told earlier in the conversation unless the text names the correction. |
-| 9 | Every pronoun and "this" has one antecedent. | Name the antecedent of each. There is exactly one candidate. |
-| 10 | One term names one thing. | Search for synonyms of each key term. Each concept has one name. |
-| 11 | Each new term is defined or linked where it first appears. | List terms the declared reader may not know. Each has a definition at first use. |
-| 12 | Sentences connect: each opens on something the reader already has, and the relation is stated where the declared reader would have to guess it. | For each sentence pair, name the shared noun. If naming the relation took a guess, a connective states it. |
-| 13 | Every detail and every contrast serves the point. | Delete each clause of an example; if the lesson is unchanged, the clause goes. For each "X, not Y" in prose or examples, name what the reader would otherwise do with Y and why it is wrong. If you cannot, the contrast implies a rule nobody stated. |
-| 14 | The text holds nothing the declared reader already knows. | For each paragraph, ask whether this reader has it already. If yes, it goes. |
-| 15 | The text ends on what the reader does next. | Read the last paragraph alone. It states a decision, an action, or that nothing changes; a reader who finishes it does not ask "and?". |
-| 16 | One writer addresses one reader in one register throughout. | Pick any two paragraphs. Both are pitched at the declared reader; neither explains to a novice what the other assumes of an expert. |
+| # | Criterion | Test | Code |
+|---|---|---|---|
+| 1 | The reader and their prior knowledge are stated. | Point to the sentence or frontmatter field that names them. In a reply or a short text, the conversation or the channel names them; the text is pitched at that reader. | C1 |
+| 2 | The answer comes first. | Stop after the first paragraph. The reader already has the main point. | C4 |
+| 3 | Scope and what is out of scope are stated. | Point to both lines. A reply states scope only when it answers less than was asked, and then says what it left out. | C3 |
+| 4 | Each heading promises exactly what its body delivers. | Read the heading, then the first sentence under it. The sentence keeps the heading's promise and nothing in the body breaks it. | S2 |
+| 5 | Headings alone summarize the text. | Read only the headings, in order. They form a correct outline. | S1 |
+| 6 | Each paragraph has one topic, stated in its first sentence. | Read only first sentences. The argument survives. | S4 |
+| 7 | Each fact lives in one place. | Search for each key claim. It appears once; other places link to it. | S5 |
+| 8 | No two sentences contradict each other. | For each entity, collect what the text says about it, middle sections included. The statements agree, and agree with what the reader was told earlier in the conversation unless the text names the correction. | S6 |
+| 9 | Every pronoun and "this" has one antecedent. | Name the antecedent of each. There is exactly one candidate. | L1 |
+| 10 | One term names one thing. | Search for synonyms of each key term. Each concept has one name. | L5 |
+| 11 | Each new term is defined or linked where it first appears. | List terms the declared reader may not know. Each has a definition at first use. | L6 |
+| 12 | Sentences connect: each opens on something the reader already has, and the relation is stated where the declared reader would have to guess it. | For each sentence pair, name the shared noun. If naming the relation took a guess, a connective states it. | L2–L4 |
+| 13 | Every detail of an example serves its point. | Delete each clause of the example; if the lesson is unchanged, the clause goes. | E1 |
+| 14 | Every contrast is one the reader needed. | For each "X, not Y", name what the reader would otherwise do with Y and why it is wrong. If you cannot, the contrast implies a rule nobody stated. | E2 |
+| 15 | The text holds nothing the declared reader already knows. | For each paragraph, ask whether this reader has it already. If yes, it goes. | C5 |
+| 16 | The text ends on what the reader does next. | Read the last paragraph alone. It states a decision, an action, or that nothing changes; a reader who finishes it does not ask "and?". | S10 |
+| 17 | One writer addresses one reader in one register throughout. | Pick any two paragraphs. Both are pitched at the declared reader; neither explains to a novice what the other assumes of an expert. | C8 |
 
 ## How to use this guide
 
@@ -129,9 +124,11 @@ set, coded by level, with the sources behind each.
    unstated, and its setting does not supply, is the first finding. A reply takes its reader
    and question from the conversation; a short text takes them from its channel.
 2. Run the criteria in level order: contract, then structure, then local.
-3. Report each finding as the quoted passage, the criterion it fails with its test, and a
-   rewrite. Contract findings come first, then structure, then local, so the author fixes the
-   largest problem first.
+3. Report each finding in the checklist's finding format: the quoted passage, the criterion it
+   fails with its test, and a rewrite. Contract findings come first, then structure, then
+   local, so the author fixes the largest problem first. A review longer than the text helps
+   nobody: write out the findings that change most for the reader, and give the rest as a
+   count per criterion.
 4. Keep the author's terms and voice. A finding changes what the reader receives, never the
    author's taste.
 
@@ -140,9 +137,9 @@ set, coded by level, with the sources behind each.
 Read the one that matches the task. Each stands alone.
 
 - [`references/reader-contract.md`](references/reader-contract.md): declaring reader,
-  question, scope and answer; the frontmatter template; how reader knowledge sets
-  explicitness; the four kinds of documentation and why mixing them fails. Read it before
-  writing anything new, or when a review's first question is "who is this for".
+  question, scope and answer; the frontmatter template; a reply before and after; how reader
+  knowledge sets explicitness; the four kinds of documentation and why mixing them fails. Read
+  it before writing anything new, or when a review's first question is "who is this for".
 - [`references/structure.md`](references/structure.md): answer-first ordering, headings that
   summarize, one topic per paragraph, outlining before drafting, one place per fact, and how
   to check a long text for contradictions. Read it to organize a text or to review its shape.
@@ -158,16 +155,6 @@ Read the one that matches the task. Each stands alone.
   point, why one extra detail misleads, and how a set of examples teaches an unintended rule.
   Read it before writing or reviewing any example, sample or illustration.
 - [`references/review-checklist.md`](references/review-checklist.md): the full criteria table
-  with its tests and sources, the finding format, and what a review leaves alone. Read it to
-  run a complete review.
-
----
-
-Grounded in reading research and style practice: McNamara, Kintsch, Songer and Kintsch (1996)
-on coherence and reader knowledge; Gopen and Swan (1990); Williams, *Style*; Pinker, *The Sense
-of Style*; Thomas and Turner, *Clear and Simple as the Truth*; Strunk; Orwell; Zinsser; Nielsen
-Norman Group's reading studies; the Google and Microsoft style guides; Diátaxis; Clements et
-al., *Documenting Software Architectures*; US plain-language guidelines; ASD-STE100; Grice; and
-Mündler et al. (2023) on self-contradiction in model output. The research notes behind each
-criterion, with citations, are in the
-[lmarqs/skills repository](https://github.com/lmarqs/skills/tree/main/workspaces/writing-for-readers/sources).
+  with codes, tests and sources, the finding format, what a review leaves alone, and the
+  Sources table with where each was read. Read it to run a complete review or to check a
+  claim's source.
