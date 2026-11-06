@@ -1,0 +1,45 @@
+{
+  "expectations": [
+    {
+      "text": "Declares the readers: support leads and backend engineers",
+      "passed": true,
+      "evidence": "Frontmatter audience names both groups and which sections each reads."
+    },
+    {
+      "text": "States the problem with concrete evidence from the brief (212 requests in October, or the Lumen Logistics churn) before describing the solution",
+      "passed": true,
+      "evidence": "Problem section with 212 requests and Lumen churn precedes the constraints and design; a one-paragraph proposal summary comes first by design."
+    },
+    {
+      "text": "States an objective or goal the solution is measured against",
+      "passed": true,
+      "evidence": "'The goal is reports that arrive without anyone asking'."
+    },
+    {
+      "text": "Lists out of scope: PDF exports, custom column selection, and the Starter plan",
+      "passed": true,
+      "evidence": "Out of scope: PDF, column choice, Starter plan."
+    },
+    {
+      "text": "Gives each reader group the content it needs: what changes for support and when, and the volume and delivery constraints for engineers",
+      "passed": true,
+      "evidence": "'What changes for support' and 'Constraints for the build' sections."
+    },
+    {
+      "text": "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
+      "passed": true,
+      "evidence": "Signed link valid 7 days because 2M+ row attachments fail."
+    },
+    {
+      "text": "The proposal itself appears within the first few paragraphs, before supporting detail",
+      "passed": true,
+      "evidence": "Proposal in the first paragraph."
+    }
+  ],
+  "summary": {
+    "passed": 7,
+    "failed": 0,
+    "total": 7,
+    "pass_rate": 1.0
+  }
+}
