@@ -80,8 +80,9 @@ two ways. For an expert, cut everything they already know.
 
 ## Criteria
 
-Each criterion has a test a reviewer can run on the text. Every row cites its evidence in
-[`references/review-checklist.md`](references/review-checklist.md).
+Each criterion has a test a reviewer can run on the text. These fourteen catch most failures.
+[`references/review-checklist.md`](references/review-checklist.md) expands them into the full
+set, coded by level, with the sources behind each.
 
 | # | Criterion | Test |
 |---|---|---|
