@@ -26,14 +26,14 @@ the criteria table in [`SKILL.md`](../SKILL.md) and is stated only there.
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| C1 | The reader and their prior knowledge are stated. | Core #1 | McNamara et al. 1996; Google tech writing; digital.gov; Clements rule 1 |
-| C2 | The reader's question is stated or evident. | Write it as one sentence ending in "?". In a reply, list every question the reader asked; each has an answer. | Minto; Shape Up; Flower 1979 |
+| C1 | The reader and their prior knowledge are stated. | Core #1 | McNamara et al. 1996; Google tech writing; Clements rule 1 |
+| C2 | The reader's question is stated or evident. | Write it as one sentence ending in "?". In a reply, list every question the reader asked; each has an answer. | Shape Up; Flower 1979 |
 | C3 | Scope and out-of-scope are stated. | Core #3 | Google tech writing; Shape Up no-gos |
 | C4 | The answer comes before its support. | Core #2 | NN/g inverted pyramid and F-pattern; Microsoft; Google |
 | C5 | The text holds nothing the declared reader already knows. | Core #15. For a reader new to the domain, the reverse also holds: terms are defined and relations stated. | McNamara et al. 1996; Grice quantity; Anthropic |
 | C6 | The document serves one kind of need. | Classify the document and each section as tutorial, how-to, reference or explanation; they match. | Diátaxis |
-| C7 | A proposal states a concrete problem before the solution. | Point to one specific story of the status quo failing. | Shape Up; Minto |
-| C8 | One writer addresses one reader in one register throughout. | Core #17 | Basecamp copywriting; Thomas & Turner |
+| C7 | A proposal states a concrete problem before the solution. | Point to one specific story of the status quo failing. | Shape Up |
+| C8 | One writer addresses one reader in one register throughout. | Core #17 | Thomas & Turner |
 
 ## Structure criteria
 
@@ -47,20 +47,20 @@ the criteria table in [`SKILL.md`](../SKILL.md) and is stated only there.
 | S6 | No two statements contradict. | Core #8 | Mündler et al. 2023; ConStory-Bench |
 | S7 | Conditions precede the instruction they govern. | Each "if/when/to" clause comes before its imperative. | Google; ASD-STE100 |
 | S8 | Enumerations are lists with parallel items. | Three or more parallel items sit in a list sharing grammar. | Strunk 15; NN/g |
-| S9 | Each section stands without memory of earlier ones. | Any definition a section depends on is linked from it. | NN/g comprehension; Basecamp |
+| S9 | Each section stands without memory of earlier ones. | Any definition a section depends on is linked from it. | NN/g comprehension |
 | S10 | The text ends on what the reader does next. | Core #16. A link list or a summary of the text is not an ending. | Strunk 18, applied to the text; NN/g F-pattern |
 
 ## Local criteria: coherence
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| L1 | Every pronoun and "this" has one antecedent. | Core #9 | McNamara revision 1; Google; Haviland & Clark |
+| L1 | Every pronoun and "this" has one antecedent. | Core #9 | McNamara revision 1; Google |
 | L2 | Relations between sentences are stated where the reader would guess. | Core #12 | McNamara revision 3; Gopen & Swan |
-| L3 | Consecutive sentences share a noun. | Core #12 | McNamara revision 4; Kintsch & van Dijk |
+| L3 | Consecutive sentences share a noun. | Core #12 | McNamara revision 4 |
 | L4 | Given before new; the point at the end. | Core #12, plus: each sentence ends on its point. | Gopen & Swan; Williams; Strunk 18 |
 | L5 | One name per concept, one concept per name. | Core #10, and the reverse: each name has one concept. | Microsoft; ASD-STE100; Google |
-| L6 | New terms are defined or linked at first use. | Core #11 | Pinker; McNamara revision 2; Basecamp |
-| L7 | No second plausible reading. | Write the alternative reading of each claim or instruction. | Clements rule 3; Basecamp rule 8; Grice manner |
+| L6 | New terms are defined or linked at first use. | Core #11 | Pinker; McNamara revision 2 |
+| L7 | No second plausible reading. | Write the alternative reading of each claim or instruction. | Clements rule 3; Grice manner |
 
 ## Local criteria: sentences
 
@@ -74,7 +74,7 @@ the criteria table in [`SKILL.md`](../SKILL.md) and is stated only there.
 | L13 | No sentence about the document. | No sentence that announces, recaps or comments on the text in place of content: "this section will discuss", "as mentioned above", "it is worth noting". A scope line names subjects and where the rest lives ("Incident communication lives in the on-call handbook"), so it passes. | Pinker; Thomas & Turner |
 | L14 | No condescension or deference. | No "simply", "obviously", "just", "of course", "as you know". | Thomas & Turner |
 | L15 | Sentence length within the flag. | Procedures 20 words; descriptive text 25. A longer sentence stays when it passes L8 and makes one point. | ASD-STE100; Strunk |
-| L16 | Reads aloud once, in order. | Each sentence is clear when it ends. | Thomas & Turner; Fried; Zinsser |
+| L16 | Reads aloud once, in order. | Each sentence is clear when it ends. | Thomas & Turner; Zinsser |
 
 ## Local criteria: examples
 
@@ -139,13 +139,6 @@ record the verification status of each claim.
 | Diátaxis | [diataxis.fr](https://diataxis.fr/) | Tutorial, how-to, reference, explanation; why mixing them fails |
 | Clements et al., *Documenting Software Architectures*, 2nd ed. | [Publisher's excerpt of the seven rules](https://www.informit.com/articles/article.aspx?p=1641654) | Write from the reader's point of view, avoid repetition, avoid ambiguity |
 | Shape Up | [Chapter 6, "Write the Pitch"](https://basecamp.com/shapeup/1.5-chapter-06) | Problem as one specific story, no-gos |
-| Fried, "Then just say it like that!", 2023 | [HEY World](https://world.hey.com/jason/then-just-say-it-like-that-3fe992bb) | The plain spoken sentence as the test of a written one; paraphrased |
-| Getting Real | [Copywriting is Interface Design](https://basecamp.com/gettingreal/09.7-copywriting-is-interface-design), [Tell Me a Quick Story](https://basecamp.com/gettingreal/11.3-tell-me-a-quick-story), [Use Real Words](https://basecamp.com/gettingreal/11.4-use-real-words) | Same language as the audience, no internal lingo, the deletion test |
-| Minto, *The Pyramid Principle* | [barbaraminto.com](https://www.barbaraminto.com/) | Situation, complication, question; paraphrased beyond the site's own summary |
 | Grice, "Logic and Conversation" | [Stanford Encyclopedia of Philosophy, "Implicature"](https://plato.stanford.edu/entries/implicature/) | The cooperative principle and the maxims of quantity, relation and manner, as quoted there |
-| digital.gov plain language | [Plain language guide](https://digital.gov/guides/plain-language) | Audience first |
 | ASD-STE100 | [asd-ste100.org](https://asd-ste100.org) | One word one meaning, active voice, condition first, one instruction per sentence. Rule numbers and word limits come from a vendor's Issue 8 list, so they are flags, not the standard's text. The 20- and 25-word limits apply here to text for any reader |
 | Anthropic | [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) and [skill best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) | Examples that vary, the over-explanation test |
-
-Haviland & Clark 1974 (given-new bridging) is cited through secondary descriptions; the skill
-leans on Gopen & Swan and McNamara for the same point.

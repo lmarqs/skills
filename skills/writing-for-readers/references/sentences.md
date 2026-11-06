@@ -6,10 +6,7 @@ audience: Whoever edits a text sentence by sentence with the writing-for-readers
 # Sentences
 
 A good sentence reads the way a clear person talks: someone does something, in words the
-listener knows, and the sentence stops when the point is made. Jason Fried describes the
-pattern every writer has seen: someone struggles to explain an idea, then says it plainly in
-one sentence, then writes something more complicated. The plain spoken sentence was the right
-one.
+listener knows, and the sentence stops when the point is made.
 
 ## Contents
 
@@ -89,8 +86,7 @@ sentences". NN/g measured the effect on web text: a concise version scored 58 pe
 than the original on their usability measure.
 
 The test is deletion. Remove a word, sentence or paragraph and reread. If the reader loses
-nothing, the deletion stays. Basecamp's version: "Occasionally pick random words, sentences,
-or paragraphs and hit delete. Did it matter?"
+nothing, the deletion stays.
 
 Typical cuts:
 
@@ -134,8 +130,7 @@ that defer ("as you surely know") spend a sentence on something the reader eithe
 does not. Both go.
 
 The stance also holds the register steady. One writer addresses one reader from the first
-paragraph to the last, in the words that reader uses. Basecamp: "You need to speak the same
-language as your audience too." A text that explains retries to an engineer with a story
+paragraph to the last, in the words that reader uses. A text that explains retries to an engineer with a story
 about a shop assistant leaving the room, then switches to `operation_timeout` two lines
 later, has changed reader mid-text; the declared reader gets only the second version.
 

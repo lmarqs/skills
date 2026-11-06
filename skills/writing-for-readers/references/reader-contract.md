@@ -46,9 +46,7 @@ apparently pointless discussion".
 Google's technical writing course states the first three directly: "A good document begins
 by defining its scope", "A better document additionally defines its non-scope", and "A good
 document explicitly specifies its audience", for example "This document assumes that you
-understand matrix multiplication". The US plain-language guidelines call "write for your
-audience" the first rule, taking into account readers' "current level of knowledge,
-expertise, and interest".
+understand matrix multiplication".
 
 A text with two reader groups whose knowledge differs either picks one or gives each its own
 section. One section written for both is too explicit for one group and too sparse for the
@@ -127,9 +125,9 @@ conversation's contract:
 > Yes, it was the api-server. My 09:10 answer was wrong: the workers were not OOM-killed and
 > never restarted.
 >
-> **Why it was evicted:** the PDF renderer, which has no memory limit, grew to 6.1 GiB of
-> `general-b-7`'s 8 GiB, and the api-server, with a 256Mi request, was evicted first at 08:41
-> and 08:47.
+> **Why it was evicted:** node pool `general-b` ran short of memory. The PDF renderer, which
+> has no memory limit, used 6.1 GiB of an 8 GiB node there, and the api-server, with a 256Mi
+> request, is the first pod evicted under that pressure: at 08:41 and 08:47.
 >
 > **Worker memory bump:** not needed. Workers peaked at 410Mi of 512Mi; I withdraw it.
 >
@@ -193,7 +191,3 @@ problem comes first and is concrete. Shape Up puts it plainly: "The best problem
 consists of a single specific story that shows why the status quo doesn't work", and without
 one "there's no test of fitness to judge whether one solution is better than the other". Its
 pitch format also names the no-gos: "Anything specifically excluded from the concept."
-
-Barbara Minto's opening for business writing does the same in three moves: the situation the
-reader recognizes, the complication that changed it, and the question that follows, which the
-document then answers.

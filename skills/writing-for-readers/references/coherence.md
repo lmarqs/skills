@@ -21,15 +21,11 @@ and whether two names refer to the same thing. Each guess is a chance to guess w
 
 ## How a reader links sentences
 
-Haviland and Clark (1974) showed that a reader treats part of each sentence as "given",
-searches memory for something it matches, and attaches the new part there. When the given part
-has no direct antecedent, the reader has to build a bridge, and reading slows. When the bridge
-needs knowledge the reader lacks, it fails.
-
 McNamara et al. (1996) describe what building a coherent mental text requires: "the referents
 of pronouns must be identified, synonymous terms must be matched, glaring gaps in the
 coherence of the network must be filled by bridging inferences". Every one of those is work
-the writer can do instead of the reader.
+the writer can do instead of the reader, and every bridge the reader has to build needs
+knowledge they may not have.
 
 ## Four operations that restore coherence
 
@@ -97,7 +93,7 @@ ends with one name, and each name with one concept.
 
 Pinker's curse of knowledge is "the failure to understand that other people don't know what we
 know". Its visible symptom is the term the writer uses daily and the reader has never seen:
-internal names, abbreviations, project jargon. Basecamp's rule is "Don't use internal lingo."
+internal names, abbreviations, project jargon.
 
 For each term the declared reader may not know:
 
@@ -110,9 +106,7 @@ For each term the declared reader may not know:
 ## Removing second readings
 
 Clements et al., rule 3: "Ambiguity occurs when documentation can be interpreted in more than
-one way and at least one of those ways is incorrect." Basecamp adds the consequence: "If your
-words can be perceived in different ways, they'll be understood in the way which does the
-most harm."
+one way and at least one of those ways is incorrect."
 
 Test: for each sentence that tells the reader what to do or what is true, write the second
 reading. If a reader could plausibly hold it, rewrite until only one reading remains. Common
