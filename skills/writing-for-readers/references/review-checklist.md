@@ -18,15 +18,15 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 - Local criteria: examples
 - Finding format
 - What a review leaves alone
-- Source strength
+- Sources
 
 ## Contract criteria
 
 | # | Criterion | Test | Sources |
 |---|---|---|---|
-| C1 | The reader and their prior knowledge are stated. | Point to the sentence or `audience` field naming who reads and what they know. | McNamara et al. 1996; Google tech writing; digital.gov; Clements rule 1 |
+| C1 | The reader and their prior knowledge are stated. | Point to the sentence or `audience` field naming who reads and what they know. A reply or short text takes them from its conversation or channel. | McNamara et al. 1996; Google tech writing; digital.gov; Clements rule 1 |
 | C2 | The reader's question is stated or evident. | Write it as one sentence ending in "?". In a reply, list every question the reader asked; each has an answer. | Minto; Shape Up; Flower 1979 |
-| C3 | Scope and out-of-scope are stated. | Point to both. | Google tech writing; Shape Up no-gos |
+| C3 | Scope and out-of-scope are stated. | Point to both. A reply states scope only when it answers less than was asked. | Google tech writing; Shape Up no-gos |
 | C4 | The answer comes before its support. | Stop after the first paragraph; the main point is known. | NN/g inverted pyramid and F-pattern; Microsoft; Google |
 | C5 | Explicitness matches the reader. | New-to-domain reader: terms defined, relations stated. Expert: nothing they already know. | McNamara et al. 1996; Grice quantity; Anthropic |
 | C6 | The document serves one kind of need. | Classify the document and each section as tutorial, how-to, reference or explanation; they match. | Diátaxis |
@@ -45,7 +45,7 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 | S6 | No two statements contradict. | Collect every claim about each entity, middle sections included; they agree. In a reply, they also agree with earlier messages, or name the correction. | Mündler et al. 2023; ConStory-Bench |
 | S7 | Conditions precede the instruction they govern. | Each "if/when/to" clause comes before its imperative. | Google; ASD-STE100 |
 | S8 | Enumerations are lists with parallel items. | Three or more parallel items sit in a list sharing grammar. | Strunk 15; NN/g |
-| S9 | Each section stands without memory of earlier ones. | Any definition a section depends on is restated or linked. | NN/g comprehension; Basecamp |
+| S9 | Each section stands without memory of earlier ones. | Any definition a section depends on is linked from it. | NN/g comprehension; Basecamp |
 | S10 | The text ends on what the reader does next. | Read the last paragraph alone; it states a decision, an action, or that nothing changes. A link list or a summary of the text is not an ending. | Strunk 18, applied to the text; NN/g F-pattern |
 
 ## Local criteria: coherence
@@ -69,10 +69,10 @@ structure, then local. A wrong contract makes every later finding aim at the wro
 | L10 | Concrete words and values. | Replace each "some", "various", "recently", "improved" with the value. | Strunk 12; Orwell |
 | L11 | Every word survives deletion. | Delete it; if nothing is lost, it goes. | Strunk 13; Orwell; Zinsser; NN/g |
 | L12 | Hedges are stated conditions. | Each "probably", "seems", "may" names when the claim fails, or goes. | Pinker; Thomas & Turner |
-| L13 | No sentence about the document. | No subject like "this section", "as mentioned above", "it is worth noting". | Pinker; Thomas & Turner |
+| L13 | No sentence about the document. | No sentence that announces, recaps or comments on the text in place of content: "this section will discuss", "as mentioned above", "it is worth noting". A scope line names subjects and where the rest lives ("Incident communication lives in the on-call handbook"), so it passes. | Pinker; Thomas & Turner |
 | L14 | No condescension or deference. | No "simply", "obviously", "just", "of course", "as you know". | Thomas & Turner |
-| L15 | Length within the reader's flag. | Procedures 20 words; general explanatory 15–20; expert 25. | ASD-STE100; NN/g |
-| L16 | Reads aloud once, in order. | Each sentence is clear when it ends. | Thomas & Turner; Fried |
+| L15 | Sentence length within the flag. | Procedures 20 words; descriptive text 25. A longer sentence stays when it passes L8 and makes one point. | ASD-STE100; Strunk |
+| L16 | Reads aloud once, in order. | Each sentence is clear when it ends. | Thomas & Turner; Fried; Zinsser |
 
 ## Local criteria: examples
 
@@ -108,8 +108,7 @@ sound, the review says so in one sentence.
 - The author's voice: humor, first person, asides that carry personality without blocking
   the reader.
 - Quotations, code, commands, URLs and error text.
-- Surface tells of AI-written prose that do not affect the reader's understanding, which
-  belong to the humanizer skill.
+- Surface tells of AI-written prose that do not affect the reader's understanding.
 
 ## Sources
 
@@ -124,6 +123,8 @@ record the verification status of each claim.
 | McNamara, E. Kintsch, Songer & W. Kintsch, "Are Good Texts Always Better?", *Cognition and Instruction* 14(1), 1996 | [doi:10.1207/s1532690xci1401_1](https://doi.org/10.1207/s1532690xci1401_1); the PDF is on the SoLET Lab publications page | Explicitness relative to reader knowledge; the four local-coherence operations and two macrosignals; experimental |
 | Gopen & Swan, "The Science of Scientific Writing", 1990 | [American Scientist](https://www.americanscientist.org/blog/the-long-view/the-science-of-scientific-writing) | Topic and stress positions, given before new, subject–verb proximity |
 | Mündler et al., "Self-contradictory Hallucinations of LLMs", 2023 | [arXiv 2305.15852](https://arxiv.org/abs/2305.15852) | Self-contradiction rate in model output; experimental |
+| ConStory-Bench, 2026 | [arXiv 2603.05890](https://arxiv.org/abs/2603.05890) | Contradictions in long generated text cluster in its middle; experimental |
+| Flower, "Writer-Based Prose", *College English* 41(1), 1979 | [doi:10.2307/376357](https://doi.org/10.2307/376357); quotations are from the published abstract | Writer-based prose and its symptoms |
 | Strunk, *The Elements of Style*, 1918 | [Project Gutenberg](https://www.gutenberg.org/ebooks/37134) | Rules 8–18: paragraph as unit, topic sentence, active voice, definite assertions, needless words, parallel form, emphasis at the end |
 | Orwell, "Politics and the English Language", 1946 | [The Orwell Foundation](https://www.orwellfoundation.com/the-orwell-foundation/orwell/essays-and-other-works/politics-and-the-english-language/) | The six rules, the four questions, dying metaphors, verbal false limbs, pretentious diction |
 | Zinsser, "Writing English as a Second Language", 2009 | [The American Scholar](https://theamericanscholar.org/writing-english-as-a-second-language/) | Writing as talking, one thought per sentence, short words. *On Writing Well* is not online; its principles appear here in paraphrase |
@@ -136,11 +137,12 @@ record the verification status of each claim.
 | Diátaxis | [diataxis.fr](https://diataxis.fr/) | Tutorial, how-to, reference, explanation; why mixing them fails |
 | Clements et al., *Documenting Software Architectures*, 2nd ed. | [Publisher's excerpt of the seven rules](https://www.informit.com/articles/article.aspx?p=1641654) | Write from the reader's point of view, avoid repetition, avoid ambiguity |
 | Shape Up | [Chapter 6, "Write the Pitch"](https://basecamp.com/shapeup/1.5-chapter-06) | Problem as one specific story, no-gos |
+| Fried, "Then just say it like that!", 2023 | [HEY World](https://world.hey.com/jason/then-just-say-it-like-that-3fe992bb) | The plain spoken sentence as the test of a written one; paraphrased |
 | Getting Real | [Copywriting is Interface Design](https://basecamp.com/gettingreal/09.7-copywriting-is-interface-design), [Tell Me a Quick Story](https://basecamp.com/gettingreal/11.3-tell-me-a-quick-story), [Use Real Words](https://basecamp.com/gettingreal/11.4-use-real-words) | Same language as the audience, no internal lingo, the deletion test |
 | Minto, *The Pyramid Principle* | [barbaraminto.com](https://www.barbaraminto.com/) | Situation, complication, question; paraphrased beyond the site's own summary |
 | Grice, "Logic and Conversation" | [Stanford Encyclopedia of Philosophy, "Implicature"](https://plato.stanford.edu/entries/implicature/) | The cooperative principle and the maxims of quantity, relation and manner, as quoted there |
 | digital.gov plain language | [Plain language guide](https://digital.gov/guides/plain-language) | Audience first |
-| ASD-STE100 | [asd-ste100.org](https://asd-ste100.org) | One word one meaning, active voice, condition first, one instruction per sentence. Rule numbers and word limits come from a vendor's Issue 8 list, so they are flags, not the standard's text |
+| ASD-STE100 | [asd-ste100.org](https://asd-ste100.org) | One word one meaning, active voice, condition first, one instruction per sentence. Rule numbers and word limits come from a vendor's Issue 8 list, so they are flags, not the standard's text. The 20- and 25-word limits apply here to text for any reader |
 | Anthropic | [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) and [skill best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) | Examples that vary, the over-explanation test |
 
 Haviland & Clark 1974 (given-new bridging) is cited through secondary descriptions; the skill

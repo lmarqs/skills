@@ -11,7 +11,8 @@ description: >-
   note, announcement, status report or an agent's answer. Triggers include "write the docs for
   X", "review this doc", "does this read well", "rewrite this for new hires", "this is
   confusing", "who is this for", or a Markdown file with audience frontmatter. Surface tells of
-  AI-written prose belong to humanizer; documents an agent executes belong to writing-for-agents.
+  AI-written prose and documents an agent executes, such as skills and AGENTS.md, need their own
+  criteria.
 ---
 
 # Writing for readers
@@ -54,8 +55,8 @@ Before the body, a text states four things:
 3. **Scope.** What the text covers and what it leaves out.
 4. **Answer.** The conclusion, decision or result, stated before any support for it.
 
-In a Markdown file, the frontmatter carries the first three and the opening paragraph carries
-the answer:
+In a Markdown file, the frontmatter carries the reader in `audience` and the question in
+`description`; the opening paragraph carries the answer, then the scope:
 
 ```markdown
 ---
@@ -66,8 +67,8 @@ audience: Backend engineers on call. Know Kubernetes basics; have never touched 
 # Rolling back billing
 
 Roll back with `make rollback ENV=prod`; it restores the previous image in about two minutes.
-Database migrations do not roll back with it. This page covers the rollback command and the
-migration check. Incident communication lives in the on-call handbook.
+Database migrations do not roll back with it; check them before you roll back. Incident
+communication lives in the on-call handbook.
 ```
 
 An agent's answer or a reply in a thread is a document too: the next response, with the
@@ -91,9 +92,9 @@ set, coded by level, with the sources behind each.
 
 | # | Criterion | Test |
 |---|---|---|
-| 1 | The reader and their prior knowledge are stated. | Point to the sentence or frontmatter field that names them. |
+| 1 | The reader and their prior knowledge are stated. | Point to the sentence or frontmatter field that names them. In a reply or a short text, the conversation or the channel names them; the text is pitched at that reader. |
 | 2 | The answer comes first. | Stop after the first paragraph. The reader already has the main point. |
-| 3 | Scope and what is out of scope are stated. | Point to both lines. |
+| 3 | Scope and what is out of scope are stated. | Point to both lines. A reply states scope only when it answers less than was asked, and then says what it left out. |
 | 4 | Each heading promises exactly what its body delivers. | Read the heading, then the first sentence under it. The sentence keeps the heading's promise and nothing in the body breaks it. |
 | 5 | Headings alone summarize the text. | Read only the headings, in order. They form a correct outline. |
 | 6 | Each paragraph has one topic, stated in its first sentence. | Read only first sentences. The argument survives. |
@@ -102,7 +103,7 @@ set, coded by level, with the sources behind each.
 | 9 | Every pronoun and "this" has one antecedent. | Name the antecedent of each. There is exactly one candidate. |
 | 10 | One term names one thing. | Search for synonyms of each key term. Each concept has one name. |
 | 11 | Each new term is defined or linked where it first appears. | List terms the declared reader may not know. Each has a definition at first use. |
-| 12 | Sentences connect: each opens on something the reader already has, and the relation is stated. | For each sentence pair, name the shared noun and the connective. |
+| 12 | Sentences connect: each opens on something the reader already has, and the relation is stated where the declared reader would have to guess it. | For each sentence pair, name the shared noun. If naming the relation took a guess, a connective states it. |
 | 13 | Every detail and every contrast serves the point. | Delete each clause of an example; if the lesson is unchanged, the clause goes. For each "X, not Y" in prose or examples, name what the reader would otherwise do with Y and why it is wrong. If you cannot, the contrast implies a rule nobody stated. |
 | 14 | The text holds nothing the declared reader already knows. | For each paragraph, ask whether this reader has it already. If yes, it goes. |
 | 15 | The text ends on what the reader does next. | Read the last paragraph alone. It states a decision, an action, or that nothing changes; a reader who finishes it does not ask "and?". |
@@ -125,7 +126,8 @@ set, coded by level, with the sources behind each.
 **To review a text:**
 
 1. Reconstruct the contract from the text. Any of the four declarations the text leaves
-   unstated is the first finding.
+   unstated, and its setting does not supply, is the first finding. A reply takes its reader
+   and question from the conversation; a short text takes them from its channel.
 2. Run the criteria in level order: contract, then structure, then local.
 3. Report each finding as the quoted passage, the criterion it fails with its test, and a
    rewrite. Contract findings come first, then structure, then local, so the author fixes the
@@ -150,7 +152,7 @@ Read the one that matches the task. Each stands alone.
   correct but hard to follow.
 - [`references/sentences.md`](references/sentences.md): sentences that read the way a person
   talks: actors as subjects, actions as verbs, concrete words, hedges turned into conditions,
-  no sentences about the document itself, and length limits by reader. Read it to edit
+  no sentences about the document itself, and length flags. Read it to edit
   sentence by sentence.
 - [`references/examples.md`](references/examples.md): building examples that carry only their
   point, why one extra detail misleads, and how a set of examples teaches an unintended rule.

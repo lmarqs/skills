@@ -78,6 +78,27 @@
         "Explains that exports arrive as a signed link valid for 7 days and why: attachments fail for accounts with 2M+ rows",
         "The proposal itself appears within the first few paragraphs, before supporting detail"
       ]
+    },
+    {
+      "id": 4,
+      "name": "reply-in-incident-thread",
+      "prompt": "Write the agent's next reply in the incident thread at evals/files/checkout-incident-thread.md, using what it has found since 09:31. Save it to outputs/reply.md.",
+      "expected_output": "A reply whose first sentence answers Priya's first question: yes, the api-server was evicted, not the workers. It names the correction of the 09:10 diagnosis. It answers each question in the order asked: why it was evicted (the unbounded PDF renderer filled node general-b-7 and the api-server's low request made it first to go), no worker memory bump needed (peak 410Mi of 512Mi), and 4.12 is safe to deploy because it touches none of these components. It ends on the next step, such as setting a memory limit on the renderer, and stays in an SRE's register throughout.",
+      "files": [
+        "evals/files/checkout-incident-thread.md"
+      ],
+      "assertions": [
+        "The first sentence answers whether the api-server, not the workers, caused the spike",
+        "Names the correction of the earlier diagnosis explicitly, for example 'Earlier I blamed the worker pods'",
+        "Explains why the api-server was evicted: memory pressure from the PDF renderer without a memory limit, and the api-server's low memory request",
+        "Answers that the worker memory bump is not needed, citing the 410Mi peak against the 512Mi limit",
+        "Answers that deploying 4.12 is safe because it does not touch the api-server, renderer or workers",
+        "Answers the questions in the order Priya asked them",
+        "The last paragraph states a next step or decision, such as setting a memory limit on the renderer",
+        "Stays in one register for an SRE lead: no analogy or explanation of basic Kubernetes concepts such as what a pod or an eviction is",
+        "Contains no process narration such as 'I looked at' or 'First, I checked'",
+        "Introduces no facts absent from the thread and findings"
+      ]
     }
   ]
 }

@@ -9,7 +9,7 @@ A good sentence reads the way a clear person talks: someone does something, in w
 listener knows, and the sentence stops when the point is made. Jason Fried describes the
 pattern every writer has seen: someone struggles to explain an idea, then says it plainly in
 one sentence, then writes something more complicated. The plain spoken sentence was the right
-one. This reference turns that instinct into checks.
+one.
 
 ## Contents
 
@@ -122,7 +122,8 @@ When a claim is unverified, say that once, plainly, and say what would verify it
 A sentence whose subject is the text itself ("This section will discuss…", "As mentioned
 above…", "It is worth noting that…") spends the reader's attention on the writer's process.
 Pinker's name for it is metadiscourse, and his point is that it helps the writer, not the
-reader. Replace each with the content it announces. Headings already tell a scanning reader
+reader. Replace each with the content it announces. A scope line is content: "Incident
+communication lives in the on-call handbook" tells the reader where to go, so it stays. Headings already tell a scanning reader
 where they are.
 
 ## Writer and reader as equals
@@ -141,13 +142,13 @@ later, has changed reader mid-text; the declared reader gets only the second ver
 
 ## Length
 
-Sentence length is a flag, scaled to the reader:
+Sentence length is a flag. ASD-STE100's limits, written for maintenance manuals, fit most
+text people read for a task:
 
 | Text | Flag sentences over |
 |---|---|
 | Procedures and steps | 20 words (ASD-STE100) |
-| Explanatory text for a general or mixed audience | 15 to 20 words (NN/g) |
-| Explanatory text for experts | 25 words (ASD-STE100 descriptive limit) |
+| Descriptive and explanatory text | 25 words (ASD-STE100) |
 
 A long sentence that passes the subject-verb test and has one point can stay. Strunk does not
 require short sentences, only that "every word tell."
@@ -185,5 +186,5 @@ next one gets rewritten.
 - No sentence has the document as its subject.
 - No "simply", "obviously", "just", "of course".
 - Any two paragraphs address the same reader in the same register.
-- Sentences over the length flag for this reader are split or justified.
+- Sentences over the length flag are split or justified.
 - The text reads aloud once, in order, without stumbling.

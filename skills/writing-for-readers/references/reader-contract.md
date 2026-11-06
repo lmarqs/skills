@@ -57,8 +57,8 @@ other.
 
 ## Where the contract goes
 
-**Markdown documents.** The frontmatter carries reader, question and scope; the first
-paragraph carries the answer. The frontmatter keeps the text anchored while it is written,
+**Markdown documents.** The frontmatter carries the reader in `audience` and the question in
+`description`; the first paragraph carries the answer, then the scope. The frontmatter keeps the text anchored while it is written,
 since every section can be checked against it.
 
 ```markdown
@@ -170,7 +170,8 @@ document then answers.
 
 - The reader is named with what they know and do not know.
 - The reader's question can be written as one sentence ending in a question mark.
-- Scope and out-of-scope are both stated.
+- Scope and out-of-scope are both stated; a reply states them only when it answers less than
+  was asked.
 - The answer is in the first paragraph, before support for it.
 - Every section serves the same reader and the same kind of need as the document.
 - A proposal states one concrete problem story before the solution, and lists what it

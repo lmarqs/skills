@@ -20,6 +20,7 @@ use the headings to know where they are.
 - One place per fact
 - Checking a long text for contradictions
 - Lists, conditions and steps
+- Ending on the next step
 - Checks
 
 ## Answer first, at every level
@@ -49,9 +50,7 @@ question. Then draft each section from its heading.
 The outline is the text's macrostructure, the global level a reader builds from headings and
 topic sentences. McNamara et al. raised global coherence with two signals: "adding topic
 headers" and "adding macropropositions serving to link each paragraph to the rest of the text
-and overall topic". Drafting from a fixed outline also keeps a long text from drifting: long-form
-generation studies such as DOC (Yang et al., 2022) report more coherent output when the model
-plans a detailed outline before writing.
+and overall topic".
 
 ## Headings
 
@@ -97,8 +96,8 @@ different value.
 
 Mündler et al. (2023) found self-contradictions "in 17.7% of all sentences produced by
 ChatGPT", and 35.2% of them "cannot be verified using online text": only reading the text
-against itself finds them. A benchmark of long generated stories found such errors cluster in
-the middle of the text.
+against itself finds them. ConStory-Bench (2026), a benchmark of long generated stories, found such errors
+cluster in the middle of the text.
 
 To check:
 
@@ -119,7 +118,8 @@ To check:
   reader skip a step that does not apply before acting on it.
 - **One instruction per step.** ASD-STE100: "One instruction per sentence."
 - **Nothing to remember across sections.** A section that needs a definition from an earlier
-  section restates it or links to it, since a scanning reader may arrive there first.
+  section links to it, since a scanning reader may arrive there first. The definition itself
+  stays in one place.
 
 ## Ending on the next step
 
