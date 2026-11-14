@@ -19,6 +19,7 @@ for the agent layout.
      `sh -c 'for f in skills/$0/references/*.md; do [ -e "$f" ] && ! grep -q "references/${f##*/}" "skills/$0/SKILL.md" && echo "unlinked $f"; done; true' <name>`
   3. When `AGENTS.md`, `.agents/` or `.gitignore` changed: `sh .agents/skills/agents-layout/scripts/check.sh` and
      `cook check`.
+  4. Parse each touched skill's `agents/openai.yaml` with PyYAML and verify the metadata rules below.
 
 ## Boundaries
 
@@ -59,6 +60,10 @@ Enforced by `.agents/permission/policy.yaml`. A refusal is the rule working.
 - Change only what the task needs, matching the surrounding code.
 - A skill's `name` is kebab-case and matches its directory. Its `description` is third person, leads with what it
   does, then the trigger conditions and synonyms users say, as `skills/sql-migration-guide/SKILL.md` does.
+- Every shipped skill includes `agents/openai.yaml` with `interface.display_name`, `interface.short_description`
+  (25–64 characters), and `interface.default_prompt` (a short example mentioning `$<skill-name>`). Quote string
+  values, leave keys unquoted, and keep metadata aligned with `SKILL.md`. For explicit-invocation-only skills,
+  set `policy.allow_implicit_invocation: false`. Add icons, colors, or tool dependencies only when supplied.
 - Commits: one change per commit with an imperative subject; work reaches `main` through a pull request or a push.
 - Deploy: none; consumers install from this GitHub repository, as the README's Install section says.
 

@@ -35,8 +35,9 @@ ln -s "$PWD/global/AGENTS.md" ~/.claude/CLAUDE.md
 
 ## Adding a skill
 
-Each skill lives at `skills/<name>/SKILL.md` with optional `references/` for
-progressive-disclosure detail. Skills are authored and eval'd with the
+Each skill includes `skills/<name>/SKILL.md` and `agents/openai.yaml` alongside it
+for Codex's display name, short description, and example prompt. Optional
+`references/` holds progressive-disclosure detail. Skills are authored and eval'd with the
 [`skill-creator`](https://github.com/anthropics/skills) tool vendored under
 `.agents/skills/` (pinned in `skills-lock.json`). See [AGENTS.md](AGENTS.md) for
 the contributor guide.
