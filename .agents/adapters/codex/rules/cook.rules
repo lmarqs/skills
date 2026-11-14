@@ -1,0 +1,12 @@
+# cook:begin io.github.lmarqs.cookbook:agents#connect/commands
+# io.github.lmarqs.cookbook:agents#connect --harness=claude --harness=codex --worktree-setup=.worktrees/setup --worktree-teardown=.worktrees/teardown --worktree-branch-prefix=agent/
+# bypass: refuse reaches Claude only: --ignore-rules or an untrusted project skips these rules, --approve-for-me approves prompts
+prefix_rule(pattern = ["python3", ".agents/skills/skill-creator/scripts/quick_validate.py"], decision = "allow")
+prefix_rule(pattern = ["sh", ".agents/skills/agents-layout/scripts/check.sh"], decision = "allow")
+prefix_rule(pattern = ["cook", "check"], decision = "allow")
+prefix_rule(pattern = ["git", ["status", "diff", "log", "show", "fetch", "add", "commit", "switch", "pull", "push"]], decision = "allow")
+prefix_rule(pattern = ["gh", "pr", ["view", "list", "create"]], decision = "allow")
+prefix_rule(pattern = ["git", "push", ["--force", "-f"]], decision = "forbidden")
+prefix_rule(pattern = ["git", "reset", "--hard"], decision = "forbidden")
+# Not enforced by Codex, Claude-only: git push * --force*
+# cook:end io.github.lmarqs.cookbook:agents#connect/commands

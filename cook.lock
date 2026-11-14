@@ -5,12 +5,14 @@ recipes:
     source: "io.github.lmarqs.cookbook:agents:12.1.0#connect"
     sha256: "3dce6e93e88bbb4e4ade7ec51067760e74308134d46296b9fb0aeca0470b916b"
     arguments:
-      "harness": ["claude"]
+      "harness": ["claude","codex"]
       "worktree-setup": [".worktrees/setup"]
       "worktree-teardown": [".worktrees/teardown"]
       "worktree-branch-prefix": ["agent/"]
     owns:
       sections:
+        - file: ".agents/adapters/codex/rules/cook.rules"
+          id: "io.github.lmarqs.cookbook:agents#connect/commands"
         - file: ".gitignore"
           id: "io.github.lmarqs.cookbook:agents#connect/harnesses"
       keys:
@@ -22,12 +24,23 @@ recipes:
           path: ["hooks","WorktreeRemove"]
         - file: ".agents/adapters/claude/settings.json"
           path: ["permissions"]
+        - file: ".agents/adapters/codex/config.toml"
+          path: ["approval_policy"]
+        - file: ".agents/adapters/codex/config.toml"
+          path: ["sandbox_mode"]
+        - file: ".agents/adapters/codex/config.toml"
+          path: ["sandbox_workspace_write","network_access"]
+        - file: ".agents/adapters/codex/hooks.json"
+          path: ["hooks","SessionStart"]
       files:
         - ".agents/hooks/session-start"
         - ".agents/hooks/worktree"
       links:
         - ".claude/settings.json"
         - ".claude/skills"
+        - ".codex/config.toml"
+        - ".codex/hooks.json"
+        - ".codex/rules"
   - name: "io.github.lmarqs.cookbook:agents#seed"
     source: "io.github.lmarqs.cookbook:agents:12.1.0#seed"
     sha256: "3dce6e93e88bbb4e4ade7ec51067760e74308134d46296b9fb0aeca0470b916b"
