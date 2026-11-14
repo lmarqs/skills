@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing for Readers"
+  short_description: "Write and review text around the reader’s needs"
+  default_prompt: "Use $writing-for-readers to review this text for its intended reader and revise it for clarity, structure, and completeness."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SQL Migration Guide"
+  short_description: "Plan safe schema changes, backfills, and recovery"
+  default_prompt: "Use $sql-migration-guide to review this migration for locking, compatibility, and rollback risks and propose a safe rollout."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Architecture Design"
+  short_description: "Challenge technical choices and write design decisions"
+  default_prompt: "Use $architecture-design to compare the technical options and write an architecture decision with requirements and tradeoffs."

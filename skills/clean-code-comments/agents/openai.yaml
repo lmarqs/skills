@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Code Comments"
+  short_description: "Review code comments and keep only what earns its place"
+  default_prompt: "Use $clean-code-comments to review the comments in this code and improve or remove those that do not earn their place."
