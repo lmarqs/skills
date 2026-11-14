@@ -2,8 +2,8 @@
 
 Every coding agent in this repository reads the same knowledge and the same policy. What differs between two people
 or two runs is only what each one selects at launch: the harness, the model, whether someone is watching, and the
-role. The `agents-layout` skill in `.agents/skills/agents-layout/` explains the layout in full: where a change goes, how to adopt it, how to
-investigate an agent that misbehaves, and why it is shaped this way.
+role. The `agents-layout` skill in `.agents/skills/agents-layout/` explains the layout in full: where a change goes,
+how to adopt it, how to investigate an agent that misbehaves, and why it is shaped this way.
 
 ## What lives where
 
