@@ -2,7 +2,7 @@
 
 Every coding agent in this repository reads the same knowledge and the same policy. What differs between two people
 or two runs is only what each one selects at launch: the harness, the model, whether someone is watching, and the
-role. The `agents-layout` skill in `skills/` explains the layout in full: where a change goes, how to adopt it, how to
+role. The `agents-layout` skill in `.agents/skills/agents-layout/` explains the layout in full: where a change goes, how to adopt it, how to
 investigate an agent that misbehaves, and why it is shaped this way.
 
 ## What lives where
@@ -10,7 +10,7 @@ investigate an agent that misbehaves, and why it is shaped this way.
 | Path | Holds | Decided by |
 | --- | --- | --- |
 | `/AGENTS.md` | Instructions for every agent, whatever its harness or role. Each harness reads it natively | The team |
-| `skills/` | One directory per skill with its `SKILL.md`. Codex reads it natively; Claude through `/.claude/skills` | The team |
+| `skills/` | One directory per skill with its `SKILL.md`. Codex reads it natively; Claude through the `/.claude/skills` symlink | The team |
 | `commands/` | One Markdown file per slash command. Claude reads it through `/.claude/commands`; Codex does not | The team |
 | `hooks/` | Scripts that each harness's hook settings run, by their path from the repository root, and the files they load. Each `session-start.d/*.sh` prints context that every harness adds to a session as it starts, with the harness name as `$1` | The team; Cook owns the `session-start` dispatcher |
 | `memory/` | Durable facts the code and `README.md` do not show, read when `AGENTS.md` points to them; no secrets | The team |
@@ -18,7 +18,7 @@ investigate an agent that misbehaves, and why it is shaped this way.
 | `adapters/<harness>/` | Each harness's settings. Cook renders the policy into `permissions` in `claude/settings.json`, `sandbox_mode`, `approval_policy` and `sandbox_workspace_write.network_access` in `codex/config.toml`, and `codex/rules/cook.rules`, and owns `hooks.SessionStart` in `claude/settings.json` and `codex/hooks.json`, which runs `hooks/session-start` | Cook |
 | `adapters/<harness>/`, every other key and file | Settings such as the other events under `hooks`, `env` and `[mcp_servers]`, written in the harness's own format | The team |
 | `adapters/claude/roles/` | One file of denies per role, added at launch | Cook |
-| `/.claude/`, `/.codex/` links | Committed, so a fresh clone, a cloud session or CI reads the setup with no cooking | Cook |
+| `/.claude/`, `/.codex/` symlinks | `.claude/skills` → `.agents/skills`, `.claude/settings.json` → `adapters/claude/settings.json`, and `.codex/config.toml`, `.codex/hooks.json`, `.codex/rules` → the same names in `adapters/codex/`. Committed, so a fresh clone, a cloud session or CI reads the setup with no cooking | Cook |
 | `/.claude/settings.local.json` | Personal preferences and standing approvals | Each person; Cook never writes it |
 
 After editing `permission/policy.yaml`, cook the adapters again with every harness the team uses, using the version in
