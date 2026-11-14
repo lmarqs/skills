@@ -36,7 +36,6 @@ workspaces/*/skill-snapshot/
 /.claude/*
 !/.claude/settings.json
 !/.claude/skills
-!/.claude/commands
 # Claude Code skips AGENTS.md while any of these exists, so they stay out of commits.
 CLAUDE.md
 CLAUDE.local.md
