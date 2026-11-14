@@ -1,7 +1,6 @@
 interface:
   display_name: "Scaffold"
   short_description: "Set up or audit a project with the standard mise layout"
-  default_prompt: "Use $scaffold to inspect this repository and propose a standard mise task-runner setup."
 
 policy:
   allow_implicit_invocation: false

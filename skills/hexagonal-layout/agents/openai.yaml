@@ -1,4 +1,3 @@
 interface:
   display_name: "Hexagonal Layout"
   short_description: "Keep business logic independent of external technology"
-  default_prompt: "Use $hexagonal-layout to review this project for dependency violations between core, adapters, and run code."

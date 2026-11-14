@@ -1,7 +1,6 @@
 interface:
   display_name: "Ralph TUI Run"
   short_description: "Coordinate a task epic or JSON plan through ralph-tui"
-  default_prompt: "Use $ralph-tui-run to inspect this task source and propose a run plan for my confirmation before starting ralph-tui."
 
 policy:
   allow_implicit_invocation: false
