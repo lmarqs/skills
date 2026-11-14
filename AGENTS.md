@@ -29,7 +29,8 @@ for the agent layout.
 - Update this file in the change that alters a command, path or rule it names.
 - Keep this file under 800 words, with at most five Gotchas, each a trap any task can hit; past 1,200 words, move a
   section into a skill or memory file before adding. All `AGENTS.md` files together stay under 16 KiB.
-- List a new skill in the README's skills table.
+- List a new skill in the README's skills table and link it on its own into `.agents/skills/`:
+  `ln -s ../../skills/<name> .agents/skills/<name>`.
 - Change generated files by cooking their recipe: `cook.lock`, `.agents/adapters/`, `.agents/hooks/session-start`,
   `.agents/hooks/worktree`, `.agents/skills/agents-layout/`, and the `cook:begin` sections of `.gitignore` and this
   file.
