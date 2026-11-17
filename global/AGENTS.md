@@ -49,8 +49,7 @@
 - Record anything costly to recreate: findings, decisions and their reasons, rejected options, blockers.
 
 ## Destructive Actions
-- Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, and branches whose commits are not on the default branch.
-- Ask before force-pushing or publishing outside the repo.
+- Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, branches whose commits are not on the default branch, and remote commits a force-push would overwrite.
 
 ## Cleanup
 - A task is finished when its changes are on the default branch, merged or committed, or, for work outside a repo, when the user accepts the result. Then clean up without asking: remove its worktree and its local and remote branches, delete its temporary files, stop anything it left running, and close its issue with a final comment.
