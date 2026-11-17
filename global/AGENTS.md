@@ -39,7 +39,7 @@
 
 ## Commit & Push Discipline
 - Commit and push as soon as the work represents any meaningful progress. Do not wait for it to be complete or fully functional.
-- Small, frequent commits; work must exist on the remote at all times.
+- Small, frequent commits, so little work exists only on the local machine.
 
 ## Issue Tracking
 - Track work in a GitHub issue when it will span more than one session or produces a decision worth keeping. Work finished within one session needs no issue.
