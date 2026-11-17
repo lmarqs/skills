@@ -23,9 +23,8 @@
 - Clarify vs. proceed: if a wrong assumption would be costly or hard to reverse, stop and ask. Otherwise proceed and state the assumption inline.
 
 # Memory & Learnings
-- Do not use Claude memory. Do not save project details, preferences, feedback, or learnings to long-term memory or auto-memory features.
-- Register learnings, decisions, and feedback in the project's own documentation, following the project's documentation standards.
-- Keep all project context in project files or the current session only.
+- What I tell you stays in the session. Write nothing to the harness's own memory: auto-memory, long-term memory, `~/.claude/projects/*/memory`.
+- Record a learning, decision or feedback in the project's documentation when I ask, or when it changes something the docs already state.
 
 # Coding Practices
 
@@ -56,6 +55,6 @@
 - A branch whose commits are on the default branch is only a pointer; deleting it loses nothing.
 
 # Documentation Style
-- Describe what things ARE (current state, purpose, behavior).
-- Do not document history, changelogs, or removed features.
-- Do not raise a possibility only to dismiss it. Negation earns its place only when the reader would otherwise assume the opposite.
+- Every line serves the reader's task: what the thing is, what it is for, how it behaves now. Something that surfaced during the work belongs in the doc only if the reader needs it to act.
+- State the thing itself. Add a contrast ("X, not Y") only when the reader would otherwise do Y.
+- When a change makes a line stale, update or delete it in the same change.
