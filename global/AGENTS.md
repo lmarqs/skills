@@ -40,7 +40,7 @@
 - A checkout no one else uses, such as a fresh cloud container, needs no worktree.
 
 ## Commit & Push Discipline
-- Commit and push as soon as the code represents any meaningful progress. Do not wait for the code to be complete or fully functional.
+- Commit and push as soon as the work represents any meaningful progress. Do not wait for it to be complete or fully functional.
 - Small, frequent commits; work must exist on the remote at all times.
 
 ## Issue Tracking
@@ -53,7 +53,7 @@
 - Ask before force-pushing or publishing outside the repo.
 
 ## Cleanup
-- A task is finished when its changes are on the default branch, merged or committed. Then clean up without asking: remove its worktree and its local and remote branches, delete its temporary files, stop anything it left running, and close its issue with a final comment.
+- A task is finished when its changes are on the default branch, merged or committed, or, for work outside a repo, when the user accepts the result. Then clean up without asking: remove its worktree and its local and remote branches, delete its temporary files, stop anything it left running, and close its issue with a final comment.
 - A branch whose commits are on the default branch is only a pointer; deleting it loses nothing.
 
 # Documentation Style
