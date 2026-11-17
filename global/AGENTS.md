@@ -36,22 +36,25 @@
 - Prefer project documentation over inline comments when the project's standards support it.
 
 ## Workspace Isolation
-- Unless told otherwise, do all work in a worktree under .worktrees/agent/. The main workspace is the user's — leave it as you found it.
+- Unless told otherwise, work in a separate git worktree: the user or other agents may be using the main checkout at the same time, so its branch and files stay as you found them.
+- A checkout no one else uses, such as a fresh cloud container, needs no worktree.
 
 ## Commit & Push Discipline
 - Commit and push as soon as the code represents any meaningful progress. Do not wait for the code to be complete or fully functional.
 - Small, frequent commits; work must exist on the remote at all times.
 
 ## Issue Tracking
-- Track all work in GitHub issues.
+- Track work in a GitHub issue when it will span more than one session or produces a decision worth keeping. Work finished within one session needs no issue.
 - Keep the issue body current; log progress as comments.
 - Record anything costly to recreate: findings, decisions and their reasons, rejected options, blockers.
 
 ## Destructive Actions
-- Ask before destroying state: databases, object storage, volumes, uncommitted work, secrets.
+- Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, and branches whose commits are not on the default branch.
+- Ask before force-pushing or publishing outside the repo.
 
 ## Cleanup
-- When a task is done, list what it created or left running and ask to clean it up.
+- A task is finished when its changes are on the default branch, merged or committed. Then clean up without asking: remove its worktree and its local and remote branches, delete its temporary files, stop anything it left running, and close its issue with a final comment.
+- A branch whose commits are on the default branch is only a pointer; deleting it loses nothing.
 
 # Documentation Style
 - Describe what things ARE (current state, purpose, behavior).
