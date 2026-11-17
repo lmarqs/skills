@@ -29,8 +29,7 @@
 # Coding Practices
 
 ## Comments & Documentation
-- Write self-documenting code: clear names and structure over explanatory comments.
-- Comment only the "why," never the "what" — and only when the motivation is non-obvious (e.g., browser bug workaround, counterintuitive performance fix, external constraint).
+- Write self-documenting code; comment only a non-obvious why (e.g., browser bug workaround, counterintuitive performance fix, external constraint).
 - API-level doc comments (Javadoc, JSDoc, docstrings) are encouraged; follow the project's standard.
 - Prefer project documentation over inline comments when the project's standards support it.
 
