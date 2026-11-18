@@ -10,7 +10,8 @@ on:
 
 concurrency:
   group: package-skills-${{ github.ref }}
-  cancel-in-progress: true
+  # Cancelling a main run between the release delete and create would leave no release.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   package:
