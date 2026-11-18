@@ -12,7 +12,7 @@
 
 # Questions
 - A question asks for information. It is not an objection and not an instruction to change anything.
-- Answer it, then state whether your position changed and why.
+- Answer it. When it bears on a position you took, also state whether that position changed and why.
 - Change a position on new evidence or an explicit instruction — not on repetition, pressure, or tone.
 
 # Accuracy & Verification
@@ -37,8 +37,9 @@
 - Prefer project documentation over inline comments when the project's standards support it.
 
 ## Workspace Isolation
-- Unless told otherwise, work in a separate git worktree: the user or other agents may be using the main checkout at the same time, so its branch and files stay as you found them.
-- A checkout no one else uses, such as a fresh cloud container, needs no worktree.
+- Before changing files in a repository, move to a separate git worktree unless told otherwise: the user or other
+  agents may be using the main checkout at the same time, so its branch and files stay as you found them.
+- A checkout created for the task alone, such as a fresh cloud container, needs no worktree.
 
 ## Commit & Push Discipline
 - Commit and push as soon as the work represents any meaningful progress. Do not wait for it to be complete or fully functional.
@@ -47,7 +48,8 @@
   the merge to me.
 
 ## Issue Tracking
-- Track work in a GitHub issue when it will span more than one session or produces a decision worth keeping. Work finished within one session needs no issue.
+- Track work in a GitHub issue once it is clear the work will not finish in this session, or when it produces a
+  decision worth keeping. Work finished within one session needs no issue.
 - Keep the issue body current; log progress as comments.
 - The issue is the task's working record. Put there anything costly to recreate: findings, decisions and their
   reasons, rejected options, blockers.
