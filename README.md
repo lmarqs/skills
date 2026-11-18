@@ -10,6 +10,10 @@ A small, sharable collection of agent skills.
 npx skills@latest add lmarqs/skills
 ```
 
+For claude.ai, download a skill's zip from the
+[`skills-latest` release](https://github.com/lmarqs/skills/releases/tag/skills-latest) and upload it in claude.ai's
+skill settings. `scaffold` has no zip.
+
 ## Skills
 
 | Skill | What it does | Triggers when… |

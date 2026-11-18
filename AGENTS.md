@@ -10,7 +10,9 @@ for the agent layout.
 
 - Install or add a dependency: `mise install`; `pip install pyyaml` (unverified); add a tool with
   `mise use <tool>@<version>`
-- Run, build, lint, format, generate code, local services: none
+- Build: `.github/scripts/package-skills.sh [dir]` writes one claude.ai upload zip per skill, `scaffold` excluded;
+  CI runs it on pull requests and publishes the zips to the `skills-latest` release on `main`.
+- Run, lint, format, generate code, local services: none
 - Quick check: run `python3 .agents/skills/skill-creator/scripts/quick_validate.py skills/<name>` for each touched
   skill before moving on.
 - Done check: all applicable checks pass, subject to the documented scaffold exception under Gotchas:
