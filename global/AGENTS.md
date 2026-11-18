@@ -23,8 +23,11 @@
 - Clarify vs. proceed: if a wrong assumption would be costly or hard to reverse, stop and ask. Otherwise proceed and state the assumption inline.
 
 # Memory & Learnings
-- What I tell you stays in the session. Write nothing to the harness's own memory: auto-memory, long-term memory, `~/.claude/projects/*/memory`.
-- Record a learning, decision or feedback in the project's documentation when I ask, or when it changes something the docs already state.
+- Write nothing to the harness's own memory: auto-memory, long-term memory, `~/.claude/projects/*/memory`. Memory
+  files a project keeps in its repository are project documentation.
+- Project documentation describes how the project behaves now. Record a learning, decision or feedback there when I
+  ask, or when it changes something the docs already state.
+- A task's working record goes in its issue, under Issue Tracking.
 
 # Coding Practices
 
@@ -46,7 +49,8 @@
 ## Issue Tracking
 - Track work in a GitHub issue when it will span more than one session or produces a decision worth keeping. Work finished within one session needs no issue.
 - Keep the issue body current; log progress as comments.
-- Record anything costly to recreate: findings, decisions and their reasons, rejected options, blockers.
+- The issue is the task's working record. Put there anything costly to recreate: findings, decisions and their
+  reasons, rejected options, blockers.
 
 ## Destructive Actions
 - Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, branches whose work is not on the default branch, and remote commits a force-push would overwrite.
