@@ -1,0 +1,26 @@
+name: Validate plugin marketplace
+
+on:
+  push:
+    branches: [main]
+    paths: [.claude-plugin/**, skills/**, .github/workflows/validate-plugin.yml]
+  pull_request:
+    paths: [.claude-plugin/**, skills/**, .github/workflows/validate-plugin.yml]
+  workflow_dispatch:
+
+concurrency:
+  group: validate-plugin-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install -g @anthropic-ai/claude-code@2.1.327
+      - run: claude plugin validate .

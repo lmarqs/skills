@@ -22,6 +22,7 @@ for the agent layout.
   3. Parse each touched skill's `agents/openai.yaml` with PyYAML and verify every rule under Skill metadata.
   4. When `AGENTS.md`, `.agents/` or `.gitignore` changed: `sh .agents/skills/agents-layout/scripts/check.sh` and
      `cook check`.
+  5. When `.claude-plugin/` or a skill directory changed: `claude plugin validate .`, which CI also runs.
 
 ## Boundaries
 
