@@ -1,0 +1,41 @@
+name: Package skills
+
+on:
+  push:
+    branches: [main]
+    paths: [skills/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
+  pull_request:
+    paths: [skills/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
+  workflow_dispatch:
+
+concurrency:
+  group: package-skills-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyyaml
+      - run: .github/scripts/package-skills.sh dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skills
+          path: dist/*.zip
+      - name: Publish the skills-latest release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Recreated each run so a removed or renamed skill leaves no stale zip behind.
+        run: |
+          gh release delete skills-latest --cleanup-tag --yes || true
+          gh release create skills-latest dist/*.zip \
+            --target "$GITHUB_SHA" \
+            --title "Skills for claude.ai" \
+            --notes "One zip per skill, built from $GITHUB_SHA. Upload a zip in claude.ai's skill settings."
