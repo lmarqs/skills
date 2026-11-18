@@ -3,9 +3,9 @@ name: Package skills
 on:
   push:
     branches: [main]
-    paths: [skills/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
+    paths: [skills/**, .agents/skills/skill-creator/scripts/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
   pull_request:
-    paths: [skills/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
+    paths: [skills/**, .agents/skills/skill-creator/scripts/**, .github/scripts/package-skills.sh, .github/workflows/package-skills.yml]
   workflow_dispatch:
 
 concurrency:
