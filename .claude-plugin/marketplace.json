@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "lmarqs-skills",
+  "description": "A small, sharable collection of agent skills, one plugin per skill.",
+  "owner": {
+    "name": "lmarqs"
+  },
+  "plugins": [
+    {
+      "name": "architecture-design",
+      "source": "./skills/architecture-design",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "clean-code-comments",
+      "source": "./skills/clean-code-comments",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "hexagonal-layout",
+      "source": "./skills/hexagonal-layout",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "ralph-tui-run",
+      "source": "./skills/ralph-tui-run",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "scaffold",
+      "source": "./skills/scaffold",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "sql-migration-guide",
+      "source": "./skills/sql-migration-guide",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "sql-quality-check",
+      "source": "./skills/sql-quality-check",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    },
+    {
+      "name": "writing-for-readers",
+      "source": "./skills/writing-for-readers",
+      "strict": false,
+      "skills": [
+        "./"
+      ]
+    }
+  ]
+}
