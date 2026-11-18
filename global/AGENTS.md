@@ -15,7 +15,7 @@
 
 # Documentation
 - State the thing itself. Add a contrast ("X, not Y") only when the reader would otherwise do Y.
-- Avoid code comment and comment only a non-obvious why. Code should be explain itself.
+- Comment only a non-obvious why; let the code explain the rest.
 
 # Work
 - Commit and push at each meaningful step, so little work exists only on local machine.
