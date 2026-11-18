@@ -7,7 +7,6 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 # quick_validate.py rejects scaffold's disable-model-invocation key (see AGENTS.md Gotchas).
 excluded="scaffold"
 
-rm -f "$out"/*.zip
 for dir in "$root"/skills/*/; do
   name=$(basename "$dir")
   case " $excluded " in *" $name "*) echo "skip $name"; continue ;; esac
