@@ -9,6 +9,8 @@ excluded="scaffold"
 
 for dir in "$root"/skills/*/; do
   name=$(basename "$dir")
+  # skill-creator's eval scratch, kept out of git by .gitignore.
+  case "$name" in *-workspace) continue ;; esac
   case " $excluded " in *" $name "*) echo "skip $name"; continue ;; esac
   # package_skill.py imports scripts.quick_validate, so it runs as a module from skill-creator.
   (cd "$root/.agents/skills/skill-creator" && python3 -m scripts.package_skill "$dir" "$out") >/dev/null \
