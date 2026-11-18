@@ -49,11 +49,12 @@
 - Record anything costly to recreate: findings, decisions and their reasons, rejected options, blockers.
 
 ## Destructive Actions
-- Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, branches whose commits are not on the default branch, and remote commits a force-push would overwrite.
+- Ask before destroying state that exists nowhere else: databases, object storage, volumes, secrets, uncommitted work, branches whose work is not on the default branch, and remote commits a force-push would overwrite.
 
 ## Cleanup
 - A task is finished when its changes are on the default branch, merged or committed, or, for work outside a repo, when the user accepts the result. Then clean up without asking: remove its worktree and its local and remote branches, delete its temporary files, stop anything it left running, and close its issue with a final comment.
-- A branch whose commits are on the default branch is only a pointer; deleting it loses nothing.
+- A branch's work is on the default branch when its pull request is merged, by any merge style, or its commits are
+  reachable from the default branch. Deleting that branch loses nothing.
 
 # Documentation Style
 - Every line serves the reader's task: what the thing is, what it is for, how it behaves now. Something that surfaced during the work belongs in the doc only if the reader needs it to act.
